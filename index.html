@@ -6,519 +6,296 @@
   <title>MOPA Micro-Pattern Dial Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Curated horological font twins for in-browser simulation -->
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Besley:ital,wght@0,700;0,800;1,700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,700&family=Roboto+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Besley:ital,wght@0,700;1,700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Roboto+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #101114;
-      --panel: #181a1f;
-      --panel-border: #262932;
-      --accent: #00d084;
-      --accent-warm: #ffaa00;
-      --text: #e6e8ee;
-      --text-muted: #848a9c;
+      --bg: #101114; --panel: #181a1f; --border: #262932;
+      --accent: #00d084; --accent-warm: #ffaa00; --text: #e6e8ee; --text-muted: #848a9c; --danger: #ff4d4f;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-    #sidebar {
-      width: 470px;
-      background: var(--panel);
-      border-right: 1px solid var(--panel-border);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-    }
+    #sidebar { width: 470px; background: var(--panel); border-right: 1px solid var(--border); padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
     h1 { font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-transform: uppercase; }
-    .control-group {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--panel-border);
-      border-radius: 6px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
+    .control-group { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 6px; padding: 9px; display: flex; flex-direction: column; gap: 6px; }
     .group-title { font-size: 0.68rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
-    label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    label { font-size: 0.67rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     label span { color: var(--accent); font-family: monospace; font-size: 0.72rem; }
     input[type="range"] { width: 100%; accent-color: var(--accent); height: 4px; }
-    select, input[type="number"] {
-      background: #23262f;
-      border: 1px solid var(--panel-border);
-      color: #fff;
-      padding: 5px 8px;
-      border-radius: 4px;
-      font-size: 0.78rem;
-      outline: none;
-    }
-    select:focus, input[type="number"]:focus { border-color: var(--accent); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    
-    .preset-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
-    .btn-preset {
-      background: #23262f;
-      border: 1px solid var(--panel-border);
-      color: var(--text-muted);
-      padding: 4px 7px;
-      border-radius: 4px;
-      font-size: 0.66rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
+    select, input[type="number"], input[type="text"] { background: #23262f; border: 1px solid var(--border); color: #fff; padding: 4px 7px; border-radius: 4px; font-size: 0.77rem; outline: none; }
+    select:focus, input:focus { border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .preset-row { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+    .btn-preset { background: #23262f; border: 1px solid var(--border); color: var(--text-muted); padding: 3px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; cursor: pointer; }
     .btn-preset:hover { background: #2f3440; color: #fff; }
-    .chip-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 4px; }
-    .chip {
-      background: #1f2229;
-      border: 1px solid var(--panel-border);
-      color: var(--text-muted);
-      padding: 5px 0;
-      border-radius: 4px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s;
-    }
-    .chip:hover { border-color: #4a5061; color: #fff; }
+    .chip-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-top: 3px; }
+    .chip { background: #1f2229; border: 1px solid var(--border); color: var(--text-muted); padding: 4px 0; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; text-align: center; }
     .chip.active { background: var(--accent-warm); color: #101114; border-color: var(--accent-warm); }
-
-    button {
-      background: var(--accent);
-      color: #0b1a13;
-      border: none;
-      padding: 9px;
-      border-radius: 5px;
-      font-weight: 700;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    button:hover { opacity: 0.9; }
-    button.secondary { background: transparent; border: 1px solid var(--panel-border); color: var(--text); }
+    button { background: var(--accent); color: #0b1a13; border: none; padding: 8px; border-radius: 5px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
     button.secondary:hover { background: #23262f; }
+    button.danger:hover { border-color: var(--danger); color: var(--danger); }
     #workspace { flex: 1; display: flex; flex-direction: column; background: #0b0c0e; }
-    #toolbar {
-      padding: 8px 16px;
+    #toolbar { padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; background: var(--panel); border-bottom: 1px solid var(--border); font-size: 0.75rem; }
+    #viewport-container {
+      flex: 1;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: var(--panel);
-      border-bottom: 1px solid var(--panel-border);
-      font-size: 0.76rem;
+      justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
     }
-    #viewport-container { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: crosshair; }
-    canvas { max-width: 95%; max-height: 95%; box-shadow: 0 10px 35px rgba(0,0,0,0.85); border-radius: 4px; }
-    .pill { background: #23262f; padding: 3px 9px; border-radius: 10px; font-size: 0.72rem; color: var(--text-muted); font-family: monospace; }
+    #viewport-container:active { cursor: grabbing; }
+    canvas {
+      box-shadow: 0 10px 35px rgba(0,0,0,0.85);
+      border-radius: 4px;
+      transform-origin: center center;
+    }
+    .pill { background: #23262f; padding: 3px 8px; border-radius: 8px; font-size: 0.7rem; color: var(--text-muted); font-family: monospace; }
   </style>
 </head>
 <body>
+  <div style="position:absolute; left:-9999px; visibility:hidden;">
+    <span style="font-family:'Barlow Semi Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Roboto Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Bodoni Moda'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Besley'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Share Tech Mono'; font-weight:600;">1234567890</span>
+  </div>
+
   <div id="sidebar">
     <h1>Micro-Guilloché Studio</h1>
 
-    <!-- Blank Specs -->
+    <div class="control-group" style="border-color: rgba(0, 208, 132, 0.4);">
+      <div class="group-title">Preset Storage</div>
+      <div class="row"><select id="preset-dropdown" style="grid-column: 1 / -1;"><option value="">-- Select Saved Preset --</option></select></div>
+      <div class="row">
+        <input type="text" id="preset-name-input" placeholder="Preset name...">
+        <button id="btn-save-preset">Save Preset</button>
+      </div>
+      <div class="row">
+        <button class="secondary danger" id="btn-delete-preset">Delete</button>
+        <button class="secondary" id="btn-export-presets">Export JSON</button>
+      </div>
+      <button class="secondary" id="btn-import-presets">Import JSON File</button>
+      <input type="file" id="preset-file-input" accept=".json" style="display:none;">
+    </div>
+
     <div class="control-group">
       <div class="group-title">Blank Dimensions</div>
       <div class="row">
-        <div>
-          <label>Dial Outer (mm)</label>
-          <input type="number" id="dial-dia" value="34.0" step="0.5" min="10" max="60">
-        </div>
-        <div>
-          <label>Pinion Hole (mm)</label>
-          <input type="number" id="pinion-dia" value="2.0" step="0.1" min="0.5" max="10">
-        </div>
+        <div><label>Dial Outer (mm)</label><input type="number" id="dial-dia" value="34.0" step="0.5" min="10" max="60"></div>
+        <div><label>Pinion Hole (mm)</label><input type="number" id="pinion-dia" value="2.0" step="0.1" min="0.5" max="10"></div>
       </div>
-      <label style="margin-top:2px;">Pinion Hub Clearance <span id="val-hub">1.20 mm</span></label>
-      <input type="range" id="hub-clearance" min="0" max="6" step="0.1" value="1.2">
+      <label>Pinion Hub Clearance <span id="val-hub">0.30 mm</span></label>
+      <input type="range" id="hub-clearance" min="0" max="6" step="0.1" value="0.3">
     </div>
 
-    <!-- Time Elements & Typography -->
-    <div class="control-group" style="border-color: rgba(255, 170, 0, 0.45);">
-      <div class="group-title" style="color:var(--accent-warm);">Hour Markers & Typography</div>
-      
+    <div class="control-group" style="border-color: rgba(255, 170, 0, 0.4);">
+      <div class="group-title" style="color:var(--accent-warm);">Numerals & Typography</div>
       <div class="row">
-        <div>
-          <label>Display Format</label>
-          <select id="marker-format">
-            <option value="arabic" selected>Arabic Numerals</option>
-            <option value="roman">Roman Numerals</option>
-            <option value="baton">Faceted Swiss Batons</option>
-            <option value="dagger">Faceted Daggers</option>
-            <option value="dot">Circular Pearl Beads</option>
-          </select>
-        </div>
-        <div>
-          <label>Dial Font</label>
-          <select id="font-family">
-            <option value="Decimal" selected>Decimal (H&Co Watchmaker)</option>
-            <option value="DIN 1451">DIN 1451 (Mittelschrift)</option>
-            <option value="Filmotype Fashion">Filmotype Fashion (Luxury Serif)</option>
-            <option value="Clarendon Bold">Clarendon Bold (Heritage Slab)</option>
-            <option value="Isonorm">Isonorm (ISO 3098 Technical)</option>
-            <option value="Custom" id="opt-custom-font" style="display:none;">Custom Uploaded Font</option>
-          </select>
-        </div>
+        <div><label>Display Format</label><select id="marker-format"><option value="arabic" selected>Arabic Numerals</option><option value="roman">Roman Numerals</option><option value="baton">Faceted Swiss Batons</option><option value="dagger">Faceted Daggers</option><option value="dot">Circular Pearl Beads</option></select></div>
+        <div><label>Dial Font</label><select id="font-family"><option value="Decimal">Decimal (H&Co Watch)</option><option value="DIN 1451">DIN 1451 (Mittelschrift)</option><option value="Filmotype Fashion" selected>Filmotype Fashion (Serif)</option><option value="Clarendon Bold">Clarendon Bold (Slab)</option><option value="Isonorm">Isonorm (Technical)</option><option value="Custom" id="opt-custom-font" style="display:none;">Custom Uploaded Font</option></select></div>
       </div>
-
-      <!-- Custom Font File Loader -->
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px;">
-        <label style="font-size:0.64rem; color:var(--text-muted); margin:0;">Have the font file? (.ttf/.otf)</label>
-        <button class="secondary" id="btn-load-font" style="padding:4px 8px; font-size:0.68rem;">Load Font File</button>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label style="font-size:0.62rem; margin:0;">Load Local Font (.ttf/.otf)</label>
+        <button class="secondary" id="btn-load-font" style="padding:2px 7px; font-size:0.65rem;">Load File</button>
         <input type="file" id="font-file-input" accept=".ttf,.otf,.woff,.woff2" style="display:none;">
       </div>
-
       <div class="row">
+        <div><label>Font Scale <span id="val-font-scale">140%</span></label><input type="range" id="font-scale" min="40" max="220" step="5" value="140"></div>
+        <div><label>Orientation</label><select id="numeral-orientation"><option value="upright" selected>Upright</option><option value="radial">Radial Inward</option></select></div>
+      </div>
+      <label>Serif Hairline Boost <span id="val-hairline-boost">0.08 mm</span></label>
+      <input type="range" id="hairline-boost" min="0.00" max="0.25" step="0.01" value="0.08">
+
+      <div class="row" style="margin-top:2px;">
         <div>
-          <label>Font Scale <span id="val-font-scale">100%</span></label>
-          <input type="range" id="font-scale" min="40" max="220" step="5" value="100">
-        </div>
-        <div>
-          <label>Orientation</label>
-          <select id="numeral-orientation">
-            <option value="upright" selected>Upright (Standard Dial)</option>
-            <option value="radial">Radial Inward (Follow Spoke)</option>
+          <label>Target Number</label>
+          <select id="tune-hour-select">
+            <option value="all">All Numbers (Global)</option>
+            <option value="12">Hour 12</option><option value="1">Hour 1</option><option value="2">Hour 2</option><option value="3">Hour 3</option><option value="4" selected>Hour 4</option><option value="5">Hour 5</option><option value="6">Hour 6</option><option value="7">Hour 7</option><option value="8">Hour 8</option><option value="9">Hour 9</option><option value="10">Hour 10</option><option value="11">Hour 11</option>
           </select>
         </div>
+        <div style="display:flex; align-items:flex-end; gap:3px;">
+          <button class="secondary" id="btn-reset-hour" style="padding:4px; font-size:0.65rem; flex:1;">Reset</button>
+          <button class="secondary" id="btn-reset-all-hours" style="padding:4px; font-size:0.65rem; flex:1;">Reset All</button>
+        </div>
       </div>
-
-      <!-- In-Cartouche Fine Alignment Controls -->
       <div class="row">
         <div>
-          <label>Text X Shift (In-Cartouche) <span id="val-text-dx">0.00 mm</span></label>
-          <input type="range" id="text-dx" min="-1.50" max="1.50" step="0.01" value="0.00">
+          <label><span id="lbl-shift-x-title">Hour 4 Shift X</span> <span id="val-text-dx">-0.05 mm</span></label>
+          <input type="range" id="text-dx" min="-1.50" max="1.50" step="0.01" value="-0.05">
         </div>
         <div>
-          <label>Text Y Shift (In-Cartouche) <span id="val-text-dy">0.00 mm</span></label>
-          <input type="range" id="text-dy" min="-1.50" max="1.50" step="0.01" value="0.00">
+          <label><span id="lbl-shift-y-title">Hour 4 Shift Y</span> <span id="val-text-dy">+0.03 mm</span></label>
+          <input type="range" id="text-dy" min="-1.50" max="1.50" step="0.01" value="0.03">
         </div>
       </div>
-
       <div class="row">
-        <div>
-          <label>Numeral Radial Shift <span id="val-numeral-shift">0.00 mm</span></label>
-          <input type="range" id="numeral-radial-shift" min="-2.00" max="2.00" step="0.02" value="0.00">
-        </div>
-        <div>
-          <label>Marker Inset <span id="val-marker-r">77%</span></label>
-          <input type="range" id="marker-radius" min="50" max="92" step="1" value="77">
-        </div>
+        <div><label>Numeral Radial Shift <span id="val-numeral-shift">+0.12 mm</span></label><input type="range" id="numeral-radial-shift" min="-2.00" max="2.00" step="0.02" value="0.12"></div>
+        <div><label>Marker Ring Inset <span id="val-marker-r">75%</span></label><input type="range" id="marker-radius" min="50" max="92" step="1" value="75"></div>
       </div>
-
-      <div class="row">
-        <div>
-          <label>Unselected Hours</label>
-          <select id="secondary-marker">
-            <option value="none" selected>None (Pure Guilloché)</option>
-            <option value="baton">Faceted Mini-Baton</option>
-            <option value="dot">Pearl Bead Dot</option>
-          </select>
-        </div>
-        <div></div>
-      </div>
-
-      <!-- Interactive Position Selector -->
       <div>
-        <label>Displayed Hour Positions</label>
+        <label>Displayed Hours</label>
         <div class="preset-row">
           <button class="btn-preset" data-preset="all">All 12</button>
-          <button class="btn-preset" data-preset="12,3,6,9">12, 3, 6, 9</button>
-          <button class="btn-preset" data-preset="12,4,8">12, 4, 8</button>
-          <button class="btn-preset" data-preset="12,6">12, 6</button>
+          <button class="btn-preset" data-preset="12,3,6,9">12,3,6,9</button>
+          <button class="btn-preset" data-preset="12,4,8">12,4,8</button>
+          <button class="btn-preset" data-preset="12,6">12,6</button>
           <button class="btn-preset" data-preset="12">12 Only</button>
-          <button class="btn-preset" data-preset="clear">Clear All</button>
+          <button class="btn-preset" data-preset="clear">Clear</button>
         </div>
         <div class="chip-grid" id="hour-chips"></div>
       </div>
+    </div>
 
-      <!-- Uniform Cartouche Sizing & Geometry -->
-      <div class="row" style="margin-top:2px;">
-        <div>
-          <label>Cartouche Sizing</label>
-          <select id="cartouche-sizing">
-            <option value="uniform" selected>Uniform (Identical for All)</option>
-            <option value="adaptive">Adaptive (Fit to Numeral)</option>
-          </select>
-        </div>
-        <div>
-          <label>Cartouche Geometry</label>
-          <select id="cartouche-shape">
-            <option value="pill" selected>Smooth Capsule (Pill)</option>
-            <option value="circle">Circular Medallion (Round)</option>
-            <option value="rect">Crisp Block (Rectangle)</option>
-          </select>
-        </div>
-      </div>
-
+    <div class="control-group" style="border-color: rgba(255, 170, 0, 0.4);">
+      <div class="group-title" style="color:var(--accent-warm);">Indices & Secondary Markers</div>
       <div class="row">
-        <div>
-          <label>Uniform Width (Tangential) <span id="val-cart-w">3.40 mm</span></label>
-          <input type="range" id="cart-width" min="1.5" max="7.0" step="0.05" value="3.40">
-        </div>
-        <div>
-          <label>Uniform Height (Radial) <span id="val-cart-h">2.60 mm</span></label>
-          <input type="range" id="cart-height" min="1.0" max="6.0" step="0.05" value="2.60">
-        </div>
+        <div><label>Unselected Hours</label><select id="secondary-marker"><option value="none">None</option><option value="baton">Mini-Baton</option><option value="dot" selected>Pearl Bead Dot</option></select></div>
+        <div><label>Index Dot/Baton Size <span id="val-index-size">0.65 mm</span></label><input type="range" id="index-size" min="0.2" max="2.0" step="0.05" value="0.65"></div>
       </div>
-
       <div class="row">
-        <div>
-          <label>Cartouche Orientation</label>
-          <select id="cartouche-orientation">
-            <option value="auto" selected>Auto (Match Numeral)</option>
-            <option value="tangential">Tangential (Follow Ring)</option>
-            <option value="upright">Upright (Horizontal Everywhere)</option>
-            <option value="radial">Radial (Point to Center)</option>
-          </select>
-        </div>
-        <div>
-          <label>Adaptive Pad Margin <span id="val-cart-pad">0.35 mm</span></label>
-          <input type="range" id="cartouche-pad" min="0.10" max="1.50" step="0.05" value="0.35">
-        </div>
+        <div><label>Index Radial Shift <span id="val-index-radial">0.00 mm</span></label><input type="range" id="index-radial-shift" min="-2.00" max="2.00" step="0.02" value="0.00"></div>
+        <div><label>Index Tangent Shift <span id="val-index-tangent">0.00 mm</span></label><input type="range" id="index-tangent-shift" min="-2.00" max="2.00" step="0.02" value="0.00"></div>
       </div>
+    </div>
 
+    <div class="control-group">
+      <div class="group-title">Cartouche Islands & Track</div>
       <div class="row">
-        <div>
-          <label>Minutes Track</label>
-          <select id="track-style">
-            <option value="railroad" selected>Double Railroad Track</option>
-            <option value="perimeter_ticks">60 Perimeter Hashes</option>
-            <option value="none">No Track</option>
-          </select>
-        </div>
+        <div><label>Cartouche Sizing</label><select id="cartouche-sizing"><option value="uniform">Uniform</option><option value="adaptive" selected>Adaptive</option></select></div>
+        <div><label>Geometry</label><select id="cartouche-shape"><option value="pill">Capsule (Pill)</option><option value="circle" selected>Circular Round</option><option value="rect">Rectangle</option></select></div>
+      </div>
+      <div class="row">
+        <div><label>Width (Tangential) <span id="val-cart-w">3.90 mm</span></label><input type="range" id="cart-width" min="1.5" max="7.0" step="0.05" value="3.90"></div>
+        <div><label>Height (Radial) <span id="val-cart-h">3.15 mm</span></label><input type="range" id="cart-height" min="1.0" max="6.0" step="0.05" value="3.15"></div>
+      </div>
+      <div class="row">
+        <div><label>Cartouche Orientation</label><select id="cartouche-orientation"><option value="auto">Auto</option><option value="tangential" selected>Tangential</option><option value="upright">Upright</option><option value="radial">Radial</option></select></div>
+        <div><label>Pad Margin <span id="val-cart-pad">0.10 mm</span></label><input type="range" id="cartouche-pad" min="0.05" max="1.50" step="0.01" value="0.10"></div>
+      </div>
+      <div class="row">
+        <div><label>Minutes Track</label><select id="track-style"><option value="railroad">Double Railroad</option><option value="perimeter_ticks" selected>60 Hashes</option><option value="none">No Track</option></select></div>
         <div style="display:flex; align-items:flex-end;">
-          <label style="cursor:pointer; display:flex; align-items:center; gap:6px; text-transform:none; color:#fff; height:28px;">
-            <input type="checkbox" id="cartouche-border" checked style="accent-color:var(--accent-warm);"> Draw Island Borders
+          <label style="cursor:pointer; display:flex; align-items:center; gap:5px; text-transform:none; color:#fff; height:24px;">
+            <input type="checkbox" id="cartouche-border" checked style="accent-color:var(--accent-warm);"> Island Borders
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Layout & Distribution Modes -->
     <div class="control-group" style="border-color: rgba(0, 208, 132, 0.35);">
       <div class="group-title">Array Distribution</div>
       <label>Layout System</label>
       <select id="micro-layout">
-        <option value="concentric_rings" selected>Concentric Rings (Direct Track Control)</option>
+        <option value="concentric_rings" selected>Concentric Rings (Direct Track)</option>
         <option value="concentric_proportional">Concentric Proportional Rosette</option>
-        <option value="radial_fans">Radial Curved Turbine (Fibonacci Spiral Fans)</option>
-        <option value="spiral_phyllotaxis">Fibonacci Sunflower Spirals (Phyllotaxis)</option>
+        <option value="radial_fans">Radial Curved Turbine (Fans)</option>
+        <option value="spiral_phyllotaxis">Fibonacci Sunflower (Phyllotaxis)</option>
         <option value="cartesian_grid">Cartesian Matrix Grid</option>
       </select>
-
+      <div id="wrap-symmetry-lock" style="margin-top:2px;">
+        <label>Symmetry Lock (Count Snapping) <span id="val-sym-lock">12-Hour</span></label>
+        <select id="symmetry-lock">
+          <option value="12" selected>12-Hour Symmetry (Multiples of 12)</option>
+          <option value="6">6-Hour Symmetry (Multiples of 6)</option>
+          <option value="4">4-Quadrant Symmetry (Multiples of 4)</option>
+          <option value="inner">Inner Count Multiple</option>
+          <option value="none">Unlocked (Raw Unquantized)</option>
+        </select>
+      </div>
       <div id="group-ring-counts">
         <div class="row">
-          <div>
-            <label id="lbl-ring-count">Number of Rings</label>
-            <input type="number" id="ring-count" value="16" min="1" max="100">
-          </div>
-          <div id="wrap-stagger" style="display:flex; flex-direction:column; justify-content:flex-end;">
-            <label style="cursor:pointer; display:flex; align-items:center; gap:6px; text-transform:none; color:#fff; height:28px;">
-              <input type="checkbox" id="radial-stagger" checked style="accent-color:var(--accent);"> Alternate Stagger
-            </label>
-          </div>
+          <div><label id="lbl-ring-count">Number of Rings</label><input type="number" id="ring-count" value="12" min="1" max="100"></div>
+          <div id="wrap-stagger" style="display:flex; align-items:flex-end;"><label style="cursor:pointer; display:flex; align-items:center; gap:5px; text-transform:none; color:#fff; height:24px;"><input type="checkbox" id="radial-stagger" checked style="accent-color:var(--accent);"> Alternate Stagger</label></div>
         </div>
-
         <div class="row" id="wrap-ring-row-counts">
-          <div>
-            <label>Inner Ring Count</label>
-            <input type="number" id="radial-inner-count" value="16" min="3" max="500">
-          </div>
-          <div>
-            <label>Outer Ring Count</label>
-            <input type="number" id="radial-outer-count" value="72" min="3" max="500">
-          </div>
+          <div><label>Inner Ring Count</label><input type="number" id="radial-inner-count" value="16" min="3" max="500"></div>
+          <div><label>Outer Ring Count</label><input type="number" id="radial-outer-count" value="72" min="3" max="500"></div>
         </div>
       </div>
-
       <div id="group-fibonacci-fan" style="display:none;">
-        <label>Spiral Curvature (Fibonacci Twist) <span id="val-fan-twist">45.0°</span></label>
+        <label>Spiral Curvature (Twist) <span id="val-fan-twist">45.0°</span></label>
         <input type="range" id="fan-twist" min="-180" max="180" step="1" value="45">
       </div>
-
       <div id="group-phyllotaxis" style="display:none;">
         <div class="row">
-          <div>
-            <label>Total Seed Count</label>
-            <input type="number" id="phy-seeds" value="650" min="50" max="3500" step="25">
-          </div>
-          <div>
-            <label>Divergence Angle <span id="val-phy-angle">137.51°</span></label>
-            <input type="range" id="phy-angle" min="137.0" max="138.0" step="0.005" value="137.508">
-          </div>
+          <div><label>Total Seeds</label><input type="number" id="phy-seeds" value="610" min="50" max="3500" step="25"></div>
+          <div><label>Divergence Angle <span id="val-phy-angle">137.51°</span></label><input type="range" id="phy-angle" min="137.0" max="138.0" step="0.005" value="137.508"></div>
         </div>
       </div>
-
       <div class="row">
-        <div>
-          <label style="font-size:0.62rem;">Radial Spacing Curve</label>
-          <select id="radius-easing-type">
-            <option value="linear">Linear Uniform</option>
-            <option value="power" selected>Power Easing</option>
-            <option value="exponential">Exponential</option>
-            <option value="equal_area">Equal Annular Area</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size:0.62rem;">Radial Curve Exponent <span id="val-rad-param">1.35</span></label>
-          <input type="range" id="radius-easing-param" min="0.2" max="3.5" step="0.05" value="1.35">
-        </div>
+        <div><label>Radial Spacing</label><select id="radius-easing-type"><option value="linear">Linear Uniform</option><option value="power" selected>Power Easing</option><option value="exponential">Exponential</option><option value="equal_area">Equal Annular</option></select></div>
+        <div><label>Radial Curve <span id="val-rad-param">0.85</span></label><input type="range" id="radius-easing-param" min="0.2" max="3.5" step="0.05" value="0.85"></div>
       </div>
-
       <div class="row" id="wrap-count-easing">
-        <div>
-          <label style="font-size:0.62rem;">Count Easing Curve</label>
-          <select id="count-easing-type">
-            <option value="linear" selected>Linear Gradient</option>
-            <option value="power">Power Curve</option>
-            <option value="exponential">Exponential</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size:0.62rem;">Count Curve Exponent <span id="val-cnt-param">1.00</span></label>
-          <input type="range" id="count-easing-param" min="0.2" max="3.0" step="0.05" value="1.00">
-        </div>
+        <div><label>Count Easing</label><select id="count-easing-type"><option value="linear" selected>Linear Gradient</option><option value="power">Power Curve</option><option value="exponential">Exponential</option></select></div>
+        <div><label>Count Curve <span id="val-cnt-param">1.00</span></label><input type="range" id="count-easing-param" min="0.2" max="3.0" step="0.05" value="1.00"></div>
       </div>
     </div>
 
-    <!-- Motif Sizing, Scaling, and Gaps -->
     <div class="control-group">
-      <div class="group-title">Motif Geometry & Sizing Controls</div>
-      <label>Micro-Pattern Motif</label>
+      <div class="group-title">Motif Geometry & Sizing</div>
+      <label>Pattern Motif</label>
       <select id="micro-motif">
-        <option value="grain_d_orge" selected>Grain d'Orge (Barleycorn Rhombus)</option>
-        <option value="clou_de_paris">Clou de Paris (Hobnail Pyramid)</option>
-        <option value="keystone">Keystone (Engine-Turned Annular Sector)</option>
-        <option value="damier">Damier (Checkerboard Square)</option>
-        <option value="hex_cell">Hexagonal Honeycomb Cell</option>
-        <option value="triangle">Delta Tri-Facet</option>
-        <option value="star4">4-Point Breguet Star</option>
-        <option value="chevron">Chevron Arrowhead</option>
-        <option value="circle_bead">Perlage Circular Bead</option>
+        <option value="grain_d_orge" selected>Grain d'Orge (Barleycorn)</option>
+        <option value="clou_de_paris">Clou de Paris (Hobnail)</option>
+        <option value="keystone">Keystone (Sector Tile)</option>
+        <option value="damier">Damier (Checkerboard)</option>
+        <option value="hex_cell">Hexagonal Cell</option>
+        <option value="triangle">Delta Triangle</option>
+        <option value="star4">4-Point Star</option>
+        <option value="chevron">Chevron Arrow</option>
+        <option value="circle_bead">Perlage Bead</option>
       </select>
-
       <div class="row">
-        <div>
-          <label>Inner Shape Scale <span id="val-inner-scale">100%</span></label>
-          <input type="range" id="inner-scale" min="10" max="250" step="5" value="100">
-        </div>
-        <div>
-          <label>Outer Shape Scale <span id="val-outer-scale">100%</span></label>
-          <input type="range" id="outer-scale" min="10" max="250" step="5" value="100">
-        </div>
+        <div><label>Inner Scale <span id="val-inner-scale">100%</span></label><input type="range" id="inner-scale" min="10" max="250" step="5" value="100"></div>
+        <div><label>Outer Scale <span id="val-outer-scale">100%</span></label><input type="range" id="outer-scale" min="10" max="250" step="5" value="100"></div>
       </div>
-
       <div class="row">
-        <div>
-          <label>Inner Ring Gap <span id="val-inner-gap">0.10 mm</span></label>
-          <input type="range" id="inner-gap" min="0.0" max="1.5" step="0.01" value="0.10">
-        </div>
-        <div>
-          <label>Outer Ring Gap <span id="val-outer-gap">0.05 mm</span></label>
-          <input type="range" id="outer-gap" min="0.0" max="1.5" step="0.01" value="0.05">
-        </div>
+        <div><label>Inner Ring Gap <span id="val-inner-gap">0.10 mm</span></label><input type="range" id="inner-gap" min="0.0" max="1.5" step="0.01" value="0.10"></div>
+        <div><label>Outer Ring Gap <span id="val-outer-gap">0.05 mm</span></label><input type="range" id="outer-gap" min="0.0" max="1.5" step="0.01" value="0.05"></div>
       </div>
-
       <div class="row">
-        <div>
-          <label>Motif Aspect Ratio</label>
-          <select id="motif-aspect">
-            <option value="fill" selected>Fit Cell (Fill Radial & Tangent)</option>
-            <option value="uniform">Square 1:1 (Equal Width & Height)</option>
-          </select>
-        </div>
-        <div>
-          <label>Shape Alignment</label>
-          <select id="shape-alignment">
-            <option value="radial" selected>Radial Follow</option>
-            <option value="tangent">Tangent Normal</option>
-            <option value="fixed">Fixed Angle</option>
-          </select>
-        </div>
+        <div><label>Motif Aspect</label><select id="motif-aspect"><option value="fill" selected>Fit Cell (Fill Both)</option><option value="uniform">Square 1:1</option></select></div>
+        <div><label>Alignment</label><select id="shape-alignment"><option value="radial" selected>Radial Follow</option><option value="tangent">Tangent Normal</option><option value="fixed">Fixed Angle</option></select></div>
       </div>
-
-      <label style="margin-top:2px;">Pattern Rotation <span id="val-rot">0°</span></label>
+      <label>Pattern Rotation <span id="val-rot">0°</span></label>
       <input type="range" id="pattern-rotation" min="0" max="360" step="1" value="0">
     </div>
 
-    <!-- Laser Infill & Hatching -->
     <div class="control-group">
       <div class="group-title">Toolpath Infill & Hatching</div>
       <label>Toolpath Output</label>
       <select id="hatch-output-mode">
         <option value="pre_hatched" selected>Procedural Line Infill (Laser Ready)</option>
-        <option value="closed_outline">Closed Outlines (LightBurn Fill Layer)</option>
+        <option value="closed_outline">Closed Outlines (LightBurn Fill)</option>
       </select>
-
       <div id="sub-hatch">
         <div class="row">
-          <div>
-            <label>Infill Pattern</label>
-            <select id="motif-hatch-style">
-              <option value="contour_inward" selected>Inward Contours (3D Facet)</option>
-              <option value="concentric_cd">CD Concentric Arcs (Lathe Flare)</option>
-              <option value="radial_spokes">Radial Rays (Halo Shimmer)</option>
-              <option value="linear_hatch">Directional Line Hatch</option>
-            </select>
-          </div>
-          <div>
-            <label>Hatch Pitch <span id="val-pitch">0.050 mm</span></label>
-            <input type="range" id="hatch-pitch" min="0.02" max="0.15" step="0.005" value="0.05">
-          </div>
+          <div><label>Infill Pattern</label><select id="motif-hatch-style"><option value="contour_inward" selected>Inward Contours (3D Facet)</option><option value="concentric_cd">CD Concentric Arcs</option><option value="radial_spokes">Radial Rays (Halo)</option><option value="linear_hatch">Directional Line Hatch</option></select></div>
+          <div><label>Pitch <span id="val-pitch">0.050 mm</span></label><input type="range" id="hatch-pitch" min="0.02" max="0.15" step="0.005" value="0.05"></div>
         </div>
-        <label style="margin-top:4px; cursor:pointer; color:#fff; display:flex; align-items:center; gap:6px; text-transform:none;">
-          <input type="checkbox" id="include-outlines" checked style="accent-color:var(--accent);"> Include Vector Outline Layer
+        <label style="cursor:pointer; display:flex; align-items:center; gap:5px; text-transform:none; color:#fff; margin-top:2px;">
+          <input type="checkbox" id="include-outlines" checked style="accent-color:var(--accent);"> Include Vector Outlines
         </label>
       </div>
     </div>
 
-    <!-- Multi-Layer & Simulation -->
     <div class="control-group">
-      <div class="group-title">MOPA Layer Assignment & Shimmer</div>
+      <div class="group-title">MOPA Layers & Shimmer</div>
       <div class="row">
-        <div>
-          <label>MOPA Layers <span id="val-layers">8</span></label>
-          <input type="range" id="num-layers" min="2" max="8" step="1" value="8">
-        </div>
-        <div>
-          <label>Layer Partition</label>
-          <select id="layer-distribution">
-            <option value="by_ring" selected>By Ring Track / Spiral</option>
-            <option value="by_spoke">Azimuthal Sector</option>
-            <option value="lattice">2D Alternating Lattice</option>
-          </select>
-        </div>
+        <div><label>Layers <span id="val-layers">8</span></label><input type="range" id="num-layers" min="2" max="8" step="1" value="8"></div>
+        <div><label>Partition</label><select id="layer-distribution"><option value="by_ring" selected>By Ring Track</option><option value="by_spoke">Azimuthal Sector</option><option value="lattice">2D Checkerboard</option></select></div>
       </div>
-
       <div class="row">
-        <div>
-          <label>Display Mode</label>
-          <select id="view-mode">
-            <option value="shimmer" selected>Optical Shimmer View</option>
-            <option value="layers">Laser Layer Color View</option>
-          </select>
-        </div>
-        <div>
-          <label>Shimmer Style</label>
-          <select id="shimmer-mode">
-            <option value="specular" selected>Specular Angle Reflection</option>
-            <option value="alternating_line">Alternating Line Phase Shift</option>
-            <option value="radial_shimmer">Radial Concentric Flare</option>
-          </select>
-        </div>
+        <div><label>Display Mode</label><select id="view-mode"><option value="shimmer" selected>Optical Shimmer</option><option value="layers">Laser Layer Colors</option></select></div>
+        <div><label>Shimmer Style</label><select id="shimmer-mode"><option value="specular" selected>Specular Angle</option><option value="alternating_line">Alternating Line</option><option value="radial_shimmer">Radial Flare</option></select></div>
       </div>
-
-      <label style="margin-top:2px;">Light Angle / Phase <span id="val-light">25°</span></label>
+      <label>Light Angle / Phase <span id="val-light">25°</span></label>
       <input type="range" id="light-angle" min="0" max="180" step="1" value="25">
     </div>
 
@@ -531,1151 +308,744 @@
 
   <div id="workspace">
     <div id="toolbar">
-      <span class="pill" id="stat-elements">Shapes: 0</span>
-      <span class="pill" id="stat-paths">Toolpaths: 0</span>
-      <span class="pill" id="stat-cartouches">Cartouches: 12</span>
-      <span class="pill" id="stat-bounds" style="color:var(--accent);">Clean Exterior Clipping</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="pill" id="stat-elements">Shapes: 0</span>
+        <span class="pill" id="stat-paths">Toolpaths: 0</span>
+        <span class="pill" id="stat-cartouches">Cartouches: 12</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="secondary" id="btn-zoom-out" style="padding:2px 8px; font-size:0.85rem;">−</button>
+        <input type="range" id="zoom-slider" min="0.4" max="4.0" step="0.05" value="1.0" style="width:85px;">
+        <button class="secondary" id="btn-zoom-in" style="padding:2px 8px; font-size:0.85rem;">+</button>
+        <button class="secondary" id="btn-zoom-reset" style="padding:3px 8px; font-size:0.72rem;">Fit (100%)</button>
+        <span class="pill" id="val-zoom">100%</span>
+      </div>
     </div>
     <div id="viewport-container"><canvas id="canvas"></canvas></div>
   </div>
 
   <script>
-    const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
-    
+  const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
     const FONT_MAP = {
       'Decimal': {
-        fontStack: "'Decimal', 'Barlow Semi Condensed', 'Barlow', 'Montserrat', sans-serif",
-        exportName: "Decimal",
-        weight: '600'
+        css: "'Decimal', 'Avenir Next', 'Futura', 'Barlow Semi Condensed', sans-serif",
+        exportName: "Decimal, 'Avenir Next', Futura, 'Barlow Semi Condensed', sans-serif",
+        weight: '700'
       },
       'DIN 1451': {
-        fontStack: "'DIN 1451', 'DIN 1451 Mittelschrift', 'D-DIN', 'Roboto Condensed', sans-serif",
-        exportName: "DIN 1451 Mittelschrift",
+        css: "'DIN 1451', 'DIN Alternate', 'DIN Condensed', 'Roboto Condensed', sans-serif",
+        exportName: "'DIN 1451 Mittelschrift', 'DIN Alternate', 'DIN Condensed', 'Roboto Condensed', sans-serif",
         weight: '700'
       },
       'Filmotype Fashion': {
-        fontStack: "'Filmotype Fashion', 'FilmotypeFashion', 'Bodoni Moda', 'Playfair Display', serif",
-        exportName: "Filmotype Fashion",
+        css: "'Filmotype Fashion', 'Didot', 'Bodoni 72', 'Bodoni Moda', serif",
+        exportName: "'Filmotype Fashion', Didot, 'Bodoni 72', 'Bodoni Moda', serif",
         weight: '700'
       },
       'Clarendon Bold': {
-        fontStack: "'Clarendon Bold', 'Clarendon', 'Besley', serif",
-        exportName: "Clarendon Bold",
+        css: "'Clarendon Bold', 'Rockwell', 'Besley', serif",
+        exportName: "'Clarendon Bold', Rockwell, Besley, serif",
         weight: '700'
       },
       'Isonorm': {
-        fontStack: "'Isonorm', 'Isonorm 3098', 'ISOCPEUR', 'Share Tech Mono', monospace",
-        exportName: "Isonorm",
+        css: "'Isonorm', 'Share Tech Mono', 'Courier New', Courier, monospace",
+        exportName: "Isonorm, 'Share Tech Mono', 'Courier New', monospace",
         weight: '600'
       },
       'Custom': {
-        fontStack: "'CustomUserFont', sans-serif",
-        exportName: "CustomUserFont",
-        weight: '600'
+        css: "'CustomUserFont', sans-serif",
+        exportName: "CustomUserFont, sans-serif",
+        weight: '700'
       }
     };
 
     const state = {
-      dia: 34.0,
-      pinion: 2.0,
-      hub: 1.2,
-
-      markerFormat: 'arabic',
-      fontFamily: 'Decimal',
-      fontScale: 100,
-      numeralOrientation: 'upright',
-      textDx: 0.00,
-      textDy: 0.00,
-      numeralRadialShift: 0.00,
-      markerRadiusPct: 77,
-      secondaryMarker: 'none',
-      activeHours: new Set([12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-
-      cartSizing: 'uniform',
-      cartWidth: 3.40,
-      cartHeight: 2.60,
-      cartOrientation: 'auto',
-      cartPad: 0.35,
-      cartShape: 'pill',
-      cartBorder: true,
-      trackStyle: 'railroad',
-
-      layout: 'concentric_rings',
-      rings: 16,
-      stagger: true,
-      innerCount: 16,
-      outerCount: 72,
-      fanTwist: 45.0,
-      phySeeds: 650,
-      phyAngle: 137.508,
-      radiusEasingType: 'power',
-      radiusEasingParam: 1.35,
-      countEasingType: 'linear',
-      countEasingParam: 1.0,
-      motif: 'grain_d_orge',
-      innerScale: 100,
-      outerScale: 100,
-      innerGap: 0.10,
-      outerGap: 0.05,
-      aspectRatio: 'fill',
-      alignment: 'radial',
-      rot: 0,
-      hatchMode: 'pre_hatched',
-      motifHatch: 'contour_inward',
-      pitch: 0.05,
-      includeOutlines: true,
-      layers: 8,
-      layerDist: 'by_ring',
-      view: 'shimmer',
-      shimmerMode: 'specular',
-      light: 25,
-      playing: false
+      dia: 34.0, pinion: 2.0, hub: 0.3,
+      markerFormat: 'arabic', fontFamily: 'Filmotype Fashion', fontScale: 140, numeralOrientation: 'upright', hairlineBoost: 0.08,
+      globalDx: 0.00, globalDy: 0.00, targetHour: '4',
+      hourAdjust: { 1:{x:0,y:0}, 2:{x:0,y:0}, 3:{x:0,y:0}, 4:{x:-0.05,y:0.03}, 5:{x:0,y:0}, 6:{x:0,y:0}, 7:{x:0,y:0}, 8:{x:0,y:0}, 9:{x:0,y:0}, 10:{x:0,y:0}, 11:{x:0,y:0}, 12:{x:0,y:0} },
+      numeralRadialShift: 0.12, markerRadiusPct: 75, activeHours: new Set([12, 4, 8]),
+      secondaryMarker: 'dot', indexSize: 0.65, indexRadialShift: 0.00, indexTangentShift: 0.00,
+      cartSizing: 'adaptive', cartWidth: 3.90, cartHeight: 3.15, cartOrientation: 'tangential', cartPad: 0.10, cartShape: 'circle', cartBorder: true, trackStyle: 'perimeter_ticks',
+      layout: 'concentric_rings', symmetryLock: '12', rings: 12, stagger: true, innerCount: 16, outerCount: 72,
+      fanTwist: 45.0, phySeeds: 610, phyAngle: 137.508, radiusEasingType: 'power', radiusEasingParam: 0.85, countEasingType: 'linear', countEasingParam: 1.0,
+      motif: 'grain_d_orge', innerScale: 100, outerScale: 100, innerGap: 0.10, outerGap: 0.05, aspectRatio: 'fill', alignment: 'radial', rot: 0,
+      hatchMode: 'pre_hatched', motifHatch: 'contour_inward', pitch: 0.05, includeOutlines: true,
+      layers: 8, layerDist: 'by_ring', view: 'shimmer', shimmerMode: 'specular', light: 25, playing: false
     };
 
     const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-    let elements = [];
-    let cartouches = [];
-    let timeMarkers = [];
-    let trackElements = [];
-    let shapeCount = 0;
+    let elements = [], cartouches = [], timeMarkers = [], trackElements = [], shapeCount = 0;
 
-    function applyEasing(t, type, param) {
+    function applyEasing(t, type, p) {
       t = Math.max(0, Math.min(1, t));
-      switch (type) {
-        case 'power':
-          return Math.pow(t, Math.max(0.01, param));
-        case 'exponential':
-          if (Math.abs(param) < 0.001) return t;
-          return (Math.exp(param * t) - 1) / (Math.exp(param) - 1);
-        case 'equal_area':
-          return Math.sqrt(t);
-        case 'linear':
-        default:
-          return t;
-      }
+      if (type === 'power') return Math.pow(t, Math.max(0.01, p));
+      if (type === 'exponential') return Math.abs(p) < 0.001 ? t : (Math.exp(p * t) - 1) / (Math.exp(p) - 1);
+      if (type === 'equal_area') return Math.sqrt(t);
+      return t;
     }
 
     function clipLine(x1, y1, x2, y2, poly) {
       let t0 = 0, t1 = 1;
       const dx = x2 - x1, dy = y2 - y1;
+      if (dx * dx + dy * dy < 1e-12) return null;
+
+      let pcx = 0, pcy = 0;
+      for (let i = 0; i < poly.length; i++) {
+        pcx += poly[i].x; pcy += poly[i].y;
+      }
+      pcx /= poly.length; pcy /= poly.length;
+
       for (let i = 0; i < poly.length; i++) {
         const pA = poly[i], pB = poly[(i + 1) % poly.length];
-        const nx = -(pB.y - pA.y), ny = pB.x - pA.x;
-        const denom = dx * nx + dy * ny, num = -((x1 - pA.x) * nx + (y1 - pA.y) * ny);
-        if (Math.abs(denom) < 1e-9) {
-          if (num < 0) return null;
-        } else {
-          const t = num / denom;
-          if (denom < 0) { if (t < t0) return null; if (t < t1) t1 = t; }
-          else { if (t > t1) return null; if (t > t0) t0 = t; }
+        let nx = -(pB.y - pA.y), ny = pB.x - pA.x;
+
+        const midX = (pA.x + pB.x) * 0.5, midY = (pA.y + pB.y) * 0.5;
+        if (nx * (pcx - midX) + ny * (pcy - midY) < 0) {
+          nx = -nx; ny = -ny;
         }
+
+        const denom = dx * nx + dy * ny;
+        const num = -((x1 - pA.x) * nx + (y1 - pA.y) * ny);
+
+        if (Math.abs(denom) < 1e-9) {
+          if (num > 1e-7) return null;
+          continue;
+        }
+
+        const t = num / denom;
+        if (denom > 0) {
+          if (t > t0) t0 = t;
+        } else {
+          if (t < t1) t1 = t;
+        }
+
+        if (t0 > t1 + 1e-9) return null;
       }
-      return t0 <= t1 ? [{ x: x1 + t0 * dx, y: y1 + t0 * dy }, { x: x1 + t1 * dx, y: y1 + t1 * dy }] : null;
+
+      if (t0 > t1) return null;
+      return [
+        { x: x1 + t0 * dx, y: y1 + t0 * dy },
+        { x: x1 + t1 * dx, y: y1 + t1 * dy }
+      ];
     }
 
-    function generateCapsulePoly(cx, cy, halfL, halfW, angle) {
+    function generateCapsulePoly(cx, cy, hL, hW, angle) {
       const cosA = Math.cos(angle), sinA = Math.sin(angle);
-      const toDial = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
-
+      const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
       if (state.cartShape === 'circle') {
-        const rCirc = Math.max(halfL, halfW);
-        const pts = [];
-        const steps = 24;
-        for (let i = 0; i < steps; i++) {
-          const a = (i / steps) * Math.PI * 2;
-          pts.push({ x: cx + rCirc * Math.cos(a), y: cy + rCirc * Math.sin(a) });
-        }
+        const r = Math.max(hL, hW), pts = [];
+        for (let i = 0; i < 24; i++) pts.push({ x: cx + r * Math.cos(i * Math.PI / 12), y: cy + r * Math.sin(i * Math.PI / 12) });
         return pts;
       }
-
-      if (state.cartShape === 'rect') {
-        return [
-          toDial(halfL, halfW),
-          toDial(-halfL, halfW),
-          toDial(-halfL, -halfW),
-          toDial(halfL, -halfW)
-        ];
-      }
-
-      const pts = [];
-      const cL = Math.max(0, halfL - halfW);
-      const steps = 8;
-
-      for (let i = 0; i <= steps; i++) {
-        const a = -Math.PI / 2 + (i / steps) * Math.PI;
-        pts.push(toDial(cL + halfW * Math.cos(a), halfW * Math.sin(a)));
-      }
-      for (let i = 0; i <= steps; i++) {
-        const a = Math.PI / 2 + (i / steps) * Math.PI;
-        pts.push(toDial(-cL + halfW * Math.cos(a), halfW * Math.sin(a)));
-      }
+      if (state.cartShape === 'rect') return [toD(hL, hW), toD(-hL, hW), toD(-hL, -hW), toD(hL, -hW)];
+      const pts = [], cL = Math.max(0, hL - hW);
+      for (let i = 0; i <= 8; i++) pts.push(toD(cL + hW * Math.cos(-Math.PI/2 + i * Math.PI/8), hW * Math.sin(-Math.PI/2 + i * Math.PI/8)));
+      for (let i = 0; i <= 8; i++) pts.push(toD(-cL + hW * Math.cos(Math.PI/2 + i * Math.PI/8), hW * Math.sin(Math.PI/2 + i * Math.PI/8)));
       return pts;
     }
 
     function buildTimeElements() {
-      cartouches = [];
-      timeMarkers = [];
-      trackElements = [];
-
-      const cx0 = state.dia / 2, cy0 = state.dia / 2;
-      const R_dial = state.dia / 2;
-      const baseMarkerR = (R_dial * (state.markerRadiusPct / 100));
-      const pad = state.cartPad;
-      const scaleF = state.fontScale / 100.0;
-      const baseFontSize = 2.1 * scaleF;
-
-      const romanMap = {
-        12: 'XII', 1: 'I', 2: 'II', 3: 'III', 4: 'IV',
-        5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX',
-        10: 'X', 11: 'XI'
-      };
-
-      const uniformHalfL = state.cartWidth / 2;
-      const uniformHalfW = state.cartHeight / 2;
+      cartouches = []; timeMarkers = []; trackElements = [];
+      const cx0 = state.dia / 2, cy0 = state.dia / 2, R_dial = state.dia / 2;
+      const baseMarkerR = R_dial * (state.markerRadiusPct / 100), pad = state.cartPad;
+      const scaleF = state.fontScale / 100, baseFontSize = 2.1 * scaleF;
+      const romanMap = { 12:'XII', 1:'I', 2:'II', 3:'III', 4:'IV', 5:'V', 6:'VI', 7:'VII', 8:'VIII', 9:'IX', 10:'X', 11:'XI' };
 
       for (let h = 1; h <= 12; h++) {
-        const isSelected = state.activeHours.has(h);
+        const isSel = state.activeHours.has(h);
         const spokeAngle = (h * 30 - 90) * (Math.PI / 180);
 
-        const cartCx = cx0 + baseMarkerR * Math.cos(spokeAngle);
-        const cartCy = cy0 + baseMarkerR * Math.sin(spokeAngle);
+        if (isSel) {
+          const numR = baseMarkerR + state.numeralRadialShift;
+          const numCx = cx0 + numR * Math.cos(spokeAngle), numCy = cy0 + numR * Math.sin(spokeAngle);
+          const hAdj = state.hourAdjust[h] || { x: 0, y: 0 };
+          const totalDx = state.globalDx + hAdj.x, totalDy = state.globalDy + hAdj.y;
 
-        const numR = baseMarkerR + state.numeralRadialShift;
-        const numCx = cx0 + numR * Math.cos(spokeAngle);
-        const numCy = cy0 + numR * Math.sin(spokeAngle);
-
-        if (isSelected) {
           if (state.markerFormat === 'arabic' || state.markerFormat === 'roman') {
             const text = (state.markerFormat === 'roman') ? (romanMap[h] || `${h}`) : `${h}`;
-            const isUpright = (state.numeralOrientation === 'upright');
-
-            let cartAngle = 0;
-            if (state.cartOrientation === 'tangential') {
-              cartAngle = spokeAngle + Math.PI / 2;
-            } else if (state.cartOrientation === 'radial') {
-              cartAngle = spokeAngle;
-            } else if (state.cartOrientation === 'upright') {
-              cartAngle = 0;
-            } else {
-              cartAngle = isUpright ? 0 : spokeAngle + Math.PI / 2;
-            }
-
-            let halfL = uniformHalfL;
-            let halfW = uniformHalfW;
-
+            const isUp = (state.numeralOrientation === 'upright');
+            let cartAngle = state.cartOrientation === 'tangential' ? spokeAngle + Math.PI/2 : (state.cartOrientation === 'radial' ? spokeAngle : (state.cartOrientation === 'upright' ? 0 : (isUp ? 0 : spokeAngle + Math.PI/2)));
+            let hL = state.cartWidth / 2, hW = state.cartHeight / 2;
             if (state.cartSizing === 'adaptive') {
-              const charCount = text.length;
-              const textW = (charCount > 1) ? (baseFontSize * (0.68 * charCount)) : (baseFontSize * 0.72);
-              const textH = baseFontSize * 0.95;
-              halfL = (textW / 2) + pad;
-              halfW = (textH / 2) + pad;
+              hL = ((text.length > 1 ? baseFontSize * 0.68 * text.length : baseFontSize * 0.72) / 2) + pad;
+              hW = (baseFontSize * 0.95 / 2) + pad;
             }
-
-            const poly = generateCapsulePoly(cartCx, cartCy, halfL, halfW, cartAngle);
-            cartouches.push({
-              cx: cartCx, cy: cartCy, poly,
-              radiusCheck: Math.hypot(halfL, halfW) + 0.05
-            });
-
-            timeMarkers.push({
-              type: 'text', text,
-              cx: numCx, cy: numCy,
-              fontSizeMM: baseFontSize,
-              isUpright,
-              angle: isUpright ? 0 : spokeAngle + Math.PI / 2
-            });
+            const poly = generateCapsulePoly(numCx, numCy, hL, hW, cartAngle);
+            cartouches.push({ cx: numCx, cy: numCy, poly, isCircle: state.cartShape === 'circle', radius: Math.max(hL, hW), radiusCheck: Math.hypot(hL, hW) + 0.05 });
+            timeMarkers.push({ type: 'text', text, hour: h, cx: numCx, cy: numCy, fontSizeMM: baseFontSize, isUpright: isUp, angle: isUp ? 0 : spokeAngle + Math.PI/2, shiftX: totalDx, shiftY: totalDy });
           } else {
-            const isDouble12 = (h === 12);
-            const batonLen = 2.2 * scaleF;
-            const batonW = (state.markerFormat === 'dot') ? (1.0 * scaleF) : (0.65 * scaleF);
-            const effectiveW = isDouble12 ? (batonW * 2.2) : batonW;
-
-            let halfL = uniformHalfL;
-            let halfW = uniformHalfW;
-
-            if (state.cartSizing === 'adaptive') {
-              halfL = (batonLen / 2) + pad;
-              halfW = (effectiveW / 2) + pad;
-            }
-
-            const poly = generateCapsulePoly(cartCx, cartCy, halfL, halfW, spokeAngle);
-            cartouches.push({
-              cx: cartCx, cy: cartCy, poly,
-              radiusCheck: Math.hypot(halfL, halfW) + 0.05
-            });
-
-            timeMarkers.push({
-              type: state.markerFormat, cx: numCx, cy: numCy, angle: spokeAngle,
-              len: batonLen, w: batonW, isDouble: isDouble12
-            });
+            const isDouble12 = (h === 12), batonLen = 2.2 * scaleF, batonW = (state.markerFormat === 'dot' ? 1.0 : 0.65) * scaleF;
+            let hL = state.cartWidth / 2, hW = state.cartHeight / 2;
+            if (state.cartSizing === 'adaptive') { hL = batonLen / 2 + pad; hW = (isDouble12 ? batonW * 2.2 : batonW) / 2 + pad; }
+            const poly = generateCapsulePoly(numCx, numCy, hL, hW, spokeAngle);
+            cartouches.push({ cx: numCx, cy: numCy, poly, isCircle: state.cartShape === 'circle', radius: Math.max(hL, hW), radiusCheck: Math.hypot(hL, hW) + 0.05 });
+            timeMarkers.push({ type: state.markerFormat, hour: h, cx: numCx, cy: numCy, angle: spokeAngle, len: batonLen, w: batonW, isDouble: isDouble12, shiftX: totalDx, shiftY: totalDy });
           }
         } else if (state.secondaryMarker !== 'none') {
-          const miniLen = 1.4 * scaleF;
-          const miniW = 0.45 * scaleF;
-          const halfL = (miniLen / 2) + (pad * 0.8);
-          const halfW = (miniW / 2) + (pad * 0.8);
-
-          const poly = generateCapsulePoly(cartCx, cartCy, halfL, halfW, spokeAngle);
-          cartouches.push({
-            cx: cartCx, cy: cartCy, poly,
-            radiusCheck: Math.hypot(halfL, halfW) + 0.05
-          });
-
-          timeMarkers.push({
-            type: state.secondaryMarker, cx: numCx, cy: numCy, angle: spokeAngle,
-            len: miniLen, w: miniW, isDouble: false
-          });
+          const idxR = baseMarkerR + state.indexRadialShift;
+          const idxAngle = spokeAngle + (state.indexTangentShift / Math.max(1, idxR));
+          const idxCx = cx0 + idxR * Math.cos(idxAngle), idxCy = cy0 + idxR * Math.sin(idxAngle);
+          const iSize = state.indexSize, hL = iSize / 2 + pad;
+          const poly = generateCapsulePoly(idxCx, idxCy, hL, hL, idxAngle);
+          cartouches.push({ cx: idxCx, cy: idxCy, poly, isCircle: state.cartShape === 'circle', radius: hL, radiusCheck: hL + 0.05 });
+          timeMarkers.push({ type: state.secondaryMarker, hour: h, cx: idxCx, cy: idxCy, angle: idxAngle, len: iSize * 1.5, w: iSize, isDouble: false, shiftX: 0, shiftY: 0 });
         }
       }
 
       if (state.trackStyle !== 'none') {
-        const rTrackOuter = R_dial - 0.45;
-        const rTrackInner = state.trackStyle === 'railroad' ? (rTrackOuter - 1.15) : (rTrackOuter - 0.70);
-
+        const rTrackOuter = R_dial - 0.45, rTrackInner = state.trackStyle === 'railroad' ? (rTrackOuter - 1.15) : (rTrackOuter - 0.70);
         trackElements.push({ type: 'circle', cx: cx0, cy: cy0, r: rTrackOuter, strokeW: 0.06 });
-        if (state.trackStyle === 'railroad') {
-          trackElements.push({ type: 'circle', cx: cx0, cy: cy0, r: rTrackInner, strokeW: 0.06 });
-        }
-
+        if (state.trackStyle === 'railroad') trackElements.push({ type: 'circle', cx: cx0, cy: cy0, r: rTrackInner, strokeW: 0.06 });
         for (let s = 0; s < 60; s++) {
-          const a = (s * 6 - 90) * (Math.PI / 180);
-          const isMajor = (s % 5 === 0);
+          const a = (s * 6 - 90) * (Math.PI / 180), isMajor = (s % 5 === 0);
           const r1 = isMajor ? rTrackInner : (rTrackInner + 0.32);
-          const r2 = rTrackOuter;
-
-          trackElements.push({
-            type: 'line',
-            pts: [
-              { x: cx0 + r1 * Math.cos(a), y: cy0 + r1 * Math.sin(a) },
-              { x: cx0 + r2 * Math.cos(a), y: cy0 + r2 * Math.sin(a) }
-            ],
-            strokeW: isMajor ? 0.08 : 0.04
-          });
+          trackElements.push({ type: 'line', pts: [{ x: cx0 + r1 * Math.cos(a), y: cy0 + r1 * Math.sin(a) }, { x: cx0 + rTrackOuter * Math.cos(a), y: cy0 + rTrackOuter * Math.sin(a) }], strokeW: isMajor ? 0.08 : 0.04 });
         }
       }
-
       document.getElementById('stat-cartouches').innerText = `Cartouches: ${cartouches.length}`;
     }
 
-    // Mathematical exterior line segment clipper against cartouches
-    function clipSegmentExteriorToCartouche(p1, p2, c) {
-      const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
-      const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      if (Math.hypot(midX - c.cx, midY - c.cy) > (segLen / 2) + c.radiusCheck) {
-        return [{ p1, p2 }];
+    function pointInPoly(pt, poly) {
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        if (((poly[i].y > pt.y) !== (poly[j].y > pt.y)) && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y + 1e-12) + poly[i].x)) inside = !inside;
       }
-
-      const insideSeg = clipLine(p1.x, p1.y, p2.x, p2.y, c.poly);
-      if (!insideSeg) {
-        return [{ p1, p2 }];
-      }
-
-      const in0 = insideSeg[0], in1 = insideSeg[1];
-      const result = [];
-
-      if (Math.hypot(p1.x - in0.x, p1.y - in0.y) > 0.015) {
-        result.push({ p1, p2: in0 });
-      }
-      if (Math.hypot(p2.x - in1.x, p2.y - in1.y) > 0.015) {
-        result.push({ p1: in1, p2 });
-      }
-
-      return result;
+      return inside;
     }
 
     function clipLineAgainstAllCartouches(p1, p2) {
       if (!cartouches.length) return [{ p1, p2 }];
       let currentSegs = [{ p1, p2 }];
-
       for (let k = 0; k < cartouches.length; k++) {
-        const c = cartouches[k];
-        const nextSegs = [];
+        const c = cartouches[k], nextSegs = [];
         for (let s = 0; s < currentSegs.length; s++) {
-          const clipped = clipSegmentExteriorToCartouche(currentSegs[s].p1, currentSegs[s].p2, c);
-          for (let q = 0; q < clipped.length; q++) nextSegs.push(clipped[q]);
+          const seg = currentSegs[s];
+          if (c.isCircle) {
+            const dx = seg.p2.x - seg.p1.x, dy = seg.p2.y - seg.p1.y, a = dx * dx + dy * dy;
+            if (a < 1e-10) continue;
+            const fx = seg.p1.x - c.cx, fy = seg.p1.y - c.cy, b = 2 * (fx * dx + fy * dy), disc = b * b - 4 * a * (fx * fx + fy * fy - c.radius * c.radius);
+            if (disc <= 0) { if (fx * fx + fy * fy >= c.radius * c.radius) nextSegs.push(seg); }
+            else {
+              const sq = Math.sqrt(disc), t1 = (-b - sq) / (2 * a), t2 = (-b + sq) / (2 * a);
+              if (t2 <= 0.001 || t1 >= 0.999) nextSegs.push(seg);
+              else {
+                if (t1 > 0.015) nextSegs.push({ p1: seg.p1, p2: { x: seg.p1.x + t1 * dx, y: seg.p1.y + t1 * dy } });
+                if (t2 < 0.985) nextSegs.push({ p1: { x: seg.p1.x + t2 * dx, y: seg.p1.y + t2 * dy }, p2: seg.p2 });
+              }
+            }
+          } else {
+            const midX = (seg.p1.x + seg.p2.x) * 0.5, midY = (seg.p1.y + seg.p2.y) * 0.5;
+            if (Math.hypot(midX - c.cx, midY - c.cy) > Math.hypot(seg.p2.x - seg.p1.x, seg.p2.y - seg.p1.y) * 0.5 + c.radiusCheck) { nextSegs.push(seg); continue; }
+            if (pointInPoly(seg.p1, c.poly) && pointInPoly(seg.p2, c.poly)) continue;
+            const inside = clipLine(seg.p1.x, seg.p1.y, seg.p2.x, seg.p2.y, c.poly);
+            if (!inside) nextSegs.push(seg);
+            else {
+              if (Math.hypot(seg.p1.x - inside[0].x, seg.p1.y - inside[0].y) > 0.02) nextSegs.push({ p1: seg.p1, p2: inside[0] });
+              if (Math.hypot(seg.p2.x - inside[1].x, seg.p2.y - inside[1].y) > 0.02) nextSegs.push({ p1: inside[1], p2: seg.p2 });
+            }
+          }
         }
         currentSegs = nextSegs;
-        if (currentSegs.length === 0) break;
+        if (!currentSegs.length) break;
       }
       return currentSegs;
     }
 
     function createMotifPolygon(type, cx, cy, curR, Sr, Sc, angle, chordWidth, dTheta) {
       const cosA = Math.cos(angle), sinA = Math.sin(angle);
-      const toDial = (ux, uy) => ({ x: cx + ux * cosA - uy * sinA, y: cy + ux * sinA + uy * cosA });
-
-      switch (type) {
-        case 'grain_d_orge': {
-          const eSr = Sr * 1.65;
-          return [toDial(eSr, 0), toDial(0, Sc), toDial(-eSr, 0), toDial(0, -Sc)];
-        }
-        case 'clou_de_paris':
-          return [toDial(Sr, 0), toDial(0, Sc), toDial(-Sr, 0), toDial(0, -Sc)];
-        case 'damier':
-          return [toDial(Sr, Sc), toDial(-Sr, Sc), toDial(-Sr, -Sc), toDial(Sr, -Sc)];
-        case 'hex_cell': {
-          const pts = [];
-          for (let i = 0; i < 6; i++) {
-            const a = (i * Math.PI) / 3;
-            pts.push(toDial(Sr * Math.cos(a), Sc * Math.sin(a)));
-          }
-          return pts;
-        }
-        case 'triangle':
-          return [toDial(Sr, 0), toDial(-Sr * 0.5, Sc), toDial(-Sr * 0.5, -Sc)];
-        case 'star4': {
-          const pts = [];
-          for (let i = 0; i < 8; i++) {
-            const a = (i * Math.PI) / 4;
-            const factor = (i % 2 === 0) ? 1.0 : 0.38;
-            pts.push(toDial(Sr * factor * Math.cos(a), Sc * factor * Math.sin(a)));
-          }
-          return pts;
-        }
-        case 'chevron':
-          return [toDial(Sr, 0), toDial(-Sr * 0.5, Sc), toDial(-Sr * 0.1, 0), toDial(-Sr * 0.5, -Sc)];
-        case 'keystone': {
-          const cx0 = state.dia / 2, cy0 = state.dia / 2;
-          const halfSpan = (dTheta / 2) * (Sc / Math.max(0.001, chordWidth / 2));
-          const baseTheta = Math.atan2(cy - cy0, cx - cx0);
-          const r1 = curR - Sr, r2 = curR + Sr;
-          const t1 = baseTheta - halfSpan, t2 = baseTheta + halfSpan;
-          return [
-            { x: cx0 + r1 * Math.cos(t1), y: cy0 + r1 * Math.sin(t1) },
-            { x: cx0 + r2 * Math.cos(t1), y: cy0 + r2 * Math.sin(t1) },
-            { x: cx0 + r2 * Math.cos(t2), y: cy0 + r2 * Math.sin(t2) },
-            { x: cx0 + r1 * Math.cos(t2), y: cy0 + r1 * Math.sin(t2) }
-          ];
-        }
-        default:
-          return null;
+      const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
+      if (type === 'grain_d_orge') return [toD(Sr * 1.65, 0), toD(0, Sc), toD(-Sr * 1.65, 0), toD(0, -Sc)];
+      if (type === 'clou_de_paris') return [toD(Sr, 0), toD(0, Sc), toD(-Sr, 0), toD(0, -Sc)];
+      if (type === 'damier') return [toD(Sr, Sc), toD(-Sr, Sc), toD(-Sr, -Sc), toD(Sr, -Sc)];
+      if (type === 'hex_cell') {
+        const pts = []; for (let i = 0; i < 6; i++) pts.push(toD(Sr * Math.cos(i * Math.PI / 3), Sc * Math.sin(i * Math.PI / 3))); return pts;
       }
+      if (type === 'triangle') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.5, -Sc)];
+      if (type === 'star4') {
+        const pts = []; for (let i = 0; i < 8; i++) { const f = (i % 2 === 0 ? 1.0 : 0.38); pts.push(toD(Sr * f * Math.cos(i * Math.PI / 4), Sc * f * Math.sin(i * Math.PI / 4))); } return pts;
+      }
+      if (type === 'chevron') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.1, 0), toD(-Sr * 0.5, -Sc)];
+      if (type === 'keystone') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2, halfSpan = (dTheta / 2) * (Sc / Math.max(0.001, chordWidth / 2)), bT = Math.atan2(cy - cy0, cx - cx0);
+        return [{ x: cx0 + (curR - Sr) * Math.cos(bT - halfSpan), y: cy0 + (curR - Sr) * Math.sin(bT - halfSpan) }, { x: cx0 + (curR + Sr) * Math.cos(bT - halfSpan), y: cy0 + (curR + Sr) * Math.sin(bT - halfSpan) }, { x: cx0 + (curR + Sr) * Math.cos(bT + halfSpan), y: cy0 + (curR + Sr) * Math.sin(bT + halfSpan) }, { x: cx0 + (curR - Sr) * Math.cos(bT + halfSpan), y: cy0 + (curR - Sr) * Math.sin(bT + halfSpan) }];
+      }
+      return null;
     }
 
-    function addMotifToolpaths(poly, circleData, layer, hatchAngle, shapeIndex) {
-      const cx0 = state.dia / 2, cy0 = state.dia / 2;
-      const pitch = state.pitch;
-
-      function emitLine(p1, p2, l, a) {
+    function addMotifToolpaths(poly, circleData, layer, hatchAngle, sIdx) {
+      const cx0 = state.dia / 2, cy0 = state.dia / 2, pitch = state.pitch;
+      function emitL(p1, p2, l, a) {
         const segs = clipLineAgainstAllCartouches(p1, p2);
-        for (let i = 0; i < segs.length; i++) {
-          elements.push({
-            type: 'line',
-            pts: [segs[i].p1, segs[i].p2],
-            l,
-            a,
-            idx: shapeIndex
-          });
+        for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l, a, idx: sIdx });
+      }
+      function emitP(pts, l, a) { for (let i = 0; i < pts.length; i++) emitL(pts[i], pts[(i + 1) % pts.length], l, a); }
+
+      if (circleData && !poly) {
+        const pts = [];
+        for (let i = 0; i < 24; i++) {
+          const a = (i / 24) * Math.PI * 2;
+          pts.push({ x: circleData.cx + circleData.r * Math.cos(a), y: circleData.cy + circleData.r * Math.sin(a) });
         }
+        poly = pts;
       }
+      if (!poly) return;
 
-      function emitClosedPoly(pts, l, a) {
-        for (let i = 0; i < pts.length; i++) {
-          emitLine(pts[i], pts[(i + 1) % pts.length], l, a);
-        }
+      if (state.hatchMode === 'closed_outline') { emitP(poly, layer, hatchAngle); return; }
+      if (state.includeOutlines) emitP(poly, 'outline', 0);
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, avgX = 0, avgY = 0;
+      for (let i = 0; i < poly.length; i++) {
+        minX = Math.min(minX, poly[i].x); maxX = Math.max(maxX, poly[i].x);
+        minY = Math.min(minY, poly[i].y); maxY = Math.max(maxY, poly[i].y);
+        avgX += poly[i].x; avgY += poly[i].y;
       }
+      const cx = avgX / poly.length, cy = avgY / poly.length, bR = Math.max(0.1, Math.hypot(maxX - minX, maxY - minY) / 2);
+      const D = Math.hypot(cx - cx0, cy - cy0);
 
-      if (state.hatchMode === 'closed_outline') {
-        if (poly) emitClosedPoly(poly, layer, hatchAngle);
-        return;
-      }
-
-      if (state.includeOutlines && poly) {
-        emitClosedPoly(poly, 'outline', 0);
-      }
-
-      if (poly) {
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        let avgX = 0, avgY = 0;
-        for (let i = 0; i < poly.length; i++) {
-          minX = Math.min(minX, poly[i].x); maxX = Math.max(maxX, poly[i].x);
-          minY = Math.min(minY, poly[i].y); maxY = Math.max(maxY, poly[i].y);
-          avgX += poly[i].x; avgY += poly[i].y;
-        }
-        const cx = avgX / poly.length, cy = avgY / poly.length;
-        const boundRadius = Math.max(0.1, Math.hypot(maxX - minX, maxY - minY) / 2);
-        const D = Math.hypot(cx - cx0, cy - cy0);
-
-        if (state.motifHatch === 'contour_inward') {
-          const rings = Math.max(1, Math.floor(boundRadius / pitch));
-          for (let m = 1; m <= rings; m++) {
-            const f = m / rings;
-            const cPts = poly.map(p => ({ x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f }));
-            emitClosedPoly(cPts, layer, hatchAngle);
-          }
-        } else if (state.motifHatch === 'concentric_cd') {
-          const k0 = Math.floor((D - boundRadius * 1.5) / pitch);
-          const k1 = Math.ceil((D + boundRadius * 1.5) / pitch);
-          for (let k = k0; k <= k1; k++) {
-            const r = k * pitch;
-            if (r <= 0) continue;
-            const hits = [];
-            for (let i = 0; i < poly.length; i++) {
-              const P1 = poly[i], P2 = poly[(i + 1) % poly.length];
-              const Vx = P2.x - P1.x, Vy = P2.y - P1.y, Wx = P1.x - cx0, Wy = P1.y - cy0;
-              const A = Vx * Vx + Vy * Vy, B = 2 * (Wx * Vx + Wy * Vy), C = Wx * Wx + Wy * Wy - r * r;
-              const disc = B * B - 4 * A * C;
-              if (disc >= 0 && A > 1e-9) {
-                const sq = Math.sqrt(disc);
-                const t1 = (-B - sq) / (2 * A), t2 = (-B + sq) / (2 * A);
-                if (t1 >= -1e-4 && t1 <= 1.0001) hits.push(Math.atan2(P1.y + t1 * Vy - cy0, P1.x + t1 * Vx - cx0));
-                if (t2 >= -1e-4 && t2 <= 1.0001 && Math.abs(t2 - t1) > 1e-4) hits.push(Math.atan2(P1.y + t2 * Vy - cy0, P1.x + t2 * Vx - cx0));
-              }
-            }
-            if (hits.length >= 2) {
-              let dTheta = hits[1] - hits[0];
-              while (dTheta > Math.PI) dTheta -= 2 * Math.PI;
-              while (dTheta < -Math.PI) dTheta -= 2 * Math.PI;
-              const pA = { x: cx0 + r * Math.cos(hits[0]), y: cy0 + r * Math.sin(hits[0]) };
-              const pB = { x: cx0 + r * Math.cos(hits[0] + dTheta), y: cy0 + r * Math.sin(hits[0] + dTheta) };
-              emitLine(pA, pB, layer, hatchAngle);
+      if (state.motifHatch === 'contour_inward') {
+        const rings = Math.max(1, Math.floor(bR / pitch));
+        for (let m = 1; m <= rings; m++) emitP(poly.map(p => ({ x: cx + (p.x - cx) * (m / rings), y: cy + (p.y - cy) * (m / rings) })), layer, hatchAngle);
+      } else if (state.motifHatch === 'concentric_cd') {
+        const k0 = Math.floor((D - bR * 1.5) / pitch), k1 = Math.ceil((D + bR * 1.5) / pitch);
+        for (let k = k0; k <= k1; k++) {
+          const r = k * pitch; if (r <= 0) continue;
+          const hits = [];
+          for (let i = 0; i < poly.length; i++) {
+            const P1 = poly[i], P2 = poly[(i + 1) % poly.length], Vx = P2.x - P1.x, Vy = P2.y - P1.y, Wx = P1.x - cx0, Wy = P1.y - cy0;
+            const A = Vx * Vx + Vy * Vy, B = 2 * (Wx * Vx + Wy * Vy), C = Wx * Wx + Wy * Wy - r * r, disc = B * B - 4 * A * C;
+            if (disc >= 0 && A > 1e-9) {
+              const sq = Math.sqrt(disc), t1 = (-B - sq) / (2 * A), t2 = (-B + sq) / (2 * A);
+              if (t1 >= -1e-4 && t1 <= 1.0001) hits.push(Math.atan2(P1.y + t1 * Vy - cy0, P1.x + t1 * Vx - cx0));
+              if (t2 >= -1e-4 && t2 <= 1.0001 && Math.abs(t2 - t1) > 1e-4) hits.push(Math.atan2(P1.y + t2 * Vy - cy0, P1.x + t2 * Vx - cx0));
             }
           }
-        } else if (state.motifHatch === 'radial_spokes') {
-          const dtMax = Math.asin(Math.min(0.999, (boundRadius * 1.5) / Math.max(D, boundRadius + 0.1)));
-          const rays = Math.max(2, Math.round((D * dtMax * 2) / pitch));
-          for (let m = 0; m <= rays; m++) {
-            const a = Math.atan2(cy - cy0, cx - cx0) - dtMax + (m / rays) * 2 * dtMax;
-            const ux = Math.cos(a), uy = Math.sin(a);
-            const x2 = cx0 + (D + boundRadius * 2) * ux, y2 = cy0 + (D + boundRadius * 2) * uy;
-            const seg = clipLine(cx0, cy0, x2, y2, poly);
-            if (seg) emitLine(seg[0], seg[1], layer, hatchAngle);
+          if (hits.length >= 2) {
+            let dT = hits[1] - hits[0]; while (dT > Math.PI) dT -= 2 * Math.PI; while (dT < -Math.PI) dT += 2 * Math.PI;
+            emitL({ x: cx0 + r * Math.cos(hits[0]), y: cy0 + r * Math.sin(hits[0]) }, { x: cx0 + r * Math.cos(hits[0] + dT), y: cy0 + r * Math.sin(hits[0] + dT) }, layer, hatchAngle);
           }
-        } else {
-          const rad = hatchAngle * Math.PI / 180;
-          const ux = Math.cos(rad), uy = Math.sin(rad);
-          const nx = -uy, ny = ux;
-          const extent = boundRadius * 2.5;
-          const nLines = Math.max(3, Math.ceil((extent * 2) / pitch));
+        }
+      } else if (state.motifHatch === 'radial_spokes') {
+        const dtMax = Math.asin(Math.min(0.999, (bR * 1.5) / Math.max(D, bR + 0.1))), rays = Math.max(2, Math.round((D * dtMax * 2) / pitch));
+        for (let m = 0; m <= rays; m++) {
+          const a = Math.atan2(cy - cy0, cx - cx0) - dtMax + (m / rays) * 2 * dtMax, ux = Math.cos(a), uy = Math.sin(a);
+          const seg = clipLine(cx0, cy0, cx0 + (D + bR * 2) * ux, cy0 + (D + bR * 2) * uy, poly);
+          if (seg) emitL(seg[0], seg[1], layer, hatchAngle);
+        }
+      } else {
+        const rad = (hatchAngle * Math.PI) / 180;
+        const ux = Math.cos(rad), uy = Math.sin(rad);
+        const nx = -uy, ny = ux;
+        const extent = bR * 2.5;
+        const halfLines = Math.max(2, Math.ceil(extent / pitch));
+        let count = 0;
 
-          for (let m = -nLines / 2; m <= nLines / 2; m++) {
-            const off = m * pitch;
-            const p1x = cx + off * nx - extent * ux, p1y = cy + off * ny - extent * uy;
-            const p2x = cx + off * nx + extent * ux, p2y = cy + off * ny + extent * uy;
-            const seg = clipLine(p1x, p1y, p2x, p2y, poly);
-            if (seg) emitLine(seg[0], seg[1], layer, hatchAngle);
+        for (let m = -halfLines; m <= halfLines; m++) {
+          const off = m * pitch;
+          const p1x = cx + off * nx - extent * ux;
+          const p1y = cy + off * ny - extent * uy;
+          const p2x = cx + off * nx + extent * ux;
+          const p2y = cy + off * ny + extent * uy;
+          const seg = clipLine(p1x, p1y, p2x, p2y, poly);
+          if (seg) {
+            emitL(seg[0], seg[1], layer, hatchAngle);
+            count++;
           }
+        }
+
+        if (count === 0) {
+          const seg = clipLine(cx - extent * ux, cy - extent * uy, cx + extent * ux, cy + extent * uy, poly);
+          if (seg) emitL(seg[0], seg[1], layer, hatchAngle);
         }
       }
     }
 
-    function checkAndAddShape(poly, circleData, cx0, cy0, R_inner, R_outer, layer, hatchAngle, shapeIndex) {
-      if (poly) {
-        for (let i = 0; i < poly.length; i++) {
-          const d = Math.hypot(poly[i].x - cx0, poly[i].y - cy0);
-          if (d > R_outer - 0.002 || d < R_inner + 0.002) return false;
+    function addCandidate(cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, hatchAngle, sIdx) {
+      const R_inner = state.pinion / 2 + state.hub, R_outer = state.dia / 2 - (state.trackStyle === 'railroad' ? 1.70 : (state.trackStyle === 'perimeter_ticks' ? 1.25 : 0));
+      if (state.motif === 'circle_bead') {
+        const r = Math.min(Sr, Sc), d = Math.hypot(cx - state.dia / 2, cy - state.dia / 2);
+        if (d + r <= R_outer - 0.002 && d - r >= R_inner + 0.002) {
+          shapeCount++; addMotifToolpaths(null, { cx, cy, r }, layer, hatchAngle, sIdx);
         }
-
-        shapeCount++;
-        addMotifToolpaths(poly, null, layer, hatchAngle, shapeIndex);
-        return true;
+      } else {
+        const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
+        if (poly) {
+          for (let i = 0; i < poly.length; i++) {
+            const d = Math.hypot(poly[i].x - state.dia / 2, poly[i].y - state.dia / 2);
+            if (d > R_outer - 0.002 || d < R_inner + 0.002) return;
+          }
+          shapeCount++; addMotifToolpaths(poly, null, layer, hatchAngle, sIdx);
+        }
       }
-      return false;
     }
 
     function generateGeometry() {
-      elements = [];
-      shapeCount = 0;
-
-      buildTimeElements();
-
-      const R_dial = state.dia / 2;
-      const R_pin = state.pinion / 2;
-      const R_inner = R_pin + state.hub;
-
-      const trackOffset = (state.trackStyle === 'railroad') ? 1.70 : (state.trackStyle === 'perimeter_ticks' ? 1.25 : 0.0);
-      const R_outer = R_dial - trackOffset;
-
-      const cx0 = R_dial, cy0 = R_dial;
-      const N_rings = Math.max(1, state.rings);
-      const L = state.layers;
-      const rotRad = (state.rot * Math.PI) / 180;
-      const span = R_outer - R_inner;
+      elements = []; shapeCount = 0; buildTimeElements();
+      const R_dial = state.dia / 2, R_inner = state.pinion / 2 + state.hub;
+      const R_outer = R_dial - (state.trackStyle === 'railroad' ? 1.70 : (state.trackStyle === 'perimeter_ticks' ? 1.25 : 0));
+      const cx0 = R_dial, cy0 = R_dial, N_rings = Math.max(1, state.rings), L = state.layers, rotRad = state.rot * Math.PI / 180, span = R_outer - R_inner;
       let sIdx = 0;
 
       if (state.layout === 'concentric_rings' || state.layout === 'concentric_proportional') {
         const rBounds = [];
-        for (let k = 0; k <= N_rings; k++) {
-          const u = k / N_rings;
-          const uEased = applyEasing(u, state.radiusEasingType, state.radiusEasingParam);
-          rBounds.push(R_inner + uEased * span);
-        }
+        for (let k = 0; k <= N_rings; k++) rBounds.push(R_inner + applyEasing(k / N_rings, state.radiusEasingType, state.radiusEasingParam) * span);
 
         for (let ring = 0; ring < N_rings; ring++) {
-          const rStart = rBounds[ring];
-          const rEnd = rBounds[ring + 1];
-          const deltaR = rEnd - rStart;
-          const curR = (rStart + rEnd) / 2;
-          const uRing = ring / Math.max(1, N_rings - 1);
-
+          const deltaR = rBounds[ring + 1] - rBounds[ring], curR = (rBounds[ring] + rBounds[ring + 1]) / 2, uRing = ring / Math.max(1, N_rings - 1);
           const currentGap = state.innerGap + uRing * (state.outerGap - state.innerGap);
-          const currentScale = (state.innerScale + uRing * (state.outerScale - state.innerScale)) / 100.0;
+          const currentScale = (state.innerScale + uRing * (state.outerScale - state.innerScale)) / 100;
+          let rawCount = state.layout === 'concentric_proportional' 
+            ? Math.max(4, Math.round((2 * Math.PI * curR) / Math.max(0.1, deltaR * 1.05))) * (1.0 - 0.25 * (1 - applyEasing(uRing, state.countEasingType, state.countEasingParam)))
+            : state.innerCount + applyEasing(uRing, state.countEasingType, state.countEasingParam) * (state.outerCount - state.innerCount);
 
-          let ringCount;
-          if (state.layout === 'concentric_proportional') {
-            const uCnt = applyEasing(uRing, state.countEasingType, state.countEasingParam);
-            const targetStep = deltaR * 1.05;
-            const autoCount = Math.max(4, Math.round((2 * Math.PI * curR) / Math.max(0.1, targetStep)));
-            ringCount = Math.round(autoCount * (1.0 - 0.25 * (1 - uCnt)));
-          } else {
-            const uCnt = applyEasing(uRing, state.countEasingType, state.countEasingParam);
-            ringCount = Math.max(3, Math.round(state.innerCount + uCnt * (state.outerCount - state.innerCount)));
-          }
+          let snap = state.symmetryLock === '12' ? 12 : (state.symmetryLock === '6' ? 6 : (state.symmetryLock === '4' ? 4 : (state.symmetryLock === 'inner' ? Math.max(1, state.innerCount) : 1)));
+          let ringCount = snap > 1 ? Math.max(snap, Math.round(rawCount / snap) * snap) : Math.max(3, Math.round(rawCount));
 
-          const dTheta = (2 * Math.PI) / ringCount;
-          const chordWidth = 2 * curR * Math.sin(dTheta / 2);
-
-          const safeRadialSpan = Math.max(0.02, (deltaR - currentGap) / 2);
-          const safeCircumSpan = Math.max(0.02, (chordWidth - currentGap) / 2);
-
-          let Sr, Sc;
-          if (state.aspectRatio === 'uniform') {
-            const base = Math.min(safeRadialSpan, safeCircumSpan) * currentScale;
-            Sr = base; Sc = base;
-          } else {
-            Sr = safeRadialSpan * currentScale; Sc = safeCircumSpan * currentScale;
-          }
-
-          const ringStagger = (state.stagger && ring % 2 === 1) ? (dTheta / 2) : 0;
+          const dTheta = (2 * Math.PI) / ringCount, chordWidth = 2 * curR * Math.sin(dTheta / 2);
+          const sR = Math.max(0.02, (deltaR - currentGap) / 2), sC = Math.max(0.02, (chordWidth - currentGap) / 2);
+          const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * currentScale;
+          const Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * currentScale;
+          const baseAngle = -Math.PI / 2 + rotRad + ((state.stagger && ring % 2 === 1) ? (dTheta / 2) : 0);
 
           for (let s = 0; s < ringCount; s++) {
-            const theta = s * dTheta + rotRad + ringStagger;
-            const cx = cx0 + curR * Math.cos(theta);
-            const cy = cy0 + curR * Math.sin(theta);
-
-            let shapeAngle = theta;
-            if (state.alignment === 'tangent') shapeAngle = theta + Math.PI / 2;
-            else if (state.alignment === 'fixed') shapeAngle = rotRad;
-
-            let layer = 0;
-            if (state.layerDist === 'by_ring') {
-              layer = ring % L;
-            } else if (state.layerDist === 'by_spoke') {
-              let normTheta = (theta % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              layer = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-            } else {
-              let normTheta = (theta % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              const angleSector = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-              layer = (ring + angleSector) % L;
-            }
-
-            const hatchAngle = layer * (180 / L);
-            const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
-            if (poly) checkAndAddShape(poly, null, cx0, cy0, R_inner, R_outer, layer, hatchAngle, sIdx++);
+            const theta = s * dTheta + baseAngle, shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta);
+            let layer = state.layerDist === 'by_ring' ? ring % L : (state.layerDist === 'by_spoke' ? Math.floor(((theta + Math.PI/2) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI) * L) % L : (ring + Math.floor(((theta + Math.PI/2) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI) * L)) % L);
+            addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
           }
         }
       } else if (state.layout === 'radial_fans') {
-        const rays = Math.max(3, state.outerCount);
-        const dTheta = (2 * Math.PI) / rays;
-        const twistRad = (state.fanTwist * Math.PI) / 180;
-        const steps = N_rings;
-
+        const rays = Math.max(3, state.outerCount), dTheta = 2 * Math.PI / rays, twistRad = state.fanTwist * Math.PI / 180;
         for (let ray = 0; ray < rays; ray++) {
-          const rayBaseAngle = ray * dTheta + rotRad;
-
-          for (let st = 0; st < steps; st++) {
-            const u = steps > 1 ? st / (steps - 1) : 0;
-            const uRad = applyEasing(u, state.radiusEasingType, state.radiusEasingParam);
-            const curR = R_inner + uRad * span;
-
-            const currentGap = state.innerGap + uRad * (state.outerGap - state.innerGap);
-            const currentScale = (state.innerScale + uRad * (state.outerScale - state.innerScale)) / 100.0;
-
-            const spiralOffset = twistRad * Math.pow(uRad, 1.25);
-            const theta = rayBaseAngle + spiralOffset;
-
-            const chordWidth = 2 * curR * Math.sin(dTheta / 2);
-            const radialStep = span / steps;
-
-            const safeRadialSpan = Math.max(0.02, (radialStep - currentGap) / 2);
-            const safeCircumSpan = Math.max(0.02, (chordWidth - currentGap) / 2);
-
-            let Sr, Sc;
-            if (state.aspectRatio === 'uniform') {
-              const base = Math.min(safeRadialSpan, safeCircumSpan) * currentScale;
-              Sr = base; Sc = base;
-            } else {
-              Sr = safeRadialSpan * currentScale; Sc = safeCircumSpan * currentScale;
-            }
-
-            const cx = cx0 + curR * Math.cos(theta);
-            const cy = cy0 + curR * Math.sin(theta);
-
-            let shapeAngle = theta + (twistRad > 0 ? 0.3 : -0.3);
-            if (state.alignment === 'tangent') shapeAngle = theta + Math.PI / 2;
-            else if (state.alignment === 'fixed') shapeAngle = rotRad;
-
-            let layer = 0;
-            if (state.layerDist === 'by_ring') {
-              layer = st % L;
-            } else if (state.layerDist === 'by_spoke') {
-              let normTheta = (theta % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              layer = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-            } else {
-              let normTheta = (theta % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              const angleSector = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-              layer = (st + angleSector) % L;
-            }
-
-            const hatchAngle = layer * (180 / L);
-            const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
-            if (poly) checkAndAddShape(poly, null, cx0, cy0, R_inner, R_outer, layer, hatchAngle, sIdx++);
+          const rayBase = ray * dTheta - Math.PI / 2 + rotRad;
+          for (let st = 0; st < N_rings; st++) {
+            const u = N_rings > 1 ? st / (N_rings - 1) : 0, uRad = applyEasing(u, state.radiusEasingType, state.radiusEasingParam), curR = R_inner + uRad * span;
+            const cGap = state.innerGap + uRad * (state.outerGap - state.innerGap), cScale = (state.innerScale + uRad * (state.outerScale - state.innerScale)) / 100;
+            const theta = rayBase + twistRad * Math.pow(uRad, 1.25), chordWidth = 2 * curR * Math.sin(dTheta / 2);
+            const sR = Math.max(0.02, (span / N_rings - cGap) / 2), sC = Math.max(0.02, (chordWidth - cGap) / 2);
+            const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * cScale, Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * cScale;
+            const shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta + (twistRad > 0 ? 0.3 : -0.3));
+            let layer = state.layerDist === 'by_ring' ? st % L : ray % L;
+            addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
           }
         }
       } else if (state.layout === 'spiral_phyllotaxis') {
-        const totalSeeds = Math.max(20, state.phySeeds);
-        const divAngle = (state.phyAngle * Math.PI) / 180;
-        const totalArea = Math.PI * (R_outer * R_outer - R_inner * R_inner);
-        const approxCellSize = Math.sqrt(totalArea / totalSeeds);
-
-        for (let i = 0; i < totalSeeds; i++) {
-          const frac = (i + 0.5) / totalSeeds;
-          const fracEased = applyEasing(frac, state.radiusEasingType, state.radiusEasingParam);
-          const curR = Math.sqrt(R_inner * R_inner + fracEased * (R_outer * R_outer - R_inner * R_inner));
-          const uDist = Math.min(1, Math.max(0, (curR - R_inner) / span));
-
-          const currentGap = state.innerGap + uDist * (state.outerGap - state.innerGap);
-          const currentScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100.0;
-
-          const theta = i * divAngle + rotRad;
-          const cx = cx0 + curR * Math.cos(theta);
-          const cy = cy0 + curR * Math.sin(theta);
-
-          const localSpan = Math.max(0.02, (approxCellSize - currentGap) / 2) * currentScale;
-          const Sr = localSpan; Sc = localSpan;
-
-          let shapeAngle = theta;
-          if (state.alignment === 'tangent') shapeAngle = theta + Math.PI / 2;
-          else if (state.alignment === 'fixed') shapeAngle = rotRad;
-
-          let layer = 0;
-          if (state.layerDist === 'by_ring') {
-            layer = Math.floor(fracEased * N_rings) % L;
-          } else if (state.layerDist === 'by_spoke') {
-            let normTheta = (theta % (2 * Math.PI));
-            if (normTheta < 0) normTheta += 2 * Math.PI;
-            layer = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-          } else {
-            let normTheta = (theta % (2 * Math.PI));
-            if (normTheta < 0) normTheta += 2 * Math.PI;
-            const angleSector = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-            layer = (Math.floor(fracEased * N_rings) + angleSector) % L;
-          }
-
-          const hatchAngle = layer * (180 / L);
-          const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, approxCellSize, 0.2);
-          if (poly) checkAndAddShape(poly, null, cx0, cy0, R_inner, R_outer, layer, hatchAngle, sIdx++);
+        const total = Math.max(20, state.phySeeds), divA = state.phyAngle * Math.PI / 180, area = Math.PI * (R_outer * R_outer - R_inner * R_inner), cellSize = Math.sqrt(area / total);
+        for (let i = 0; i < total; i++) {
+          const frac = applyEasing((i + 0.5) / total, state.radiusEasingType, state.radiusEasingParam), curR = Math.sqrt(R_inner * R_inner + frac * (R_outer * R_outer - R_inner * R_inner));
+          const uDist = Math.min(1, Math.max(0, (curR - R_inner) / span)), cGap = state.innerGap + uDist * (state.outerGap - state.innerGap), cScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
+          const theta = i * divA - Math.PI / 2 + rotRad, spanM = Math.max(0.02, (cellSize - cGap) / 2) * cScale;
+          const shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta);
+          let layer = state.layerDist === 'by_ring' ? Math.floor(frac * N_rings) % L : i % L;
+          addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, spanM, spanM, shapeAngle, cellSize, 0.2, layer, layer * (180 / L), sIdx++);
         }
       } else if (state.layout === 'cartesian_grid') {
-        const step = Math.max(0.2, span / N_rings);
-        const halfSpan = R_outer;
-
-        let colIdx = 0;
-        for (let gx = -halfSpan; gx <= halfSpan; gx += step) {
-          colIdx++;
-          let rowIdx = 0;
-          for (let gy = -halfSpan; gy <= halfSpan; gy += step) {
-            rowIdx++;
-            const d = Math.hypot(gx, gy);
+        const step = Math.max(0.2, span / N_rings), hSpan = R_outer;
+        let col = 0;
+        for (let gx = -hSpan; gx <= hSpan; gx += step) {
+          col++; let row = 0;
+          for (let gy = -hSpan; gy <= hSpan; gy += step) {
+            row++; const d = Math.hypot(gx, gy);
             if (d < R_inner || d > R_outer) continue;
-
-            const uDist = Math.min(1, Math.max(0, (d - R_inner) / span));
-            const currentGap = state.innerGap + uDist * (state.outerGap - state.innerGap);
-            const currentScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100.0;
-
-            const baseSpan = Math.max(0.02, (step - currentGap) / 2) * currentScale;
-            const curSr = baseSpan; const curSc = baseSpan;
-
-            const baseAngle = Math.atan2(gy, gx);
-            const cx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad);
-            const cy = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
-
-            let shapeAngle = rotRad;
-            if (state.alignment === 'radial') shapeAngle = baseAngle + rotRad;
-            else if (state.alignment === 'tangent') shapeAngle = baseAngle + rotRad + Math.PI / 2;
-
-            let layer = 0;
-            if (state.layerDist === 'by_ring') {
-              layer = (colIdx + rowIdx) % L;
-            } else if (state.layerDist === 'by_spoke') {
-              let normTheta = (baseAngle % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              layer = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-            } else {
-              let normTheta = (baseAngle % (2 * Math.PI));
-              if (normTheta < 0) normTheta += 2 * Math.PI;
-              const angleSector = Math.floor((normTheta / (2 * Math.PI)) * L) % L;
-              layer = (colIdx + angleSector) % L;
-            }
-
-            const hatchAngle = layer * (180 / L);
-            const poly = createMotifPolygon(state.motif, cx, cy, d, curSr, curSc, shapeAngle, step, 0.2);
-            if (poly) checkAndAddShape(poly, null, cx0, cy0, R_inner, R_outer, layer, hatchAngle, sIdx++);
+            const uDist = Math.min(1, Math.max(0, (d - R_inner) / span)), cGap = state.innerGap + uDist * (state.outerGap - state.innerGap), cScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
+            const spanM = Math.max(0.02, (step - cGap) / 2) * cScale, bA = Math.atan2(gy, gx);
+            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad), ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
+            const shapeAngle = state.alignment === 'radial' ? bA + rotRad : (state.alignment === 'tangent' ? bA + rotRad + Math.PI/2 : rotRad);
+            let layer = (col + row) % L;
+            addCandidate(rx, ry, d, spanM, spanM, shapeAngle, step, 0.2, layer, layer * (180 / L), sIdx++);
           }
         }
       }
-
       document.getElementById('stat-elements').innerText = `Shapes: ${shapeCount}`;
       document.getElementById('stat-paths').innerText = `Toolpaths: ${elements.length}`;
     }
 
     function render() {
-      const dpr = window.devicePixelRatio || 1;
-      const W = state.dia;
-      const R = W / 2;
-      const px = 15;
-      const scaleTotal = px * dpr;
-
-      canvas.width = W * scaleTotal;
-      canvas.height = W * scaleTotal;
-      canvas.style.width = `${W * 8.5}px`;
-      canvas.style.height = `${W * 8.5}px`;
-
-      ctx.save();
-      ctx.scale(scaleTotal, scaleTotal);
+      const dpr = window.devicePixelRatio || 1, W = state.dia, R = W / 2, px = 15, scale = px * dpr;
+      canvas.width = W * scale; canvas.height = W * scale;
+      canvas.style.width = `${W * 8.5}px`; canvas.style.height = `${W * 8.5}px`;
+      ctx.save(); ctx.scale(scale, scale);
 
       ctx.fillStyle = state.view === 'shimmer' ? '#111317' : '#f5f7fa';
-      ctx.beginPath();
-      ctx.arc(R, R, R, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.fill();
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(R, R, R, 0, Math.PI * 2);
-      ctx.clip();
-
-      // 1. Draw Seconds/Minutes Outer Track
+      ctx.save(); ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.clip();
       for (const tr of trackElements) {
         ctx.beginPath();
-        if (tr.type === 'circle') {
-          ctx.arc(tr.cx, tr.cy, tr.r, 0, Math.PI * 2);
-        } else if (tr.type === 'line') {
-          ctx.moveTo(tr.pts[0].x, tr.pts[0].y);
-          ctx.lineTo(tr.pts[1].x, tr.pts[1].y);
-        }
-        ctx.strokeStyle = state.view === 'shimmer' ? '#94a3b8' : '#334155';
-        ctx.lineWidth = tr.strokeW;
-        ctx.stroke();
+        if (tr.type === 'circle') ctx.arc(tr.cx, tr.cy, tr.r, 0, Math.PI * 2);
+        else { ctx.moveTo(tr.pts[0].x, tr.pts[0].y); ctx.lineTo(tr.pts[1].x, tr.pts[1].y); }
+        ctx.strokeStyle = state.view === 'shimmer' ? '#94a3b8' : '#334155'; ctx.lineWidth = tr.strokeW; ctx.stroke();
       }
 
-      // 2. Draw Micro-Guilloché Toolpaths
       for (const el of elements) {
-        ctx.beginPath();
-        if (el.pts && el.pts.length >= 2) {
-          ctx.moveTo(el.pts[0].x, el.pts[0].y);
-          for (let i = 1; i < el.pts.length; i++) ctx.lineTo(el.pts[i].x, el.pts[i].y);
-        }
-
-        if (el.l === 'outline') {
-          ctx.strokeStyle = state.view === 'shimmer' ? 'rgba(255,255,255,0.45)' : '#000000';
-          ctx.lineWidth = 0.04;
-        } else if (state.view === 'shimmer') {
-          let lum = 60;
+        if (!el.pts || el.pts.length < 2) continue;
+        ctx.beginPath(); ctx.moveTo(el.pts[0].x, el.pts[0].y);
+        for (let i = 1; i < el.pts.length; i++) ctx.lineTo(el.pts[i].x, el.pts[i].y);
+        if (el.l === 'outline') { ctx.strokeStyle = state.view === 'shimmer' ? 'rgba(255,255,255,0.45)' : '#000'; ctx.lineWidth = 0.04; }
+        else if (state.view === 'shimmer') {
+          let lum = 75;
           if (state.shimmerMode === 'specular') {
-            const specular = Math.pow(Math.abs(Math.cos(((state.light - el.a) * Math.PI) / 180)), 5);
-            lum = Math.min(255, Math.floor(60 + specular * 195));
+            const spec = Math.pow(Math.abs(Math.cos((state.light - el.a) * Math.PI / 180)), 4);
+            lum = Math.min(255, Math.floor(75 + spec * 180));
           } else if (state.shimmerMode === 'alternating_line') {
-            const phase = ((el.idx || 0) + state.light * 0.5) % 360;
-            const wave = Math.sin(phase * Math.PI / 180);
-            lum = Math.min(255, Math.floor(125 + wave * 110));
-          } else if (state.shimmerMode === 'radial_shimmer') {
-            const cx0 = state.dia / 2, cy0 = state.dia / 2;
-            let mx = el.pts && el.pts.length ? el.pts[0].x : cx0;
-            let my = el.pts && el.pts.length ? el.pts[0].y : cy0;
-            const dCenter = Math.hypot(mx - cx0, my - cy0);
-            const wave = Math.cos((dCenter * 3.5 - state.light * 2) * Math.PI / 180);
-            lum = Math.min(255, Math.floor(130 + wave * 115));
+            lum = Math.min(255, Math.floor(130 + Math.sin(((el.idx || 0) + state.light * 0.5) % 360 * Math.PI / 180) * 105));
+          } else {
+            lum = Math.min(255, Math.floor(135 + Math.cos((Math.hypot(el.pts[0].x - R, el.pts[0].y - R) * 3.5 - state.light * 2) * Math.PI / 180) * 110));
           }
           ctx.strokeStyle = `rgb(${lum}, ${lum}, ${Math.min(255, lum + 18)})`;
-          ctx.lineWidth = state.hatchMode === 'pre_hatched' ? 0.035 : 0.08;
-        } else {
-          ctx.strokeStyle = COLORS[el.l % COLORS.length];
-          ctx.lineWidth = state.hatchMode === 'pre_hatched' ? 0.035 : 0.08;
-        }
+          ctx.lineWidth = state.hatchMode === 'pre_hatched' ? 0.045 : 0.08;
+        } else { ctx.strokeStyle = COLORS[el.l % COLORS.length]; ctx.lineWidth = state.hatchMode === 'pre_hatched' ? 0.035 : 0.08; }
         ctx.stroke();
       }
 
-      // 3. Draw Complete Cartouche Islands & Borders
       for (const c of cartouches) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(c.poly[0].x, c.poly[0].y);
+        ctx.save(); ctx.beginPath(); ctx.moveTo(c.poly[0].x, c.poly[0].y);
         for (let i = 1; i < c.poly.length; i++) ctx.lineTo(c.poly[i].x, c.poly[i].y);
-        ctx.closePath();
-
-        ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4';
-        ctx.fill();
-
-        if (state.cartBorder) {
-          ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a';
-          ctx.lineWidth = 0.055;
-          ctx.stroke();
-        }
+        ctx.closePath(); ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4'; ctx.fill();
+        if (state.cartBorder) { ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a'; ctx.lineWidth = 0.055; ctx.stroke(); }
         ctx.restore();
       }
 
-      // 4. Draw Physical Baton / Dagger / Dot Markers in Millimeter coordinates
       for (const m of timeMarkers) {
         if (m.type === 'text') continue;
-        ctx.save();
-        ctx.translate(m.cx, m.cy);
-        ctx.rotate(m.angle);
+        ctx.save(); ctx.translate(m.cx, m.cy); ctx.rotate(m.angle);
         ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
-
         if (m.type === 'baton') {
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 0.02;
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 0.02;
           if (m.isDouble) {
-            const sep = m.w * 0.55;
-            ctx.fillRect(-m.len / 2 + state.textDx, -sep - m.w * 0.45 + state.textDy, m.len, m.w * 0.85);
-            ctx.strokeRect(-m.len / 2 + state.textDx, -sep - m.w * 0.45 + state.textDy, m.len, m.w * 0.85);
-            ctx.fillRect(-m.len / 2 + state.textDx, sep - m.w * 0.45 + state.textDy, m.len, m.w * 0.85);
-            ctx.strokeRect(-m.len / 2 + state.textDx, sep - m.w * 0.45 + state.textDy, m.len, m.w * 0.85);
-          } else {
-            ctx.fillRect(-m.len / 2 + state.textDx, -m.w / 2 + state.textDy, m.len, m.w);
-            ctx.strokeRect(-m.len / 2 + state.textDx, -m.w / 2 + state.textDy, m.len, m.w);
-          }
+            ctx.fillRect(-m.len/2 + m.shiftX, -m.w*0.75 + m.shiftY, m.len, m.w*0.85); ctx.strokeRect(-m.len/2 + m.shiftX, -m.w*0.75 + m.shiftY, m.len, m.w*0.85);
+            ctx.fillRect(-m.len/2 + m.shiftX, m.w*0.1 + m.shiftY, m.len, m.w*0.85); ctx.strokeRect(-m.len/2 + m.shiftX, m.w*0.1 + m.shiftY, m.len, m.w*0.85);
+          } else { ctx.fillRect(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY, m.len, m.w); ctx.strokeRect(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY, m.len, m.w); }
         } else if (m.type === 'dagger') {
-          ctx.beginPath();
-          ctx.moveTo(m.len / 2 + state.textDx, state.textDy);
-          ctx.lineTo(-m.len / 2 + state.textDx, m.w / 2 + state.textDy);
-          ctx.lineTo(-m.len / 2 * 0.7 + state.textDx, state.textDy);
-          ctx.lineTo(-m.len / 2 + state.textDx, -m.w / 2 + state.textDy);
-          ctx.closePath();
-          ctx.fill();
+          ctx.beginPath(); ctx.moveTo(m.len/2 + m.shiftX, m.shiftY); ctx.lineTo(-m.len/2 + m.shiftX, m.w/2 + m.shiftY); ctx.lineTo(-m.len*0.35 + m.shiftX, m.shiftY); ctx.lineTo(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY); ctx.closePath(); ctx.fill();
         } else if (m.type === 'dot') {
-          ctx.beginPath();
-          ctx.arc(state.textDx, state.textDy, m.w / 2, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.beginPath(); ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2); ctx.fill();
         }
         ctx.restore();
       }
-
       ctx.restore();
 
-      // 5. Draw Typography in Decoupled CSS Device-Pixel Frame
-      ctx.save();
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
+      ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
-
       for (const m of timeMarkers) {
         if (m.type !== 'text') continue;
-        ctx.save();
-
-        const screenX = m.cx * px;
-        const screenY = m.cy * px;
-        ctx.translate(screenX, screenY);
-        ctx.rotate(m.angle);
-
+        ctx.save(); ctx.translate(m.cx * px, m.cy * px); ctx.rotate(m.angle);
         ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
-
-        const fontPixelSize = Math.max(14, Math.round(m.fontSizeMM * px));
-        ctx.font = `${fontCfg.weight} ${fontPixelSize}px ${fontCfg.fontStack}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Precise optical cap-height centering
-        const metrics = ctx.measureText(m.text);
-        const optOffset = (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2 || 0;
-        const drawX = state.textDx * px;
-        const drawY = -optOffset + (state.textDy * px);
-
-        ctx.fillText(m.text, drawX, drawY);
+        ctx.font = `${fontCfg.weight} ${Math.max(14, Math.round(m.fontSizeMM * px))}px ${fontCfg.css}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const met = ctx.measureText(m.text), optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
+        if (state.hairlineBoost > 0) { ctx.lineWidth = Math.max(0.6, state.hairlineBoost * px); ctx.strokeStyle = ctx.fillStyle; ctx.strokeText(m.text, m.shiftX * px, -optY + m.shiftY * px); }
+        ctx.fillText(m.text, m.shiftX * px, -optY + m.shiftY * px);
         ctx.restore();
       }
       ctx.restore();
 
-      // Center Pinion Hole & Hub Margin Ring
-      ctx.save();
-      ctx.fillStyle = '#060708';
-      ctx.beginPath();
-      ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (state.hub > 0) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 0.04;
-        ctx.beginPath();
-        ctx.arc(R, R, state.pinion / 2 + state.hub, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.restore();
-      ctx.restore();
+      ctx.save(); ctx.fillStyle = '#060708'; ctx.beginPath(); ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2); ctx.fill();
+      if (state.hub > 0) { ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 0.04; ctx.beginPath(); ctx.arc(R, R, state.pinion / 2 + state.hub, 0, Math.PI * 2); ctx.stroke(); }
+      ctx.restore(); ctx.restore();
     }
 
     function exportSVG() {
-      const W = state.dia, R = W / 2;
-      const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
-
+      const W = state.dia, R = W / 2, fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
       let svg = `<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${W}mm" viewBox="0 0 ${W} ${W}">\n`;
-      svg += `  <!-- Blank Outer & Pinion Guides -->\n`;
-      svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000000" fill="none" stroke-width="0.05" />\n`;
-      svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000000" fill="none" stroke-width="0.05" />\n`;
-
+      svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
+      svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
       if (trackElements.length) {
-        svg += `  <g id="Layer_Seconds_Track" stroke="#000000" fill="none" stroke-width="0.04mm">\n`;
-        for (const tr of trackElements) {
-          if (tr.type === 'circle') svg += `    <circle cx="${tr.cx.toFixed(3)}" cy="${tr.cy.toFixed(3)}" r="${tr.r.toFixed(3)}" />\n`;
-          else svg += `    <line x1="${tr.pts[0].x.toFixed(3)}" y1="${tr.pts[0].y.toFixed(3)}" x2="${tr.pts[1].x.toFixed(3)}" y2="${tr.pts[1].y.toFixed(3)}" />\n`;
-        }
+        svg += `  <g id="Layer_Track" stroke="#000" fill="none" stroke-width="0.04mm">\n`;
+        for (const tr of trackElements) svg += tr.type === 'circle' ? `    <circle cx="${tr.cx.toFixed(3)}" cy="${tr.cy.toFixed(3)}" r="${tr.r.toFixed(3)}" />\n` : `    <line x1="${tr.pts[0].x.toFixed(3)}" y1="${tr.pts[0].y.toFixed(3)}" x2="${tr.pts[1].x.toFixed(3)}" y2="${tr.pts[1].y.toFixed(3)}" />\n`;
         svg += `  </g>\n`;
       }
-
       for (let l = 0; l < state.layers; l++) {
-        const items = elements.filter(e => e.l === l);
-        if (!items.length) continue;
+        const items = elements.filter(e => e.l === l); if (!items.length) continue;
         svg += `  <g id="Layer_${l + 1}_Hatch" stroke="${COLORS[l % COLORS.length]}" fill="none" stroke-width="0.03mm">\n`;
-        for (const el of items) {
-          if (el.pts && el.pts.length >= 2) {
-            svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
-          }
-        }
+        for (const el of items) svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
         svg += `  </g>\n`;
       }
-
       if (state.includeOutlines && state.hatchMode === 'pre_hatched') {
         const outlines = elements.filter(e => e.l === 'outline');
         if (outlines.length) {
-          svg += `  <g id="Layer_Closed_Outlines" stroke="#FFFFFF" fill="none" stroke-width="0.03mm">\n`;
-          for (const el of outlines) {
-            if (el.pts && el.pts.length >= 2) {
-              svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
-            }
-          }
+          svg += `  <g id="Layer_Outlines" stroke="#FFF" fill="none" stroke-width="0.03mm">\n`;
+          for (const el of outlines) svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
           svg += `  </g>\n`;
         }
       }
-
       if (state.cartBorder && cartouches.length) {
         svg += `  <g id="Layer_Cartouche_Borders" stroke="#FFAA00" fill="none" stroke-width="0.04mm">\n`;
-        for (const c of cartouches) {
-          svg += `    <polygon points="${c.poly.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
-        }
+        for (const c of cartouches) svg += `    <polygon points="${c.poly.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
         svg += `  </g>\n`;
       }
-
       if (timeMarkers.length) {
-        svg += `  <g id="Layer_Hour_Numerals_Markers" fill="#000000" stroke="none">\n`;
+        svg += `  <g id="Layer_Markers" fill="#000" stroke="none">\n`;
         for (const m of timeMarkers) {
           if (m.type === 'text') {
-            const rotDeg = (m.angle * 180 / Math.PI).toFixed(2);
-            const posX = (m.cx + state.textDx).toFixed(3);
-            const posY = (m.cy + state.textDy).toFixed(3);
-            svg += `    <text x="${posX}" y="${posY}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${m.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" transform="rotate(${rotDeg} ${m.cx.toFixed(3)} ${m.cy.toFixed(3)})">${m.text}</text>\n`;
+            const strk = state.hairlineBoost > 0 ? `stroke="#000" stroke-width="${state.hairlineBoost.toFixed(3)}mm"` : '';
+            svg += `    <text x="${(m.cx + m.shiftX).toFixed(3)}" y="${(m.cy + m.shiftY).toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${m.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" ${strk} transform="rotate(${(m.angle * 180 / Math.PI).toFixed(2)} ${m.cx.toFixed(3)} ${m.cy.toFixed(3)})">${m.text}</text>\n`;
           } else {
-            const cosA = Math.cos(m.angle), sinA = Math.sin(m.angle);
-            const toDial = (u, v) => `${(m.cx + (u + state.textDx) * cosA - (v + state.textDy) * sinA).toFixed(3)},${(m.cy + (u + state.textDx) * sinA + (v + state.textDy) * cosA).toFixed(3)}`;
+            const cosA = Math.cos(m.angle), sinA = Math.sin(m.angle), toD = (u, v) => `${(m.cx + (u + m.shiftX) * cosA - (v + m.shiftY) * sinA).toFixed(3)},${(m.cy + (u + m.shiftX) * sinA + (v + m.shiftY) * cosA).toFixed(3)}`;
             const hL = m.len / 2, hW = m.w / 2;
-            if (m.type === 'baton') {
-              if (m.isDouble) {
-                const sep = m.w * 0.55;
-                svg += `    <polygon points="${toDial(hL, sep + hW * 0.45)} ${toDial(-hL, sep + hW * 0.45)} ${toDial(-hL, sep - hW * 0.45)} ${toDial(hL, sep - hW * 0.45)}" />\n`;
-                svg += `    <polygon points="${toDial(hL, -sep + hW * 0.45)} ${toDial(-hL, -sep + hW * 0.45)} ${toDial(-hL, -sep - hW * 0.45)} ${toDial(hL, -sep - hW * 0.45)}" />\n`;
-              } else {
-                svg += `    <polygon points="${toDial(hL, hW)} ${toDial(-hL, hW)} ${toDial(-hL, -hW)} ${toDial(hL, -hW)}" />\n`;
-              }
-            } else if (m.type === 'dagger') {
-              svg += `    <polygon points="${toDial(hL, 0)} ${toDial(-hL, hW)} ${toDial(-hL * 0.7, 0)} ${toDial(-hL, -hW)}" />\n`;
-            } else if (m.type === 'dot') {
-              svg += `    <circle cx="${(m.cx + state.textDx).toFixed(3)}" cy="${(m.cy + state.textDy).toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
-            }
+            if (m.type === 'baton') svg += m.isDouble ? `    <polygon points="${toD(hL, hW*0.9)} ${toD(-hL, hW*0.9)} ${toD(-hL, 0)} ${toD(hL, 0)}" /><polygon points="${toD(hL, 0)} ${toD(-hL, 0)} ${toD(-hL, -hW*0.9)} ${toD(hL, -hW*0.9)}" />\n` : `    <polygon points="${toD(hL, hW)} ${toD(-hL, hW)} ${toD(-hL, -hW)} ${toD(hL, -hW)}" />\n`;
+            else if (m.type === 'dagger') svg += `    <polygon points="${toD(hL, 0)} ${toD(-hL, hW)} ${toD(-hL*0.7, 0)} ${toD(-hL, -hW)}" />\n`;
+            else svg += `    <circle cx="${(m.cx + m.shiftX).toFixed(3)}" cy="${(m.cy + m.shiftY).toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
           }
         }
         svg += `  </g>\n`;
       }
-
       svg += `</svg>`;
-      const blob = new Blob([svg], { type: 'image/svg+xml' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       a.download = `dial_${state.fontFamily.replace(/\s+/g, '_')}_${state.markerFormat}.svg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
     function initHourChips() {
-      const container = document.getElementById('hour-chips');
-      container.innerHTML = '';
+      const c = document.getElementById('hour-chips'); c.innerHTML = '';
       for (let h = 1; h <= 12; h++) {
-        const chip = document.createElement('div');
-        chip.className = `chip ${state.activeHours.has(h) ? 'active' : ''}`;
-        chip.innerText = h;
-        chip.addEventListener('click', () => {
-          if (state.activeHours.has(h)) state.activeHours.delete(h);
-          else state.activeHours.add(h);
-          chip.classList.toggle('active', state.activeHours.has(h));
-          update();
-        });
-        container.appendChild(chip);
+        const chip = document.createElement('div'); chip.className = `chip ${state.activeHours.has(h) ? 'active' : ''}`; chip.innerText = h;
+        chip.onclick = () => { if (state.activeHours.has(h)) state.activeHours.delete(h); else state.activeHours.add(h); chip.classList.toggle('active', state.activeHours.has(h)); update(); };
+        c.appendChild(chip);
       }
-
       document.querySelectorAll('.btn-preset').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const p = e.target.dataset.preset;
-          state.activeHours.clear();
-          if (p === 'all') {
-            for (let i = 1; i <= 12; i++) state.activeHours.add(i);
-          } else if (p === 'clear') {
-            // cleared
-          } else {
-            p.split(',').map(Number).forEach(num => state.activeHours.add(num));
-          }
-          document.querySelectorAll('.chip').forEach((c, idx) => {
-            c.classList.toggle('active', state.activeHours.has(idx + 1));
-          });
+        btn.onclick = (e) => {
+          const p = e.target.dataset.preset; state.activeHours.clear();
+          if (p === 'all') { for (let i = 1; i <= 12; i++) state.activeHours.add(i); }
+          else if (p !== 'clear') p.split(',').map(Number).forEach(n => state.activeHours.add(n));
+          document.querySelectorAll('.chip').forEach((ch, idx) => ch.classList.toggle('active', state.activeHours.has(idx + 1)));
           update();
-        });
+        };
       });
     }
 
-    // Custom Font Uploader
-    document.getElementById('btn-load-font').addEventListener('click', () => {
-      document.getElementById('font-file-input').click();
-    });
+    const STORAGE_KEY = 'mopa_dial_presets_v1';
+    function getPresets() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+    function updatePresetDropdown() {
+      const dd = document.getElementById('preset-dropdown'), p = getPresets(), cur = dd.value;
+      dd.innerHTML = '<option value="">-- Select Saved Preset --</option>';
+      for (const k of Object.keys(p)) { const opt = document.createElement('option'); opt.value = k; opt.innerText = k; dd.appendChild(opt); }
+      if (p[cur]) dd.value = cur;
+    }
 
-    document.getElementById('font-file-input').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    document.getElementById('btn-save-preset').onclick = () => {
+      const inp = document.getElementById('preset-name-input'), name = inp.value.trim() || `Preset ${new Date().toLocaleTimeString()}`;
+      const presets = getPresets(); presets[name] = JSON.parse(JSON.stringify(state)); presets[name].activeHours = Array.from(state.activeHours);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(presets)); updatePresetDropdown(); document.getElementById('preset-dropdown').value = name; inp.value = '';
+    };
+    document.getElementById('preset-dropdown').onchange = (e) => {
+      const p = getPresets()[e.target.value]; if (!p) return;
+      Object.assign(state, p); if (Array.isArray(p.activeHours)) state.activeHours = new Set(p.activeHours);
+      syncDOM(); update();
+    };
+    document.getElementById('btn-delete-preset').onclick = () => {
+      const dd = document.getElementById('preset-dropdown'), name = dd.value; if (!name) return;
+      const presets = getPresets(); delete presets[name]; localStorage.setItem(STORAGE_KEY, JSON.stringify(presets)); updatePresetDropdown();
+    };
+    document.getElementById('btn-export-presets').onclick = () => {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(getPresets(), null, 2)], { type: 'application/json' }));
+      a.download = 'mopa_dial_presets.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+    document.getElementById('btn-import-presets').onclick = () => document.getElementById('preset-file-input').click();
+    document.getElementById('preset-file-input').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = (evt) => {
+        try {
+          const imp = JSON.parse(evt.target.result), cur = getPresets(); Object.assign(cur, imp);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(cur)); updatePresetDropdown();
+        } catch(err) { alert('Invalid preset JSON'); }
+      }; r.readAsText(f);
+    };
 
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const fontData = evt.target.result;
-        const fontFace = new FontFace('CustomUserFont', fontData);
-        fontFace.load().then(loaded => {
+    document.getElementById('btn-load-font').onclick = () => document.getElementById('font-file-input').click();
+    document.getElementById('font-file-input').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = (evt) => {
+        new FontFace('CustomUserFont', evt.target.result).load().then(loaded => {
           document.fonts.add(loaded);
-          const opt = document.getElementById('opt-custom-font');
-          opt.style.display = 'block';
-          opt.innerText = `Custom (${file.name.replace(/\.[^/.]+$/, "")})`;
-          document.getElementById('font-family').value = 'Custom';
-          state.fontFamily = 'Custom';
-          update();
-        }).catch(err => {
-          alert("Error loading font file: " + err.message);
+          const opt = document.getElementById('opt-custom-font'); opt.style.display = 'block'; opt.innerText = `Custom (${f.name.replace(/\.[^/.]+$/, "")})`;
+          document.getElementById('font-family').value = 'Custom'; state.fontFamily = 'Custom'; update();
         });
-      };
-      reader.readAsArrayBuffer(file);
-    });
+      }; r.readAsArrayBuffer(f);
+    };
+
+    function syncHourControls() {
+      state.targetHour = document.getElementById('tune-hour-select').value;
+      const isAll = state.targetHour === 'all';
+      const h = isAll ? 4 : parseInt(state.targetHour, 10);
+      const adj = isAll ? { x: state.globalDx, y: state.globalDy } : (state.hourAdjust[h] || { x: 0, y: 0 });
+
+      const title = isAll ? 'All Numbers' : `Hour ${state.targetHour}`;
+      const titleX = document.getElementById('lbl-shift-x-title');
+      const titleY = document.getElementById('lbl-shift-y-title');
+      if (titleX) titleX.innerText = `${title} Shift X`;
+      if (titleY) titleY.innerText = `${title} Shift Y`;
+
+      document.getElementById('text-dx').value = adj.x;
+      document.getElementById('text-dy').value = adj.y;
+      update();
+    }
+
+    document.getElementById('tune-hour-select').onchange = syncHourControls;
+    document.getElementById('tune-hour-select').oninput = syncHourControls;
+
+    document.getElementById('btn-reset-hour').onclick = () => {
+      if (state.targetHour === 'all') { state.globalDx = 0; state.globalDy = 0; }
+      else state.hourAdjust[parseInt(state.targetHour, 10)] = { x: 0, y: 0 };
+      document.getElementById('text-dx').value = 0; document.getElementById('text-dy').value = 0; update();
+    };
+    document.getElementById('btn-reset-all-hours').onclick = () => {
+      state.globalDx = 0; state.globalDy = 0; for (let i = 1; i <= 12; i++) state.hourAdjust[i] = { x: 0, y: 0 };
+      document.getElementById('text-dx').value = 0; document.getElementById('text-dy').value = 0; update();
+    };
+
+    function syncDOM() {
+      const s = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+      const c = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+      s('dial-dia', state.dia); s('pinion-dia', state.pinion); s('hub-clearance', state.hub); s('marker-format', state.markerFormat);
+      s('font-family', state.fontFamily); s('font-scale', state.fontScale); s('numeral-orientation', state.numeralOrientation);
+      s('hairline-boost', state.hairlineBoost); s('numeral-radial-shift', state.numeralRadialShift); s('marker-radius', state.markerRadiusPct);
+      s('secondary-marker', state.secondaryMarker); s('index-size', state.indexSize); s('index-radial-shift', state.indexRadialShift); s('index-tangent-shift', state.indexTangentShift);
+      s('cartouche-sizing', state.cartSizing); s('cart-width', state.cartWidth); s('cart-height', state.cartHeight); s('cartouche-orientation', state.cartOrientation);
+      s('cartouche-pad', state.cartPad); s('cartouche-shape', state.cartShape); c('cartouche-border', state.cartBorder); s('track-style', state.trackStyle);
+      s('micro-layout', state.layout); s('symmetry-lock', state.symmetryLock || '12'); s('ring-count', state.rings); c('radial-stagger', state.stagger);
+      s('radial-inner-count', state.innerCount); s('radial-outer-count', state.outerCount); s('fan-twist', state.fanTwist); s('phy-seeds', state.phySeeds); s('phy-angle', state.phyAngle);
+      s('radius-easing-type', state.radiusEasingType); s('radius-easing-param', state.radiusEasingParam); s('count-easing-type', state.countEasingType); s('count-easing-param', state.countEasingParam);
+      s('micro-motif', state.motif); s('inner-scale', state.innerScale); s('outer-scale', state.outerScale); s('inner-gap', state.innerGap); s('outer-gap', state.outerGap);
+      s('motif-aspect', state.aspectRatio); s('shape-alignment', state.alignment); s('pattern-rotation', state.rot); s('hatch-output-mode', state.hatchMode);
+      s('motif-hatch-style', state.motifHatch); s('hatch-pitch', state.pitch); c('include-outlines', state.includeOutlines);
+      s('num-layers', state.layers); s('layer-distribution', state.layerDist); s('view-mode', state.view); s('shimmer-mode', state.shimmerMode); s('light-angle', state.light);
+      document.querySelectorAll('.chip').forEach((ch, idx) => ch.classList.toggle('active', state.activeHours.has(idx + 1)));
+    }
 
     function update() {
       state.dia = parseFloat(document.getElementById('dial-dia').value);
       state.pinion = parseFloat(document.getElementById('pinion-dia').value);
       state.hub = parseFloat(document.getElementById('hub-clearance').value);
-
       state.markerFormat = document.getElementById('marker-format').value;
       state.fontFamily = document.getElementById('font-family').value;
       state.fontScale = parseFloat(document.getElementById('font-scale').value);
       state.numeralOrientation = document.getElementById('numeral-orientation').value;
-      state.textDx = parseFloat(document.getElementById('text-dx').value);
-      state.textDy = parseFloat(document.getElementById('text-dy').value);
+      state.hairlineBoost = parseFloat(document.getElementById('hairline-boost').value);
+
+      state.targetHour = document.getElementById('tune-hour-select').value;
+      const dx = parseFloat(document.getElementById('text-dx').value) || 0;
+      const dy = parseFloat(document.getElementById('text-dy').value) || 0;
+      if (state.targetHour === 'all') {
+        state.globalDx = dx; state.globalDy = dy;
+      } else {
+        const h = parseInt(state.targetHour, 10);
+        if (!state.hourAdjust[h]) state.hourAdjust[h] = { x: 0, y: 0 };
+        state.hourAdjust[h].x = dx; state.hourAdjust[h].y = dy;
+      }
+
+      const curX = state.targetHour === 'all' ? state.globalDx : (state.hourAdjust[parseInt(state.targetHour, 10)]?.x || 0);
+      const curY = state.targetHour === 'all' ? state.globalDy : (state.hourAdjust[parseInt(state.targetHour, 10)]?.y || 0);
+      const valDx = document.getElementById('val-text-dx');
+      const valDy = document.getElementById('val-text-dy');
+      if (valDx) valDx.innerText = `${curX >= 0 ? '+' : ''}${curX.toFixed(2)} mm`;
+      if (valDy) valDy.innerText = `${curY >= 0 ? '+' : ''}${curY.toFixed(2)} mm`;
+
       state.numeralRadialShift = parseFloat(document.getElementById('numeral-radial-shift').value);
       state.markerRadiusPct = parseFloat(document.getElementById('marker-radius').value);
       state.secondaryMarker = document.getElementById('secondary-marker').value;
+      state.indexSize = parseFloat(document.getElementById('index-size').value);
+      state.indexRadialShift = parseFloat(document.getElementById('index-radial-shift').value);
+      state.indexTangentShift = parseFloat(document.getElementById('index-tangent-shift').value);
 
       state.cartSizing = document.getElementById('cartouche-sizing').value;
       state.cartWidth = parseFloat(document.getElementById('cart-width').value);
@@ -1687,17 +1057,19 @@
       state.trackStyle = document.getElementById('track-style').value;
 
       state.layout = document.getElementById('micro-layout').value;
-      state.rings = parseInt(document.getElementById('ring-count').value, 10) || 16;
+      state.symmetryLock = document.getElementById('symmetry-lock').value;
+      state.rings = parseInt(document.getElementById('ring-count').value, 10) || 12;
       state.stagger = document.getElementById('radial-stagger').checked;
       state.innerCount = parseInt(document.getElementById('radial-inner-count').value, 10) || 16;
       state.outerCount = parseInt(document.getElementById('radial-outer-count').value, 10) || 72;
       state.fanTwist = parseFloat(document.getElementById('fan-twist').value);
-      state.phySeeds = parseInt(document.getElementById('phy-seeds').value, 10) || 650;
+      state.phySeeds = parseInt(document.getElementById('phy-seeds').value, 10) || 610;
       state.phyAngle = parseFloat(document.getElementById('phy-angle').value);
       state.radiusEasingType = document.getElementById('radius-easing-type').value;
       state.radiusEasingParam = parseFloat(document.getElementById('radius-easing-param').value);
       state.countEasingType = document.getElementById('count-easing-type').value;
       state.countEasingParam = parseFloat(document.getElementById('count-easing-param').value);
+
       state.motif = document.getElementById('micro-motif').value;
       state.innerScale = parseFloat(document.getElementById('inner-scale').value);
       state.outerScale = parseFloat(document.getElementById('outer-scale').value);
@@ -1716,25 +1088,24 @@
       state.shimmerMode = document.getElementById('shimmer-mode').value;
       state.light = parseFloat(document.getElementById('light-angle').value);
 
-      const isPhy = state.layout === 'spiral_phyllotaxis';
-      const isFan = state.layout === 'radial_fans';
-      const isCart = state.layout === 'cartesian_grid';
-      const isProp = state.layout === 'concentric_proportional';
-
+      const isPhy = state.layout === 'spiral_phyllotaxis', isFan = state.layout === 'radial_fans', isCart = state.layout === 'cartesian_grid', isProp = state.layout === 'concentric_proportional';
+      document.getElementById('group-ring-counts').style.display = isPhy ? 'none' : 'block';
       document.getElementById('group-phyllotaxis').style.display = isPhy ? 'block' : 'none';
       document.getElementById('group-fibonacci-fan').style.display = isFan ? 'block' : 'none';
       document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan) ? 'none' : 'flex';
       document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp) ? 'none' : 'grid';
       document.getElementById('wrap-count-easing').style.display = (isPhy || isCart) ? 'none' : 'grid';
-      document.getElementById('lbl-ring-count').innerText = isFan ? 'Radial Wave Steps' : (isCart ? 'Grid Density Rows' : 'Number of Rings');
+      document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart) ? 'none' : 'block';
       document.getElementById('sub-hatch').style.display = state.hatchMode === 'pre_hatched' ? 'block' : 'none';
 
       document.getElementById('val-hub').innerText = `${state.hub.toFixed(2)} mm`;
       document.getElementById('val-font-scale').innerText = `${state.fontScale}%`;
-      document.getElementById('val-text-dx').innerText = `${state.textDx >= 0 ? '+' : ''}${state.textDx.toFixed(2)} mm`;
-      document.getElementById('val-text-dy').innerText = `${state.textDy >= 0 ? '+' : ''}${state.textDy.toFixed(2)} mm`;
+      document.getElementById('val-hairline-boost').innerText = `${state.hairlineBoost.toFixed(2)} mm`;
       document.getElementById('val-numeral-shift').innerText = `${state.numeralRadialShift >= 0 ? '+' : ''}${state.numeralRadialShift.toFixed(2)} mm`;
       document.getElementById('val-marker-r').innerText = `${state.markerRadiusPct}%`;
+      document.getElementById('val-index-size').innerText = `${state.indexSize.toFixed(2)} mm`;
+      document.getElementById('val-index-radial').innerText = `${state.indexRadialShift >= 0 ? '+' : ''}${state.indexRadialShift.toFixed(2)} mm`;
+      document.getElementById('val-index-tangent').innerText = `${state.indexTangentShift >= 0 ? '+' : ''}${state.indexTangentShift.toFixed(2)} mm`;
       document.getElementById('val-cart-w').innerText = `${state.cartWidth.toFixed(2)} mm`;
       document.getElementById('val-cart-h').innerText = `${state.cartHeight.toFixed(2)} mm`;
       document.getElementById('val-cart-pad').innerText = `${state.cartPad.toFixed(2)} mm`;
@@ -1755,7 +1126,7 @@
       render();
     }
 
-    document.getElementById('btn-play').addEventListener('click', () => {
+    document.getElementById('btn-play').onclick = () => {
       state.playing = !state.playing;
       document.getElementById('btn-play').innerText = state.playing ? 'Stop Tilt' : 'Auto-Tilt Light';
       if (state.playing) {
@@ -1766,42 +1137,91 @@
           state.light = Math.round(20 + (Math.sin((t - t0) * 0.002) * 0.5 + 0.5) * 130);
           document.getElementById('light-angle').value = state.light;
           document.getElementById('val-light').innerText = `${state.light}°`;
-          render();
-          requestAnimationFrame(loop);
+          render(); requestAnimationFrame(loop);
         }
         requestAnimationFrame(loop);
       }
-    });
+    };
 
-    document.getElementById('btn-seed').addEventListener('click', update);
-    document.getElementById('btn-export').addEventListener('click', exportSVG);
+    document.getElementById('btn-seed').onclick = update;
+    document.getElementById('btn-export').onclick = exportSVG;
 
     [
-      'dial-dia', 'pinion-dia', 'hub-clearance', 'marker-format', 'font-family', 'font-scale',
-      'numeral-orientation', 'text-dx', 'text-dy', 'numeral-radial-shift', 'marker-radius', 'secondary-marker',
-      'cartouche-sizing', 'cart-width', 'cart-height', 'cartouche-orientation',
-      'cartouche-pad', 'cartouche-shape', 'cartouche-border', 'track-style', 'micro-layout',
-      'ring-count', 'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'fan-twist',
-      'phy-seeds', 'phy-angle', 'radius-easing-type', 'radius-easing-param', 'count-easing-type',
-      'count-easing-param', 'micro-motif', 'inner-scale', 'outer-scale', 'inner-gap', 'outer-gap',
-      'motif-aspect', 'shape-alignment', 'pattern-rotation', 'hatch-output-mode', 'motif-hatch-style',
-      'hatch-pitch', 'include-outlines', 'num-layers', 'layer-distribution', 'view-mode',
-      'shimmer-mode', 'light-angle'
+      'dial-dia', 'pinion-dia', 'hub-clearance', 'marker-format', 'font-family', 'font-scale', 'numeral-orientation',
+      'hairline-boost', 'text-dx', 'text-dy', 'numeral-radial-shift', 'marker-radius', 'secondary-marker', 'index-size',
+      'index-radial-shift', 'index-tangent-shift', 'cartouche-sizing', 'cart-width', 'cart-height', 'cartouche-orientation',
+      'cartouche-pad', 'cartouche-shape', 'cartouche-border', 'track-style', 'micro-layout', 'symmetry-lock', 'ring-count',
+      'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'fan-twist', 'phy-seeds', 'phy-angle', 'radius-easing-type',
+      'radius-easing-param', 'count-easing-type', 'count-easing-param', 'micro-motif', 'inner-scale', 'outer-scale',
+      'inner-gap', 'outer-gap', 'motif-aspect', 'shape-alignment', 'pattern-rotation', 'hatch-output-mode', 'motif-hatch-style',
+      'hatch-pitch', 'include-outlines', 'num-layers', 'layer-distribution', 'view-mode', 'shimmer-mode', 'light-angle'
     ].forEach(id => {
       const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', update);
-        el.addEventListener('change', update);
-      }
+      if (el) { el.oninput = update; el.onchange = update; }
     });
 
     initHourChips();
+    updatePresetDropdown();
 
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => { update(); });
-    } else {
-      update();
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        update();
+      });
     }
+
+    let zoom = 1.0, panX = 0, panY = 0, isPanning = false, startX = 0, startY = 0;
+    const vp = document.getElementById('viewport-container');
+
+    function updateCanvasTransform() {
+      canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      document.getElementById('val-zoom').innerText = `${Math.round(zoom * 100)}%`;
+      document.getElementById('zoom-slider').value = zoom;
+    }
+
+    document.getElementById('btn-zoom-in').onclick = () => {
+      zoom = Math.min(4.0, +(zoom + 0.25).toFixed(2));
+      updateCanvasTransform();
+    };
+    document.getElementById('btn-zoom-out').onclick = () => {
+      zoom = Math.max(0.4, +(zoom - 0.25).toFixed(2));
+      updateCanvasTransform();
+    };
+    document.getElementById('btn-zoom-reset').onclick = () => {
+      zoom = 1.0; panX = 0; panY = 0;
+      updateCanvasTransform();
+    };
+    document.getElementById('zoom-slider').oninput = (e) => {
+      zoom = parseFloat(e.target.value);
+      updateCanvasTransform();
+    };
+
+    vp.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.15 : -0.15;
+      zoom = Math.min(4.0, Math.max(0.4, +(zoom + delta).toFixed(2)));
+      updateCanvasTransform();
+    }, { passive: false });
+
+    vp.addEventListener('pointerdown', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+      isPanning = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+      vp.setPointerCapture(e.pointerId);
+    });
+    vp.addEventListener('pointermove', (e) => {
+      if (!isPanning) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      updateCanvasTransform();
+    });
+    vp.addEventListener('pointerup', (e) => {
+      isPanning = false;
+      try { vp.releasePointerCapture(e.pointerId); } catch (_) {}
+    });
+    vp.addEventListener('pointercancel', () => { isPanning = false; });
+
+    update();
   </script>
 </body>
 </html>
