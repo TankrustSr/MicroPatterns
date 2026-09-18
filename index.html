@@ -325,7 +325,7 @@
   </div>
 
   <script>
-  const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
+    const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
     const FONT_MAP = {
       'Decimal': {
         css: "'Decimal', 'Avenir Next', 'Futura', 'Barlow Semi Condensed', sans-serif",
@@ -475,12 +475,36 @@
             cartouches.push({ cx: numCx, cy: numCy, poly, isCircle: state.cartShape === 'circle', radius: Math.max(hL, hW), radiusCheck: Math.hypot(hL, hW) + 0.05 });
             timeMarkers.push({ type: 'text', text, hour: h, cx: numCx, cy: numCy, fontSizeMM: baseFontSize, isUpright: isUp, angle: isUp ? 0 : spokeAngle + Math.PI/2, shiftX: totalDx, shiftY: totalDy });
           } else {
-            const isDouble12 = (h === 12), batonLen = 2.2 * scaleF, batonW = (state.markerFormat === 'dot' ? 1.0 : 0.65) * scaleF;
+            const isDouble12 = (h === 12);
+            const batonLen = 2.2 * scaleF;
+            const batonW = (state.markerFormat === 'dot' ? 1.0 : 0.65) * scaleF;
+            const barW = batonW * 0.75;
+            const gap = batonW * 0.35;
+            const totalBatonW = isDouble12 ? (barW * 2 + gap) : batonW;
+
             let hL = state.cartWidth / 2, hW = state.cartHeight / 2;
-            if (state.cartSizing === 'adaptive') { hL = batonLen / 2 + pad; hW = (isDouble12 ? batonW * 2.2 : batonW) / 2 + pad; }
+            if (state.cartSizing === 'adaptive') {
+              hL = batonLen / 2 + pad;
+              hW = totalBatonW / 2 + pad;
+            }
             const poly = generateCapsulePoly(numCx, numCy, hL, hW, spokeAngle);
-            cartouches.push({ cx: numCx, cy: numCy, poly, isCircle: state.cartShape === 'circle', radius: Math.max(hL, hW), radiusCheck: Math.hypot(hL, hW) + 0.05 });
-            timeMarkers.push({ type: state.markerFormat, hour: h, cx: numCx, cy: numCy, angle: spokeAngle, len: batonLen, w: batonW, isDouble: isDouble12, shiftX: totalDx, shiftY: totalDy });
+            cartouches.push({
+              cx: numCx, cy: numCy, poly,
+              isCircle: state.cartShape === 'circle',
+              radius: Math.max(hL, hW),
+              radiusCheck: Math.hypot(hL, hW) + 0.05
+            });
+            timeMarkers.push({
+              type: state.markerFormat,
+              hour: h,
+              cx: numCx, cy: numCy,
+              angle: spokeAngle,
+              len: batonLen,
+              w: batonW,
+              isDouble: isDouble12,
+              shiftX: 0,
+              shiftY: 0
+            });
           }
         } else if (state.secondaryMarker !== 'none') {
           const idxR = baseMarkerR + state.indexRadialShift;
@@ -812,13 +836,30 @@
         if (m.type === 'baton') {
           ctx.strokeStyle = '#000'; ctx.lineWidth = 0.02;
           if (m.isDouble) {
-            ctx.fillRect(-m.len/2 + m.shiftX, -m.w*0.75 + m.shiftY, m.len, m.w*0.85); ctx.strokeRect(-m.len/2 + m.shiftX, -m.w*0.75 + m.shiftY, m.len, m.w*0.85);
-            ctx.fillRect(-m.len/2 + m.shiftX, m.w*0.1 + m.shiftY, m.len, m.w*0.85); ctx.strokeRect(-m.len/2 + m.shiftX, m.w*0.1 + m.shiftY, m.len, m.w*0.85);
-          } else { ctx.fillRect(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY, m.len, m.w); ctx.strokeRect(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY, m.len, m.w); }
+            const barW = m.w * 0.75;
+            const gap = m.w * 0.35;
+            const y1 = -gap / 2 - barW;
+            const y2 = gap / 2;
+            ctx.fillRect(-m.len / 2, y1, m.len, barW);
+            ctx.strokeRect(-m.len / 2, y1, m.len, barW);
+            ctx.fillRect(-m.len / 2, y2, m.len, barW);
+            ctx.strokeRect(-m.len / 2, y2, m.len, barW);
+          } else {
+            ctx.fillRect(-m.len / 2, -m.w / 2, m.len, m.w);
+            ctx.strokeRect(-m.len / 2, -m.w / 2, m.len, m.w);
+          }
         } else if (m.type === 'dagger') {
-          ctx.beginPath(); ctx.moveTo(m.len/2 + m.shiftX, m.shiftY); ctx.lineTo(-m.len/2 + m.shiftX, m.w/2 + m.shiftY); ctx.lineTo(-m.len*0.35 + m.shiftX, m.shiftY); ctx.lineTo(-m.len/2 + m.shiftX, -m.w/2 + m.shiftY); ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(m.len / 2 + m.shiftX, m.shiftY);
+          ctx.lineTo(-m.len / 2 + m.shiftX, m.w / 2 + m.shiftY);
+          ctx.lineTo(-m.len * 0.35 + m.shiftX, m.shiftY);
+          ctx.lineTo(-m.len / 2 + m.shiftX, -m.w / 2 + m.shiftY);
+          ctx.closePath();
+          ctx.fill();
         } else if (m.type === 'dot') {
-          ctx.beginPath(); ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath();
+          ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2);
+          ctx.fill();
         }
         ctx.restore();
       }
@@ -880,11 +921,28 @@
             const strk = state.hairlineBoost > 0 ? `stroke="#000" stroke-width="${state.hairlineBoost.toFixed(3)}mm"` : '';
             svg += `    <text x="${(m.cx + m.shiftX).toFixed(3)}" y="${(m.cy + m.shiftY).toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${m.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" ${strk} transform="rotate(${(m.angle * 180 / Math.PI).toFixed(2)} ${m.cx.toFixed(3)} ${m.cy.toFixed(3)})">${m.text}</text>\n`;
           } else {
-            const cosA = Math.cos(m.angle), sinA = Math.sin(m.angle), toD = (u, v) => `${(m.cx + (u + m.shiftX) * cosA - (v + m.shiftY) * sinA).toFixed(3)},${(m.cy + (u + m.shiftX) * sinA + (v + m.shiftY) * cosA).toFixed(3)}`;
-            const hL = m.len / 2, hW = m.w / 2;
-            if (m.type === 'baton') svg += m.isDouble ? `    <polygon points="${toD(hL, hW*0.9)} ${toD(-hL, hW*0.9)} ${toD(-hL, 0)} ${toD(hL, 0)}" /><polygon points="${toD(hL, 0)} ${toD(-hL, 0)} ${toD(-hL, -hW*0.9)} ${toD(hL, -hW*0.9)}" />\n` : `    <polygon points="${toD(hL, hW)} ${toD(-hL, hW)} ${toD(-hL, -hW)} ${toD(hL, -hW)}" />\n`;
-            else if (m.type === 'dagger') svg += `    <polygon points="${toD(hL, 0)} ${toD(-hL, hW)} ${toD(-hL*0.7, 0)} ${toD(-hL, -hW)}" />\n`;
-            else svg += `    <circle cx="${(m.cx + m.shiftX).toFixed(3)}" cy="${(m.cy + m.shiftY).toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
+            const cosA = Math.cos(m.angle), sinA = Math.sin(m.angle);
+            const toD = (u, v) => `${(m.cx + u * cosA - v * sinA).toFixed(3)},${(m.cy + u * sinA + v * cosA).toFixed(3)}`;
+            const hL = m.len / 2;
+            if (m.type === 'baton') {
+              if (m.isDouble) {
+                const barW = m.w * 0.75;
+                const gap = m.w * 0.35;
+                const y1_top = -gap / 2;
+                const y1_bot = -gap / 2 - barW;
+                const y2_bot = gap / 2;
+                const y2_top = gap / 2 + barW;
+                svg += `    <polygon points="${toD(hL, y1_top)} ${toD(-hL, y1_top)} ${toD(-hL, y1_bot)} ${toD(hL, y1_bot)}" />\n`;
+                svg += `    <polygon points="${toD(hL, y2_top)} ${toD(-hL, y2_top)} ${toD(-hL, y2_bot)} ${toD(hL, y2_bot)}" />\n`;
+              } else {
+                const hW = m.w / 2;
+                svg += `    <polygon points="${toD(hL, hW)} ${toD(-hL, hW)} ${toD(-hL, -hW)} ${toD(hL, -hW)}" />\n`;
+              }
+            } else if (m.type === 'dagger') {
+              svg += `    <polygon points="${toD(hL, 0)} ${toD(-hL, m.w / 2)} ${toD(-hL * 0.7, 0)} ${toD(-hL, -m.w / 2)}" />\n`;
+            } else {
+              svg += `    <circle cx="${m.cx.toFixed(3)}" cy="${m.cy.toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
+            }
           }
         }
         svg += `  </g>\n`;
