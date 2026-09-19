@@ -499,7 +499,6 @@
             }
           } else {
             if (pointInPoly(seg.p1, c.poly) && pointInPoly(seg.p2, c.poly)) continue;
-            // Robust segment-edge clipping
             const dx = seg.p2.x - seg.p1.x, dy = seg.p2.y - seg.p1.y;
             const segLen = Math.hypot(dx, dy);
             if (segLen < 1e-6) continue;
@@ -565,7 +564,6 @@
       return null;
     }
 
-    // Exact, non-dropping scanline polygon intersection
     function intersectLinePoly(originX, originY, ux, uy, poly) {
       const hits = [];
       for (let i = 0; i < poly.length; i++) {
@@ -594,7 +592,6 @@
       return segs;
     }
 
-    // Analytically exact circular bead hatching (zero polygon artifacts, zero dropped lines)
     function addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx) {
       if (state.hatchMode === 'closed_outline') {
         elements.push({ type: 'circle', cx, cy, r, l: layer, a: hatchAngle, idx: sIdx });
@@ -722,7 +719,6 @@
           for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
         }
       } else {
-        // Robust linear hatch using scanline intersections (zero missing lines, 100% uniform interval)
         const rad = (hatchAngle * Math.PI) / 180;
         const ux = Math.cos(rad), uy = Math.sin(rad);
         const nx = -uy, ny = ux;
@@ -1036,7 +1032,7 @@
             } else if (m.type === 'dagger') {
               svg += `    <polygon points="${toD(hL, 0)} ${toD(-hL, m.w / 2)} ${toD(-hL * 0.7, 0)} ${toD(-hL, -m.w / 2)}" />\n`;
             } else {
-              svg += `    <circle cx="${m.cx.toFixed(3)}" cy="${m.cy.toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
+              svg += `    <circle cx="${(m.cx + m.shiftX).toFixed(3)}" cy="${(m.cy + m.shiftY).toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
             }
           }
         }
@@ -1075,33 +1071,84 @@
       if (p[cur]) dd.value = cur;
     }
 
+    function loadPresetData(p) {
+      if (!p) return;
+      Object.assign(state, JSON.parse(JSON.stringify(p)));
+      if (Array.isArray(p.activeHours)) {
+        state.activeHours = new Set(p.activeHours);
+      } else if (p.activeHours && typeof p.activeHours === 'object') {
+        state.activeHours = new Set(Object.values(p.activeHours));
+      }
+      if (p.hourAdjust) {
+        state.hourAdjust = JSON.parse(JSON.stringify(p.hourAdjust));
+      }
+      syncDOM();
+      update();
+    }
+
     document.getElementById('btn-save-preset').onclick = () => {
       const inp = document.getElementById('preset-name-input'), name = inp.value.trim() || `Preset ${new Date().toLocaleTimeString()}`;
-      const presets = getPresets(); presets[name] = JSON.parse(JSON.stringify(state)); presets[name].activeHours = Array.from(state.activeHours);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(presets)); updatePresetDropdown(); document.getElementById('preset-dropdown').value = name; inp.value = '';
+      const presets = getPresets();
+      const saveState = JSON.parse(JSON.stringify(state));
+      saveState.activeHours = Array.from(state.activeHours);
+      presets[name] = saveState;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+      updatePresetDropdown();
+      document.getElementById('preset-dropdown').value = name;
+      inp.value = '';
     };
+
     document.getElementById('preset-dropdown').onchange = (e) => {
-      const p = getPresets()[e.target.value]; if (!p) return;
-      Object.assign(state, p); if (Array.isArray(p.activeHours)) state.activeHours = new Set(p.activeHours);
-      syncDOM(); update();
+      const p = getPresets()[e.target.value];
+      if (!p) return;
+      loadPresetData(p);
     };
+
     document.getElementById('btn-delete-preset').onclick = () => {
       const dd = document.getElementById('preset-dropdown'), name = dd.value; if (!name) return;
       const presets = getPresets(); delete presets[name]; localStorage.setItem(STORAGE_KEY, JSON.stringify(presets)); updatePresetDropdown();
     };
+
     document.getElementById('btn-export-presets').onclick = () => {
       const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(getPresets(), null, 2)], { type: 'application/json' }));
       a.download = 'mopa_dial_presets.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
+
     document.getElementById('btn-import-presets').onclick = () => document.getElementById('preset-file-input').click();
     document.getElementById('preset-file-input').onchange = (e) => {
-      const f = e.target.files[0]; if (!f) return;
-      const r = new FileReader(); r.onload = (evt) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = (evt) => {
         try {
-          const imp = JSON.parse(evt.target.result), cur = getPresets(); Object.assign(cur, imp);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(cur)); updatePresetDropdown();
-        } catch(err) { alert('Invalid preset JSON'); }
-      }; r.readAsText(f);
+          const imp = JSON.parse(evt.target.result);
+          const cur = getPresets();
+          let keyToLoad = null;
+
+          if (imp.dia !== undefined || imp.rings !== undefined || imp.layout !== undefined || imp.motif !== undefined) {
+            const name = f.name.replace(/\.[^/.]+$/, "") || `Imported Preset`;
+            cur[name] = imp;
+            keyToLoad = name;
+          } else if (typeof imp === 'object' && imp !== null && Object.keys(imp).length > 0) {
+            Object.assign(cur, imp);
+            keyToLoad = Object.keys(imp)[0];
+          } else {
+            throw new Error('Unrecognized preset format');
+          }
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
+          updatePresetDropdown();
+
+          if (keyToLoad && cur[keyToLoad]) {
+            document.getElementById('preset-dropdown').value = keyToLoad;
+            loadPresetData(cur[keyToLoad]);
+          }
+        } catch (err) {
+          alert('Invalid preset JSON: ' + err.message);
+        }
+      };
+      r.readAsText(f);
+      e.target.value = '';
     };
 
     document.getElementById('btn-load-font').onclick = () => document.getElementById('font-file-input').click();
@@ -1147,8 +1194,8 @@
     };
 
     function syncDOM() {
-      const s = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-      const c = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+      const s = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+      const c = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.checked = !!v; };
       s('dial-dia', state.dia); s('pinion-dia', state.pinion); s('hub-clearance', state.hub); s('marker-format', state.markerFormat);
       s('font-family', state.fontFamily); s('font-scale', state.fontScale); s('numeral-orientation', state.numeralOrientation);
       s('hairline-boost', state.hairlineBoost); s('numeral-radial-shift', state.numeralRadialShift); s('marker-radius', state.markerRadiusPct);
@@ -1162,7 +1209,17 @@
       s('motif-aspect', state.aspectRatio); s('shape-alignment', state.alignment); s('pattern-rotation', state.rot); s('hatch-output-mode', state.hatchMode);
       s('motif-hatch-style', state.motifHatch); s('hatch-pitch', state.pitch); c('include-outlines', state.includeOutlines);
       s('num-layers', state.layers); s('layer-distribution', state.layerDist); s('view-mode', state.view); s('shimmer-mode', state.shimmerMode); s('light-angle', state.light);
-      document.querySelectorAll('.chip').forEach((ch, idx) => ch.classList.toggle('active', state.activeHours.has(idx + 1)));
+
+      s('tune-hour-select', state.targetHour || 'all');
+      const h = state.targetHour === 'all' ? 4 : parseInt(state.targetHour, 10);
+      const curX = state.targetHour === 'all' ? (state.globalDx || 0) : (state.hourAdjust[h]?.x || 0);
+      const curY = state.targetHour === 'all' ? (state.globalDy || 0) : (state.hourAdjust[h]?.y || 0);
+      s('text-dx', curX);
+      s('text-dy', curY);
+
+      document.querySelectorAll('.chip').forEach((ch, idx) => {
+        if (state.activeHours) ch.classList.toggle('active', state.activeHours.has(idx + 1));
+      });
     }
 
     function update() {
