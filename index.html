@@ -327,36 +327,12 @@
   <script>
     const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
     const FONT_MAP = {
-      'Decimal': {
-        css: "'Decimal', 'Avenir Next', 'Futura', 'Barlow Semi Condensed', sans-serif",
-        exportName: "Decimal, 'Avenir Next', Futura, 'Barlow Semi Condensed', sans-serif",
-        weight: '700'
-      },
-      'DIN 1451': {
-        css: "'DIN 1451', 'DIN Alternate', 'DIN Condensed', 'Roboto Condensed', sans-serif",
-        exportName: "'DIN 1451 Mittelschrift', 'DIN Alternate', 'DIN Condensed', 'Roboto Condensed', sans-serif",
-        weight: '700'
-      },
-      'Filmotype Fashion': {
-        css: "'Filmotype Fashion', 'Didot', 'Bodoni 72', 'Bodoni Moda', serif",
-        exportName: "'Filmotype Fashion', Didot, 'Bodoni 72', 'Bodoni Moda', serif",
-        weight: '700'
-      },
-      'Clarendon Bold': {
-        css: "'Clarendon Bold', 'Rockwell', 'Besley', serif",
-        exportName: "'Clarendon Bold', Rockwell, Besley, serif",
-        weight: '700'
-      },
-      'Isonorm': {
-        css: "'Isonorm', 'Share Tech Mono', 'Courier New', Courier, monospace",
-        exportName: "Isonorm, 'Share Tech Mono', 'Courier New', monospace",
-        weight: '600'
-      },
-      'Custom': {
-        css: "'CustomUserFont', sans-serif",
-        exportName: "CustomUserFont, sans-serif",
-        weight: '700'
-      }
+      'Decimal': { css: "'Barlow Semi Condensed', sans-serif", exportName: "Decimal, sans-serif", weight: '700' },
+      'DIN 1451': { css: "'Roboto Condensed', sans-serif", exportName: "'DIN 1451 Mittelschrift', sans-serif", weight: '700' },
+      'Filmotype Fashion': { css: "'Bodoni Moda', serif", exportName: "'Filmotype Fashion', serif", weight: '700' },
+      'Clarendon Bold': { css: "'Besley', serif", exportName: "'Clarendon Bold', serif", weight: '700' },
+      'Isonorm': { css: "'Share Tech Mono', monospace", exportName: "Isonorm, monospace", weight: '600' },
+      'Custom': { css: "'CustomUserFont', sans-serif", exportName: "CustomUserFont, sans-serif", weight: '700' }
     };
 
     const state = {
@@ -385,63 +361,18 @@
       return t;
     }
 
-    function clipLine(x1, y1, x2, y2, poly) {
-      let t0 = 0, t1 = 1;
-      const dx = x2 - x1, dy = y2 - y1;
-      if (dx * dx + dy * dy < 1e-12) return null;
-
-      let pcx = 0, pcy = 0;
-      for (let i = 0; i < poly.length; i++) {
-        pcx += poly[i].x; pcy += poly[i].y;
-      }
-      pcx /= poly.length; pcy /= poly.length;
-
-      for (let i = 0; i < poly.length; i++) {
-        const pA = poly[i], pB = poly[(i + 1) % poly.length];
-        let nx = -(pB.y - pA.y), ny = pB.x - pA.x;
-
-        const midX = (pA.x + pB.x) * 0.5, midY = (pA.y + pB.y) * 0.5;
-        if (nx * (pcx - midX) + ny * (pcy - midY) < 0) {
-          nx = -nx; ny = -ny;
-        }
-
-        const denom = dx * nx + dy * ny;
-        const num = -((x1 - pA.x) * nx + (y1 - pA.y) * ny);
-
-        if (Math.abs(denom) < 1e-9) {
-          if (num > 1e-7) return null;
-          continue;
-        }
-
-        const t = num / denom;
-        if (denom > 0) {
-          if (t > t0) t0 = t;
-        } else {
-          if (t < t1) t1 = t;
-        }
-
-        if (t0 > t1 + 1e-9) return null;
-      }
-
-      if (t0 > t1) return null;
-      return [
-        { x: x1 + t0 * dx, y: y1 + t0 * dy },
-        { x: x1 + t1 * dx, y: y1 + t1 * dy }
-      ];
-    }
-
     function generateCapsulePoly(cx, cy, hL, hW, angle) {
       const cosA = Math.cos(angle), sinA = Math.sin(angle);
       const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
       if (state.cartShape === 'circle') {
         const r = Math.max(hL, hW), pts = [];
-        for (let i = 0; i < 24; i++) pts.push({ x: cx + r * Math.cos(i * Math.PI / 12), y: cy + r * Math.sin(i * Math.PI / 12) });
+        for (let i = 0; i < 64; i++) pts.push({ x: cx + r * Math.cos(i * Math.PI / 32), y: cy + r * Math.sin(i * Math.PI / 32) });
         return pts;
       }
       if (state.cartShape === 'rect') return [toD(hL, hW), toD(-hL, hW), toD(-hL, -hW), toD(hL, -hW)];
       const pts = [], cL = Math.max(0, hL - hW);
-      for (let i = 0; i <= 8; i++) pts.push(toD(cL + hW * Math.cos(-Math.PI/2 + i * Math.PI/8), hW * Math.sin(-Math.PI/2 + i * Math.PI/8)));
-      for (let i = 0; i <= 8; i++) pts.push(toD(-cL + hW * Math.cos(Math.PI/2 + i * Math.PI/8), hW * Math.sin(Math.PI/2 + i * Math.PI/8)));
+      for (let i = 0; i <= 24; i++) pts.push(toD(cL + hW * Math.cos(-Math.PI/2 + i * Math.PI/24), hW * Math.sin(-Math.PI/2 + i * Math.PI/24)));
+      for (let i = 0; i <= 24; i++) pts.push(toD(-cL + hW * Math.cos(Math.PI/2 + i * Math.PI/24), hW * Math.sin(Math.PI/2 + i * Math.PI/24)));
       return pts;
     }
 
@@ -543,8 +474,16 @@
       let currentSegs = [{ p1, p2 }];
       for (let k = 0; k < cartouches.length; k++) {
         const c = cartouches[k], nextSegs = [];
+        const rCheck = c.radiusCheck || (c.radius + 0.1);
         for (let s = 0; s < currentSegs.length; s++) {
           const seg = currentSegs[s];
+          const midX = (seg.p1.x + seg.p2.x) * 0.5, midY = (seg.p1.y + seg.p2.y) * 0.5;
+          const segHalfLen = Math.hypot(seg.p2.x - seg.p1.x, seg.p2.y - seg.p1.y) * 0.5;
+          if (Math.hypot(midX - c.cx, midY - c.cy) > segHalfLen + rCheck) {
+            nextSegs.push(seg);
+            continue;
+          }
+
           if (c.isCircle) {
             const dx = seg.p2.x - seg.p1.x, dy = seg.p2.y - seg.p1.y, a = dx * dx + dy * dy;
             if (a < 1e-10) continue;
@@ -559,14 +498,34 @@
               }
             }
           } else {
-            const midX = (seg.p1.x + seg.p2.x) * 0.5, midY = (seg.p1.y + seg.p2.y) * 0.5;
-            if (Math.hypot(midX - c.cx, midY - c.cy) > Math.hypot(seg.p2.x - seg.p1.x, seg.p2.y - seg.p1.y) * 0.5 + c.radiusCheck) { nextSegs.push(seg); continue; }
             if (pointInPoly(seg.p1, c.poly) && pointInPoly(seg.p2, c.poly)) continue;
-            const inside = clipLine(seg.p1.x, seg.p1.y, seg.p2.x, seg.p2.y, c.poly);
-            if (!inside) nextSegs.push(seg);
-            else {
-              if (Math.hypot(seg.p1.x - inside[0].x, seg.p1.y - inside[0].y) > 0.02) nextSegs.push({ p1: seg.p1, p2: inside[0] });
-              if (Math.hypot(seg.p2.x - inside[1].x, seg.p2.y - inside[1].y) > 0.02) nextSegs.push({ p1: inside[1], p2: seg.p2 });
+            // Robust segment-edge clipping
+            const dx = seg.p2.x - seg.p1.x, dy = seg.p2.y - seg.p1.y;
+            const segLen = Math.hypot(dx, dy);
+            if (segLen < 1e-6) continue;
+            const ux = dx / segLen, uy = dy / segLen;
+            const subHits = [];
+            for (let i = 0; i < c.poly.length; i++) {
+              const pA = c.poly[i], pB = c.poly[(i + 1) % c.poly.length];
+              const vx = pB.x - pA.x, vy = pB.y - pA.y;
+              const det = vx * uy - vy * ux;
+              if (Math.abs(det) < 1e-10) continue;
+              const dPx = seg.p1.x - pA.x, dPy = seg.p1.y - pA.y;
+              const sEdge = (dPx * uy - dPy * ux) / det;
+              const tLine = (dPx * vy - dPy * vx) / det;
+              if (sEdge >= -1e-5 && sEdge <= 1 + 1e-5 && tLine >= 0 && tLine <= segLen) {
+                subHits.push(tLine);
+              }
+            }
+            if (!subHits.length) { nextSegs.push(seg); continue; }
+            subHits.sort((a, b) => a - b);
+            const uHits = [subHits[0]];
+            for (let i = 1; i < subHits.length; i++) if (subHits[i] - uHits[uHits.length - 1] > 1e-4) uHits.push(subHits[i]);
+            if (uHits.length >= 2) {
+              if (uHits[0] > 0.015) nextSegs.push({ p1: seg.p1, p2: { x: seg.p1.x + uHits[0] * ux, y: seg.p1.y + uHits[0] * uy } });
+              if (uHits[1] < segLen - 0.015) nextSegs.push({ p1: { x: seg.p1.x + uHits[1] * ux, y: seg.p1.y + uHits[1] * uy }, p2: seg.p2 });
+            } else {
+              nextSegs.push(seg);
             }
           }
         }
@@ -592,28 +551,134 @@
       if (type === 'chevron') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.1, 0), toD(-Sr * 0.5, -Sc)];
       if (type === 'keystone') {
         const cx0 = state.dia / 2, cy0 = state.dia / 2, halfSpan = (dTheta / 2) * (Sc / Math.max(0.001, chordWidth / 2)), bT = Math.atan2(cy - cy0, cx - cx0);
-        return [{ x: cx0 + (curR - Sr) * Math.cos(bT - halfSpan), y: cy0 + (curR - Sr) * Math.sin(bT - halfSpan) }, { x: cx0 + (curR + Sr) * Math.cos(bT - halfSpan), y: cy0 + (curR + Sr) * Math.sin(bT - halfSpan) }, { x: cx0 + (curR + Sr) * Math.cos(bT + halfSpan), y: cy0 + (curR + Sr) * Math.sin(bT + halfSpan) }, { x: cx0 + (curR - Sr) * Math.cos(bT + halfSpan), y: cy0 + (curR - Sr) * Math.sin(bT + halfSpan) }];
+        const steps = 16, pts = [];
+        for (let i = 0; i <= steps; i++) {
+          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
+          pts.push({ x: cx0 + (curR + Sr) * Math.cos(th), y: cy0 + (curR + Sr) * Math.sin(th) });
+        }
+        for (let i = steps; i >= 0; i--) {
+          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
+          pts.push({ x: cx0 + (curR - Sr) * Math.cos(th), y: cy0 + (curR - Sr) * Math.sin(th) });
+        }
+        return pts;
       }
       return null;
     }
 
+    // Exact, non-dropping scanline polygon intersection
+    function intersectLinePoly(originX, originY, ux, uy, poly) {
+      const hits = [];
+      for (let i = 0; i < poly.length; i++) {
+        const pA = poly[i], pB = poly[(i + 1) % poly.length];
+        const vx = pB.x - pA.x, vy = pB.y - pA.y;
+        const det = vx * uy - vy * ux;
+        if (Math.abs(det) < 1e-10) continue;
+        const dx = originX - pA.x, dy = originY - pA.y;
+        const s = (dx * uy - dy * ux) / det;
+        const t = (dx * vy - dy * vx) / det;
+        if (s >= -1e-6 && s <= 1 + 1e-6) hits.push(t);
+      }
+      if (hits.length < 2) return [];
+      hits.sort((a, b) => a - b);
+      const unique = [hits[0]];
+      for (let i = 1; i < hits.length; i++) {
+        if (hits[i] - unique[unique.length - 1] > 1e-4) unique.push(hits[i]);
+      }
+      const segs = [];
+      for (let i = 0; i + 1 < unique.length; i += 2) {
+        segs.push([
+          { x: originX + unique[i] * ux, y: originY + unique[i] * uy },
+          { x: originX + unique[i + 1] * ux, y: originY + unique[i + 1] * uy }
+        ]);
+      }
+      return segs;
+    }
+
+    // Analytically exact circular bead hatching (zero polygon artifacts, zero dropped lines)
+    function addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx) {
+      if (state.hatchMode === 'closed_outline') {
+        elements.push({ type: 'circle', cx, cy, r, l: layer, a: hatchAngle, idx: sIdx });
+        return;
+      }
+      if (state.includeOutlines) {
+        elements.push({ type: 'circle', cx, cy, r, l: 'outline', a: 0, idx: sIdx });
+      }
+
+      if (state.motifHatch === 'contour_inward') {
+        const rings = Math.max(1, Math.floor(r / state.pitch));
+        for (let m = 1; m <= rings; m++) {
+          elements.push({ type: 'circle', cx, cy, r: r * (m / rings), l: layer, a: hatchAngle, idx: sIdx });
+        }
+      } else if (state.motifHatch === 'linear_hatch') {
+        const rad = (hatchAngle * Math.PI) / 180;
+        const ux = Math.cos(rad), uy = Math.sin(rad);
+        const nx = -uy, ny = ux;
+        const nLines = Math.floor((r - 1e-6) / state.pitch);
+        for (let m = -nLines; m <= nLines; m++) {
+          const off = m * state.pitch;
+          if (Math.abs(off) < r - 1e-6) {
+            const h = Math.sqrt(r * r - off * off);
+            const p1 = { x: cx + off * nx - h * ux, y: cy + off * ny - h * uy };
+            const p2 = { x: cx + off * nx + h * ux, y: cy + off * ny + h * uy };
+            const segs = clipLineAgainstAllCartouches(p1, p2);
+            for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l: layer, a: hatchAngle, idx: sIdx });
+          }
+        }
+      } else if (state.motifHatch === 'radial_spokes') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2;
+        const D = Math.hypot(cx - cx0, cy - cy0);
+        const dtMax = Math.asin(Math.min(0.999, r / Math.max(D, r + 0.1)));
+        const rays = Math.max(2, Math.round((D * dtMax * 2) / state.pitch));
+        const beta = Math.atan2(cy - cy0, cx - cx0);
+        for (let m = 0; m <= rays; m++) {
+          const a = beta - dtMax + (m / rays) * 2 * dtMax;
+          const ux = Math.cos(a), uy = Math.sin(a);
+          const tProj = (cx - cx0) * ux + (cy - cy0) * uy;
+          const dPerp = Math.hypot((cx - cx0) - tProj * ux, (cy - cy0) - tProj * uy);
+          if (dPerp < r - 1e-6) {
+            const h = Math.sqrt(r * r - dPerp * dPerp);
+            const p1 = { x: cx0 + (tProj - h) * ux, y: cy0 + (tProj - h) * uy };
+            const p2 = { x: cx0 + (tProj + h) * ux, y: cy0 + (tProj + h) * uy };
+            const segs = clipLineAgainstAllCartouches(p1, p2);
+            for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l: layer, a: hatchAngle, idx: sIdx });
+          }
+        }
+      } else if (state.motifHatch === 'concentric_cd') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2;
+        const D = Math.hypot(cx - cx0, cy - cy0);
+        const beta = Math.atan2(cy - cy0, cx - cx0);
+        const k0 = Math.floor((D - r) / state.pitch), k1 = Math.ceil((D + r) / state.pitch);
+        for (let k = k0; k <= k1; k++) {
+          const curR = k * state.pitch;
+          if (curR <= 0 || Math.abs(curR - D) >= r - 1e-6) continue;
+          const cosDt = (curR * curR + D * D - r * r) / (2 * curR * D);
+          if (Math.abs(cosDt) > 1) continue;
+          const dt = Math.acos(cosDt);
+          const arcLen = 2 * dt * curR;
+          const arcSteps = Math.max(6, Math.ceil(arcLen / 0.04));
+          const arcPts = [];
+          for (let s = 0; s <= arcSteps; s++) {
+            const th = beta - dt + (s / arcSteps) * 2 * dt;
+            arcPts.push({ x: cx0 + curR * Math.cos(th), y: cy0 + curR * Math.sin(th) });
+          }
+          elements.push({ type: 'line', pts: arcPts, l: layer, a: hatchAngle, idx: sIdx });
+        }
+      }
+    }
+
     function addMotifToolpaths(poly, circleData, layer, hatchAngle, sIdx) {
+      if (circleData) {
+        addCircleBeadToolpaths(circleData.cx, circleData.cy, circleData.r, layer, hatchAngle, sIdx);
+        return;
+      }
+      if (!poly) return;
+
       const cx0 = state.dia / 2, cy0 = state.dia / 2, pitch = state.pitch;
       function emitL(p1, p2, l, a) {
         const segs = clipLineAgainstAllCartouches(p1, p2);
         for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l, a, idx: sIdx });
       }
       function emitP(pts, l, a) { for (let i = 0; i < pts.length; i++) emitL(pts[i], pts[(i + 1) % pts.length], l, a); }
-
-      if (circleData && !poly) {
-        const pts = [];
-        for (let i = 0; i < 24; i++) {
-          const a = (i / 24) * Math.PI * 2;
-          pts.push({ x: circleData.cx + circleData.r * Math.cos(a), y: circleData.cy + circleData.r * Math.sin(a) });
-        }
-        poly = pts;
-      }
-      if (!poly) return;
 
       if (state.hatchMode === 'closed_outline') { emitP(poly, layer, hatchAngle); return; }
       if (state.includeOutlines) emitP(poly, 'outline', 0);
@@ -653,33 +718,22 @@
         const dtMax = Math.asin(Math.min(0.999, (bR * 1.5) / Math.max(D, bR + 0.1))), rays = Math.max(2, Math.round((D * dtMax * 2) / pitch));
         for (let m = 0; m <= rays; m++) {
           const a = Math.atan2(cy - cy0, cx - cx0) - dtMax + (m / rays) * 2 * dtMax, ux = Math.cos(a), uy = Math.sin(a);
-          const seg = clipLine(cx0, cy0, cx0 + (D + bR * 2) * ux, cy0 + (D + bR * 2) * uy, poly);
-          if (seg) emitL(seg[0], seg[1], layer, hatchAngle);
+          const segs = intersectLinePoly(cx0, cy0, ux, uy, poly);
+          for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
         }
       } else {
+        // Robust linear hatch using scanline intersections (zero missing lines, 100% uniform interval)
         const rad = (hatchAngle * Math.PI) / 180;
         const ux = Math.cos(rad), uy = Math.sin(rad);
         const nx = -uy, ny = ux;
-        const extent = bR * 2.5;
+        const extent = bR * 2.0;
         const halfLines = Math.max(2, Math.ceil(extent / pitch));
-        let count = 0;
-
         for (let m = -halfLines; m <= halfLines; m++) {
           const off = m * pitch;
-          const p1x = cx + off * nx - extent * ux;
-          const p1y = cy + off * ny - extent * uy;
-          const p2x = cx + off * nx + extent * ux;
-          const p2y = cy + off * ny + extent * uy;
-          const seg = clipLine(p1x, p1y, p2x, p2y, poly);
-          if (seg) {
-            emitL(seg[0], seg[1], layer, hatchAngle);
-            count++;
-          }
-        }
-
-        if (count === 0) {
-          const seg = clipLine(cx - extent * ux, cy - extent * uy, cx + extent * ux, cy + extent * uy, poly);
-          if (seg) emitL(seg[0], seg[1], layer, hatchAngle);
+          const oX = cx + off * nx;
+          const oY = cy + off * ny;
+          const segs = intersectLinePoly(oX, oY, ux, uy, poly);
+          for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
         }
       }
     }
@@ -689,7 +743,10 @@
       if (state.motif === 'circle_bead') {
         const r = Math.min(Sr, Sc), d = Math.hypot(cx - state.dia / 2, cy - state.dia / 2);
         if (d + r <= R_outer - 0.002 && d - r >= R_inner + 0.002) {
-          shapeCount++; addMotifToolpaths(null, { cx, cy, r }, layer, hatchAngle, sIdx);
+          for (let k = 0; k < cartouches.length; k++) {
+            if (Math.hypot(cx - cartouches[k].cx, cy - cartouches[k].cy) < r + cartouches[k].radius) return;
+          }
+          shapeCount++; addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx);
         }
       } else {
         const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
@@ -801,19 +858,28 @@
       }
 
       for (const el of elements) {
-        if (!el.pts || el.pts.length < 2) continue;
-        ctx.beginPath(); ctx.moveTo(el.pts[0].x, el.pts[0].y);
-        for (let i = 1; i < el.pts.length; i++) ctx.lineTo(el.pts[i].x, el.pts[i].y);
+        ctx.beginPath();
+        if (el.type === 'circle') {
+          ctx.arc(el.cx, el.cy, el.r, 0, Math.PI * 2);
+        } else if (el.pts && el.pts.length >= 2) {
+          ctx.moveTo(el.pts[0].x, el.pts[0].y);
+          for (let i = 1; i < el.pts.length; i++) ctx.lineTo(el.pts[i].x, el.pts[i].y);
+        } else {
+          continue;
+        }
+
         if (el.l === 'outline') { ctx.strokeStyle = state.view === 'shimmer' ? 'rgba(255,255,255,0.45)' : '#000'; ctx.lineWidth = 0.04; }
         else if (state.view === 'shimmer') {
           let lum = 75;
+          const posX = el.pts ? el.pts[0].x : el.cx;
+          const posY = el.pts ? el.pts[0].y : el.cy;
           if (state.shimmerMode === 'specular') {
             const spec = Math.pow(Math.abs(Math.cos((state.light - el.a) * Math.PI / 180)), 4);
             lum = Math.min(255, Math.floor(75 + spec * 180));
           } else if (state.shimmerMode === 'alternating_line') {
             lum = Math.min(255, Math.floor(130 + Math.sin(((el.idx || 0) + state.light * 0.5) % 360 * Math.PI / 180) * 105));
           } else {
-            lum = Math.min(255, Math.floor(135 + Math.cos((Math.hypot(el.pts[0].x - R, el.pts[0].y - R) * 3.5 - state.light * 2) * Math.PI / 180) * 110));
+            lum = Math.min(255, Math.floor(135 + Math.cos((Math.hypot(posX - R, posY - R) * 3.5 - state.light * 2) * Math.PI / 180) * 110));
           }
           ctx.strokeStyle = `rgb(${lum}, ${lum}, ${Math.min(255, lum + 18)})`;
           ctx.lineWidth = state.hatchMode === 'pre_hatched' ? 0.045 : 0.08;
@@ -822,9 +888,15 @@
       }
 
       for (const c of cartouches) {
-        ctx.save(); ctx.beginPath(); ctx.moveTo(c.poly[0].x, c.poly[0].y);
-        for (let i = 1; i < c.poly.length; i++) ctx.lineTo(c.poly[i].x, c.poly[i].y);
-        ctx.closePath(); ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4'; ctx.fill();
+        ctx.save(); ctx.beginPath();
+        if (c.isCircle) {
+          ctx.arc(c.cx, c.cy, c.radius, 0, Math.PI * 2);
+        } else {
+          ctx.moveTo(c.poly[0].x, c.poly[0].y);
+          for (let i = 1; i < c.poly.length; i++) ctx.lineTo(c.poly[i].x, c.poly[i].y);
+          ctx.closePath();
+        }
+        ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4'; ctx.fill();
         if (state.cartBorder) { ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a'; ctx.lineWidth = 0.055; ctx.stroke(); }
         ctx.restore();
       }
@@ -885,6 +957,23 @@
       ctx.restore(); ctx.restore();
     }
 
+    function formatSvgElement(el) {
+      if (el.type === 'circle') {
+        return `    <circle cx="${el.cx.toFixed(4)}" cy="${el.cy.toFixed(4)}" r="${el.r.toFixed(4)}" />\n`;
+      }
+      if (el.type === 'line' && el.pts && el.pts.length >= 2) {
+        if (el.pts.length === 2) {
+          return `    <line x1="${el.pts[0].x.toFixed(4)}" y1="${el.pts[0].y.toFixed(4)}" x2="${el.pts[1].x.toFixed(4)}" y2="${el.pts[1].y.toFixed(4)}" />\n`;
+        } else {
+          return `    <polyline points="${el.pts.map(p => `${p.x.toFixed(4)},${p.y.toFixed(4)}`).join(' ')}" />\n`;
+        }
+      }
+      if (el.pts && el.pts.length) {
+        return `    <polygon points="${el.pts.map(p => `${p.x.toFixed(4)},${p.y.toFixed(4)}`).join(' ')}" />\n`;
+      }
+      return '';
+    }
+
     function exportSVG() {
       const W = state.dia, R = W / 2, fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
       let svg = `<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${W}mm" viewBox="0 0 ${W} ${W}">\n`;
@@ -898,20 +987,26 @@
       for (let l = 0; l < state.layers; l++) {
         const items = elements.filter(e => e.l === l); if (!items.length) continue;
         svg += `  <g id="Layer_${l + 1}_Hatch" stroke="${COLORS[l % COLORS.length]}" fill="none" stroke-width="0.03mm">\n`;
-        for (const el of items) svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
+        for (const el of items) svg += formatSvgElement(el);
         svg += `  </g>\n`;
       }
       if (state.includeOutlines && state.hatchMode === 'pre_hatched') {
         const outlines = elements.filter(e => e.l === 'outline');
         if (outlines.length) {
           svg += `  <g id="Layer_Outlines" stroke="#FFF" fill="none" stroke-width="0.03mm">\n`;
-          for (const el of outlines) svg += `    <polyline points="${el.pts.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
+          for (const el of outlines) svg += formatSvgElement(el);
           svg += `  </g>\n`;
         }
       }
       if (state.cartBorder && cartouches.length) {
         svg += `  <g id="Layer_Cartouche_Borders" stroke="#FFAA00" fill="none" stroke-width="0.04mm">\n`;
-        for (const c of cartouches) svg += `    <polygon points="${c.poly.map(p => `${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' ')}" />\n`;
+        for (const c of cartouches) {
+          if (c.isCircle) {
+            svg += `    <circle cx="${c.cx.toFixed(4)}" cy="${c.cy.toFixed(4)}" r="${c.radius.toFixed(4)}" />\n`;
+          } else {
+            svg += `    <polygon points="${c.poly.map(p => `${p.x.toFixed(4)},${p.y.toFixed(4)}`).join(' ')}" />\n`;
+          }
+        }
         svg += `  </g>\n`;
       }
       if (timeMarkers.length) {
