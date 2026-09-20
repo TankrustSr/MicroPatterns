@@ -212,7 +212,6 @@
         </div>
       </div>
 
-      <!-- Sacred Geometry Flower Lattice Controls -->
       <div id="group-sacred-flower" style="display:none;">
         <label>Flower of Life Lattice Pitch <span id="val-flower-pitch">2.40 mm</span></label>
         <input type="range" id="flower-pitch" min="0.80" max="6.00" step="0.05" value="2.40">
@@ -378,6 +377,8 @@
       const centerX = (bbox.x1 + bbox.x2) / 2;
       const centerY = (bbox.y1 + bbox.y2) / 2;
       const centeredPath = font.getPath(text, -centerX, -centerY, fontSizeMM);
+      centeredPath.fill = null;
+      centeredPath.stroke = null;
       return {
         path: centeredPath,
         pathData: centeredPath.toPathData(4),
@@ -982,12 +983,18 @@
       const dpr = window.devicePixelRatio || 1, W = state.dia, R = W / 2, px = 15, scale = px * dpr;
       canvas.width = W * scale; canvas.height = W * scale;
       canvas.style.width = `${W * 8.5}px`; canvas.style.height = `${W * 8.5}px`;
-      ctx.save(); ctx.scale(scale, scale);
 
+      ctx.save();
+      ctx.scale(scale, scale);
+
+      // Dial faceplate base circle
       ctx.fillStyle = state.view === 'shimmer' ? '#111317' : '#f5f7fa';
       ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.fill();
 
-      ctx.save(); ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.clip();
+      // Outer rim boundary clipping
+      ctx.save();
+      ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.clip();
+
       for (const tr of trackElements) {
         ctx.beginPath();
         if (tr.type === 'circle') ctx.arc(tr.cx, tr.cy, tr.r, 0, Math.PI * 2);
@@ -1025,8 +1032,10 @@
         ctx.stroke();
       }
 
+      // Draw Cartouche Islands under the text
       for (const c of cartouches) {
-        ctx.save(); ctx.beginPath();
+        ctx.save();
+        ctx.beginPath();
         if (c.isCircle) {
           ctx.arc(c.cx, c.cy, c.radius, 0, Math.PI * 2);
         } else {
@@ -1034,38 +1043,24 @@
           for (let i = 1; i < c.poly.length; i++) ctx.lineTo(c.poly[i].x, c.poly[i].y);
           ctx.closePath();
         }
-        ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4'; ctx.fill();
-        if (state.cartBorder) { ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a'; ctx.lineWidth = 0.055; ctx.stroke(); }
+        ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4';
+        ctx.fill();
+        if (state.cartBorder) {
+          ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a';
+          ctx.lineWidth = 0.055;
+          ctx.stroke();
+        }
         ctx.restore();
       }
 
-      // Draw Numerals and Markers directly in vector space
-      const activeFont = fontCache[state.fontFamily];
-
+      // Draw non-text markers (batons, daggers, pearl beads)
       for (const m of timeMarkers) {
+        if (m.type === 'text') continue;
         ctx.save();
-        ctx.translate(m.cx + m.shiftX, m.cy + m.shiftY);
+        ctx.translate(m.cx, m.cy);
         ctx.rotate(m.angle);
         ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
-
-        if (m.type === 'text') {
-          if (activeFont) {
-            const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
-            ctx.beginPath();
-            baked.path.draw(ctx);
-            ctx.fill();
-            if (state.hairlineBoost > 0) {
-              ctx.lineWidth = state.hairlineBoost;
-              ctx.strokeStyle = ctx.fillStyle;
-              ctx.stroke();
-            }
-          } else {
-            const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
-            ctx.font = `${fontCfg.weight} ${m.fontSizeMM}px ${fontCfg.css}`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(m.text, 0, 0);
-          }
-        } else if (m.type === 'baton') {
+        if (m.type === 'baton') {
           ctx.strokeStyle = '#000'; ctx.lineWidth = 0.02;
           if (m.isDouble) {
             const barW = m.w * 0.75;
@@ -1095,11 +1090,67 @@
         }
         ctx.restore();
       }
-      ctx.restore();
 
-      ctx.save(); ctx.fillStyle = '#060708'; ctx.beginPath(); ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2); ctx.fill();
-      if (state.hub > 0) { ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 0.04; ctx.beginPath(); ctx.arc(R, R, state.pinion / 2 + state.hub, 0, Math.PI * 2); ctx.stroke(); }
-      ctx.restore(); ctx.restore();
+      // Draw Numerals explicitly on top of Cartouche Islands in luminous white
+      const activeFont = fontCache[state.fontFamily];
+      const textColor = state.view === 'shimmer' ? '#ffffff' : '#0f172a';
+
+      for (const m of timeMarkers) {
+        if (m.type !== 'text') continue;
+        ctx.save();
+        ctx.translate(m.cx + m.shiftX, m.cy + m.shiftY);
+        ctx.rotate(m.angle);
+        ctx.fillStyle = textColor;
+
+        if (activeFont) {
+          const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
+          ctx.beginPath();
+          baked.path.draw(ctx);
+          ctx.fill();
+          if (state.hairlineBoost > 0) {
+            ctx.lineWidth = state.hairlineBoost;
+            ctx.strokeStyle = textColor;
+            ctx.stroke();
+          }
+        } else {
+          // High-resolution fallback without WebKit font size clamping
+          const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
+          ctx.save();
+          const invScale = 1 / scale;
+          ctx.scale(invScale, invScale);
+          ctx.font = `${fontCfg.weight} ${Math.round(m.fontSizeMM * scale)}px ${fontCfg.css}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const met = ctx.measureText(m.text);
+          const optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
+          ctx.fillText(m.text, 0, -optY);
+          if (state.hairlineBoost > 0) {
+            ctx.lineWidth = state.hairlineBoost * scale;
+            ctx.strokeStyle = textColor;
+            ctx.strokeText(m.text, 0, -optY);
+          }
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      ctx.restore(); // Restore outer rim clip
+
+      // Draw Center Pinion Hole & Hub Margin Ring
+      ctx.fillStyle = '#060708';
+      ctx.beginPath();
+      ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (state.hub > 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 0.04;
+        ctx.beginPath();
+        ctx.arc(R, R, state.pinion / 2 + state.hub, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore(); // Restore dial mm space
     }
 
     function formatSvgElement(el) {
@@ -1566,7 +1617,6 @@
     initHourChips();
     updatePresetDropdown();
 
-    // Initial load for vector glyph converter
     loadFontForStudio(state.fontFamily, () => {
       update();
     });
