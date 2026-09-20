@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Besley:ital,wght@0,700;1,700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Roboto+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
   <style>
     :root {
       --bg: #101114; --panel: #181a1f; --border: #262932;
@@ -56,14 +57,6 @@
   </style>
 </head>
 <body>
-  <div style="position:absolute; left:-9999px; visibility:hidden;">
-    <span style="font-family:'Barlow Semi Condensed'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Roboto Condensed'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Bodoni Moda'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Besley'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Share Tech Mono'; font-weight:600;">1234567890</span>
-  </div>
-
   <div id="sidebar">
     <h1>Micro-Guilloché Studio</h1>
 
@@ -351,6 +344,50 @@
       'Custom': { css: "'CustomUserFont', sans-serif", exportName: "CustomUserFont, sans-serif", weight: '700' }
     };
 
+    const FONT_URLS = {
+      'Decimal': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf',
+      'DIN 1451': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/robotocondensed/RobotoCondensed%5Bwght%5D.ttf',
+      'Filmotype Fashion': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/bodonimoda/BodoniModa%5Bopsz%2Cwght%5D.ttf',
+      'Clarendon Bold': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/besley/Besley%5Bwght%5D.ttf',
+      'Isonorm': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sharetechmono/ShareTechMono-Regular.ttf'
+    };
+
+    const fontCache = {};
+
+    function loadFontForStudio(fontName, callback) {
+      if (fontCache[fontName]) {
+        if (callback) callback(fontCache[fontName]);
+        return;
+      }
+      const url = FONT_URLS[fontName];
+      if (!url || typeof opentype === 'undefined') return;
+      opentype.load(url, (err, font) => {
+        if (!err && font) {
+          fontCache[fontName] = font;
+          if (callback) callback(font);
+          update();
+        } else {
+          console.warn("Failed to load vector font file:", err);
+        }
+      });
+    }
+
+    function getBakedTextPath(font, text, fontSizeMM) {
+      const rawPath = font.getPath(text, 0, 0, fontSizeMM);
+      const bbox = rawPath.getBoundingBox();
+      const centerX = (bbox.x1 + bbox.x2) / 2;
+      const centerY = (bbox.y1 + bbox.y2) / 2;
+      const centeredPath = font.getPath(text, -centerX, -centerY, fontSizeMM);
+      return {
+        path: centeredPath,
+        pathData: centeredPath.toPathData(4),
+        bbox: {
+          w: bbox.x2 - bbox.x1,
+          h: bbox.y2 - bbox.y1
+        }
+      };
+    }
+
     const state = {
       dia: 34.0, pinion: 2.0, hub: 0.3,
       markerFormat: 'arabic', fontFamily: 'Filmotype Fashion', fontScale: 140, numeralOrientation: 'upright', hairlineBoost: 0.08,
@@ -400,6 +437,8 @@
       const scaleF = state.fontScale / 100, baseFontSize = 2.1 * scaleF;
       const romanMap = { 12:'XII', 1:'I', 2:'II', 3:'III', 4:'IV', 5:'V', 6:'VI', 7:'VII', 8:'VIII', 9:'IX', 10:'X', 11:'XI' };
 
+      const activeFont = fontCache[state.fontFamily];
+
       for (let h = 1; h <= 12; h++) {
         const isSel = state.activeHours.has(h);
         const spokeAngle = (h * 30 - 90) * (Math.PI / 180);
@@ -415,9 +454,16 @@
             const isUp = (state.numeralOrientation === 'upright');
             let cartAngle = state.cartOrientation === 'tangential' ? spokeAngle + Math.PI/2 : (state.cartOrientation === 'radial' ? spokeAngle : (state.cartOrientation === 'upright' ? 0 : (isUp ? 0 : spokeAngle + Math.PI/2)));
             let hL = state.cartWidth / 2, hW = state.cartHeight / 2;
+
             if (state.cartSizing === 'adaptive') {
-              hL = ((text.length > 1 ? baseFontSize * 0.68 * text.length : baseFontSize * 0.72) / 2) + pad;
-              hW = (baseFontSize * 0.95 / 2) + pad;
+              if (activeFont) {
+                const baked = getBakedTextPath(activeFont, text, baseFontSize);
+                hL = (baked.bbox.w / 2) + pad;
+                hW = (baked.bbox.h / 2) + pad;
+              } else {
+                hL = ((text.length > 1 ? baseFontSize * 0.68 * text.length : baseFontSize * 0.72) / 2) + pad;
+                hW = (baseFontSize * 0.95 / 2) + pad;
+              }
             }
             const poly = generateCapsulePoly(numCx, numCy, hL, hW, cartAngle);
             cartouches.push({ cx: numCx, cy: numCy, poly, isCircle: state.cartShape === 'circle', radius: Math.max(hL, hW), radiusCheck: Math.hypot(hL, hW) + 0.05 });
@@ -993,11 +1039,33 @@
         ctx.restore();
       }
 
+      // Draw Numerals and Markers directly in vector space
+      const activeFont = fontCache[state.fontFamily];
+
       for (const m of timeMarkers) {
-        if (m.type === 'text') continue;
-        ctx.save(); ctx.translate(m.cx, m.cy); ctx.rotate(m.angle);
+        ctx.save();
+        ctx.translate(m.cx + m.shiftX, m.cy + m.shiftY);
+        ctx.rotate(m.angle);
         ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
-        if (m.type === 'baton') {
+
+        if (m.type === 'text') {
+          if (activeFont) {
+            const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
+            ctx.beginPath();
+            baked.path.draw(ctx);
+            ctx.fill();
+            if (state.hairlineBoost > 0) {
+              ctx.lineWidth = state.hairlineBoost;
+              ctx.strokeStyle = ctx.fillStyle;
+              ctx.stroke();
+            }
+          } else {
+            const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
+            ctx.font = `${fontCfg.weight} ${m.fontSizeMM}px ${fontCfg.css}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(m.text, 0, 0);
+          }
+        } else if (m.type === 'baton') {
           ctx.strokeStyle = '#000'; ctx.lineWidth = 0.02;
           if (m.isDouble) {
             const barW = m.w * 0.75;
@@ -1014,10 +1082,10 @@
           }
         } else if (m.type === 'dagger') {
           ctx.beginPath();
-          ctx.moveTo(m.len / 2 + m.shiftX, m.shiftY);
-          ctx.lineTo(-m.len / 2 + m.shiftX, m.w / 2 + m.shiftY);
-          ctx.lineTo(-m.len * 0.35 + m.shiftX, m.shiftY);
-          ctx.lineTo(-m.len / 2 + m.shiftX, -m.w / 2 + m.shiftY);
+          ctx.moveTo(m.len / 2, 0);
+          ctx.lineTo(-m.len / 2, m.w / 2);
+          ctx.lineTo(-m.len * 0.35, 0);
+          ctx.lineTo(-m.len / 2, -m.w / 2);
           ctx.closePath();
           ctx.fill();
         } else if (m.type === 'dot') {
@@ -1025,21 +1093,6 @@
           ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2);
           ctx.fill();
         }
-        ctx.restore();
-      }
-      ctx.restore();
-
-      ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
-      for (const m of timeMarkers) {
-        if (m.type !== 'text') continue;
-        ctx.save(); ctx.translate(m.cx * px, m.cy * px); ctx.rotate(m.angle);
-        ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
-        ctx.font = `${fontCfg.weight} ${Math.max(14, Math.round(m.fontSizeMM * px))}px ${fontCfg.css}`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const met = ctx.measureText(m.text), optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
-        if (state.hairlineBoost > 0) { ctx.lineWidth = Math.max(0.6, state.hairlineBoost * px); ctx.strokeStyle = ctx.fillStyle; ctx.strokeText(m.text, m.shiftX * px, -optY + m.shiftY * px); }
-        ctx.fillText(m.text, m.shiftX * px, -optY + m.shiftY * px);
         ctx.restore();
       }
       ctx.restore();
@@ -1103,10 +1156,20 @@
       }
       if (timeMarkers.length) {
         svg += `  <g id="Layer_Markers" fill="#000" stroke="none">\n`;
+        const activeFont = fontCache[state.fontFamily];
         for (const m of timeMarkers) {
+          const rotDeg = (m.angle * 180 / Math.PI).toFixed(2);
+          const posX = (m.cx + m.shiftX).toFixed(3);
+          const posY = (m.cy + m.shiftY).toFixed(3);
+          const strokeAttr = state.hairlineBoost > 0 ? ` stroke="#000000" stroke-width="${state.hairlineBoost.toFixed(3)}mm"` : '';
+
           if (m.type === 'text') {
-            const strk = state.hairlineBoost > 0 ? `stroke="#000" stroke-width="${state.hairlineBoost.toFixed(3)}mm"` : '';
-            svg += `    <text x="${(m.cx + m.shiftX).toFixed(3)}" y="${(m.cy + m.shiftY).toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${m.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" ${strk} transform="rotate(${(m.angle * 180 / Math.PI).toFixed(2)} ${m.cx.toFixed(3)} ${m.cy.toFixed(3)})">${m.text}</text>\n`;
+            if (activeFont) {
+              const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
+              svg += `    <path d="${baked.pathData}" fill="#000000"${strokeAttr} transform="translate(${posX}, ${posY}) rotate(${rotDeg})" />\n`;
+            } else {
+              svg += `    <text x="${posX}" y="${posY}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${m.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central"${strokeAttr} transform="rotate(${rotDeg} ${m.cx.toFixed(3)} ${m.cy.toFixed(3)})">${m.text}</text>\n`;
+            }
           } else {
             const cosA = Math.cos(m.angle), sinA = Math.sin(m.angle);
             const toD = (u, v) => `${(m.cx + u * cosA - v * sinA).toFixed(3)},${(m.cy + u * sinA + v * cosA).toFixed(3)}`;
@@ -1178,6 +1241,7 @@
       if (p.hourAdjust) {
         state.hourAdjust = JSON.parse(JSON.stringify(p.hourAdjust));
       }
+      loadFontForStudio(state.fontFamily);
       syncDOM();
       update();
     }
@@ -1251,11 +1315,19 @@
     document.getElementById('font-file-input').onchange = (e) => {
       const f = e.target.files[0]; if (!f) return;
       const r = new FileReader(); r.onload = (evt) => {
-        new FontFace('CustomUserFont', evt.target.result).load().then(loaded => {
-          document.fonts.add(loaded);
-          const opt = document.getElementById('opt-custom-font'); opt.style.display = 'block'; opt.innerText = `Custom (${f.name.replace(/\.[^/.]+$/, "")})`;
-          document.getElementById('font-family').value = 'Custom'; state.fontFamily = 'Custom'; update();
-        });
+        try {
+          if (typeof opentype !== 'undefined') {
+            const parsedFont = opentype.parse(evt.target.result);
+            fontCache['Custom'] = parsedFont;
+          }
+          new FontFace('CustomUserFont', evt.target.result).load().then(loaded => {
+            document.fonts.add(loaded);
+            const opt = document.getElementById('opt-custom-font'); opt.style.display = 'block'; opt.innerText = `Custom (${f.name.replace(/\.[^/.]+$/, "")})`;
+            document.getElementById('font-family').value = 'Custom'; state.fontFamily = 'Custom'; update();
+          });
+        } catch (err) {
+          alert("Font parse error: " + err.message);
+        }
       }; r.readAsArrayBuffer(f);
     };
 
@@ -1328,7 +1400,12 @@
       state.pinion = parseFloat(document.getElementById('pinion-dia').value);
       state.hub = parseFloat(document.getElementById('hub-clearance').value);
       state.markerFormat = document.getElementById('marker-format').value;
+      const prevFont = state.fontFamily;
       state.fontFamily = document.getElementById('font-family').value;
+      if (prevFont !== state.fontFamily && state.fontFamily !== 'Custom') {
+        loadFontForStudio(state.fontFamily);
+      }
+
       state.fontScale = parseFloat(document.getElementById('font-scale').value);
       state.numeralOrientation = document.getElementById('numeral-orientation').value;
       state.hairlineBoost = parseFloat(document.getElementById('hairline-boost').value);
@@ -1415,7 +1492,7 @@
       document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan || isFlower) ? 'none' : 'flex';
       document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp || isFlower) ? 'none' : 'grid';
       document.getElementById('wrap-count-easing').style.display = (isPhy || isCart || isFlower) ? 'none' : 'grid';
-      document.getElementById('wrap-rad-easing').style.display = (isFlower) ? 'none' : 'grid';
+      document.getElementById('wrap-rad-easing').style.display = isFlower ? 'none' : 'grid';
       document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart || isFlower) ? 'none' : 'block';
       document.getElementById('sub-hatch').style.display = state.hatchMode === 'pre_hatched' ? 'block' : 'none';
 
@@ -1488,6 +1565,11 @@
 
     initHourChips();
     updatePresetDropdown();
+
+    // Initial load for vector glyph converter
+    loadFontForStudio(state.fontFamily, () => {
+      update();
+    });
 
     if (document.fonts) {
       document.fonts.ready.then(() => {
