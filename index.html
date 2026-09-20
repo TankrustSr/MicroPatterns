@@ -241,6 +241,7 @@
         <option value="spiral_phyllotaxis">Fibonacci Sunflower (Phyllotaxis)</option>
         <option value="cartesian_grid">Cartesian Matrix Grid</option>
       </select>
+
       <div id="wrap-symmetry-lock" style="margin-top:2px;">
         <label>Symmetry Lock (Count Snapping) <span id="val-sym-lock">12-Hour</span></label>
         <select id="symmetry-lock">
@@ -251,6 +252,7 @@
           <option value="none">Unlocked (Raw Unquantized)</option>
         </select>
       </div>
+
       <div id="group-ring-counts">
         <div class="row">
           <div><label id="lbl-ring-count">Number of Rings</label><input type="number" id="ring-count" value="12" min="1" max="100"></div>
@@ -262,25 +264,48 @@
         </div>
       </div>
 
+      <!-- Sacred Geometry Flower Lattice Controls -->
       <div id="group-sacred-flower" style="display:none;">
         <label>Flower of Life Lattice Pitch <span id="val-flower-pitch">2.40 mm</span></label>
         <input type="range" id="flower-pitch" min="0.80" max="6.00" step="0.05" value="2.40">
+      </div>
+
+      <!-- Cartesian Matrix Grid Controls -->
+      <div id="group-cartesian" style="display:none;">
+        <div class="row">
+          <div>
+            <label>Grid Alignment</label>
+            <select id="cart-grid-centering">
+              <option value="center_motif" selected>Motif at Center (0,0)</option>
+              <option value="center_cell">Intersection at Center (Split)</option>
+            </select>
+          </div>
+          <div>
+            <label>X / Y Aspect Ratio <span id="val-cart-xy">1.00</span></label>
+            <input type="range" id="cart-xy-ratio" min="0.5" max="2.0" step="0.05" value="1.00">
+          </div>
+        </div>
+        <label style="margin-top:3px;">Cartesian Grid Pitch <span id="val-cart-pitch">1.80 mm</span></label>
+        <input type="range" id="cart-pitch" min="0.40" max="6.00" step="0.05" value="1.80">
       </div>
 
       <div id="group-fibonacci-fan" style="display:none;">
         <label>Spiral Curvature (Twist) <span id="val-fan-twist">45.0°</span></label>
         <input type="range" id="fan-twist" min="-180" max="180" step="1" value="45">
       </div>
+
       <div id="group-phyllotaxis" style="display:none;">
         <label>Fibonacci Seeds <span id="val-phy-seeds">610</span></label>
         <input type="range" id="phy-seeds" min="20" max="3000" step="5" value="610">
         <label style="margin-top:4px;">Divergence Angle <span id="val-phy-angle">137.51°</span></label>
         <input type="range" id="phy-angle" min="137.0" max="138.0" step="0.005" value="137.508">
       </div>
+
       <div class="row" id="wrap-rad-easing">
         <div><label>Radial Spacing</label><select id="radius-easing-type"><option value="linear">Linear Uniform</option><option value="power" selected>Power Easing</option><option value="exponential">Exponential</option><option value="equal_area">Equal Annular</option></select></div>
         <div><label>Radial Curve <span id="val-rad-param">0.85</span></label><input type="range" id="radius-easing-param" min="0.2" max="3.5" step="0.05" value="0.85"></div>
       </div>
+
       <div class="row" id="wrap-count-easing">
         <div><label>Count Easing</label><select id="count-easing-type"><option value="linear" selected>Linear Gradient</option><option value="power">Power Curve</option><option value="exponential">Exponential</option></select></div>
         <div><label>Count Curve <span id="val-cnt-param">1.00</span></label><input type="range" id="count-easing-param" min="0.2" max="3.0" step="0.05" value="1.00"></div>
@@ -295,7 +320,6 @@
           <option value="vesica_piscis">Vesica Piscis (Sacred Lens)</option>
           <option value="seed_of_life">Seed of Life (6-Petal Rosette)</option>
           <option value="vector_equilibrium">Vector Equilibrium (Star Hexagram)</option>
-          <option value="triquetra">Triquetra (Sacred Trinity Knot)</option>
           <option value="circle_bead">Perlage / Flower of Life Bead</option>
         </optgroup>
         <optgroup label="Classical Guilloché">
@@ -474,6 +498,12 @@
       cartSizing: 'adaptive', cartWidth: 3.90, cartHeight: 3.15, cartOrientation: 'tangential', cartPad: 0.10, cartShape: 'circle', cartBorder: true, trackStyle: 'perimeter_ticks',
       layout: 'concentric_rings', symmetryLock: '12', rings: 12, stagger: true, innerCount: 16, outerCount: 72,
       flowerPitch: 2.40,
+      
+      // Cartesian parameters
+      cartPitch: 1.80,
+      cartXYRatio: 1.00,
+      cartCentering: 'center_motif',
+
       fanTwist: 45.0, phySeeds: 610, phyAngle: 137.508, radiusEasingType: 'power', radiusEasingParam: 0.85, countEasingType: 'linear', countEasingParam: 1.0,
       motif: 'grain_d_orge', innerScale: 100, outerScale: 100, innerGap: 0.10, outerGap: 0.05, aspectRatio: 'fill', alignment: 'radial', rot: 0,
       hatchMode: 'pre_hatched', motifHatch: 'contour_inward', pitch: 0.05, includeOutlines: true,
@@ -711,17 +741,6 @@
           const a = (i * Math.PI) / 6;
           const r = (i % 2 === 0) ? s : (s * 0.577);
           pts.push(toD(r * Math.cos(a), r * Math.sin(a)));
-        }
-        return pts;
-      }
-
-      if (type === 'triquetra') {
-        const pts = [];
-        const s = Math.min(Sr, Sc);
-        for (let i = 0; i < 48; i++) {
-          const th = (i / 48) * Math.PI * 2;
-          const r = s * (0.28 + 0.72 * Math.max(0, Math.cos(1.5 * th)));
-          pts.push(toD(r * Math.cos(th), r * Math.sin(th)));
         }
         return pts;
       }
@@ -1034,19 +1053,51 @@
           addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, spanM, spanM, shapeAngle, cellSize, 0.2, layer, layer * (180 / L), sIdx++);
         }
       } else if (state.layout === 'cartesian_grid') {
-        const step = Math.max(0.2, span / N_rings), hSpan = R_outer;
-        let col = 0;
-        for (let gx = -hSpan; gx <= hSpan; gx += step) {
-          col++; let row = 0;
-          for (let gy = -hSpan; gy <= hSpan; gy += step) {
-            row++; const d = Math.hypot(gx, gy);
+        // True 4-Fold Symmetric Centered Cartesian Grid
+        const stepX = Math.max(0.3, state.cartPitch);
+        const stepY = Math.max(0.3, state.cartPitch * state.cartXYRatio);
+        const isCenterCell = (state.cartCentering === 'center_cell');
+        const offX = isCenterCell ? (stepX * 0.5) : 0;
+        const offY = isCenterCell ? (stepY * 0.5) : 0;
+        const numX = Math.ceil((R_outer + stepX) / stepX);
+        const numY = Math.ceil((R_outer + stepY) / stepY);
+
+        for (let ix = -numX; ix <= numX; ix++) {
+          const gx = ix * stepX + offX;
+          for (let iy = -numY; iy <= numY; iy++) {
+            const gy = iy * stepY + offY;
+            const d = Math.hypot(gx, gy);
             if (d < R_inner || d > R_outer) continue;
-            const uDist = Math.min(1, Math.max(0, (d - R_inner) / span)), cGap = state.innerGap + uDist * (state.outerGap - state.innerGap), cScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
-            const spanM = Math.max(0.02, (step - cGap) / 2) * cScale, bA = Math.atan2(gy, gx);
-            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad), ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
+
+            // Radial Easing Slider applied to Cartesian Scaling
+            const uDistRaw = Math.min(1, Math.max(0, (d - R_inner) / span));
+            const uRadEased = applyEasing(uDistRaw, state.radiusEasingType, state.radiusEasingParam);
+
+            const cGap = state.innerGap + uRadEased * (state.outerGap - state.innerGap);
+            const cScale = (state.innerScale + uRadEased * (state.outerScale - state.innerScale)) / 100;
+
+            const baseSpanX = Math.max(0.02, (stepX - cGap) / 2) * cScale;
+            const baseSpanY = Math.max(0.02, (stepY - cGap) / 2) * cScale;
+            const Sr = (state.aspectRatio === 'uniform' ? Math.min(baseSpanX, baseSpanY) : baseSpanX);
+            const Sc = (state.aspectRatio === 'uniform' ? Math.min(baseSpanX, baseSpanY) : baseSpanY);
+
+            const bA = Math.atan2(gy, gx);
+            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad);
+            const ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
+
             const shapeAngle = state.alignment === 'radial' ? bA + rotRad : (state.alignment === 'tangent' ? bA + rotRad + Math.PI/2 : rotRad);
-            let layer = (col + row) % L;
-            addCandidate(rx, ry, d, spanM, spanM, shapeAngle, step, 0.2, layer, layer * (180 / L), sIdx++);
+
+            let layer;
+            if (state.layerDist === 'by_ring') {
+              layer = Math.floor(uRadEased * N_rings) % L;
+            } else if (state.layerDist === 'by_spoke') {
+              layer = Math.floor((((bA + Math.PI + rotRad) % (2 * Math.PI)) / (2 * Math.PI)) * L) % L;
+            } else {
+              // Symmetrical diamond checkerboard from (0,0) center
+              layer = (Math.abs(ix) + Math.abs(iy)) % L;
+            }
+
+            addCandidate(rx, ry, d, Sr, Sc, shapeAngle, stepX, 0.2, layer, layer * (180 / L), sIdx++);
           }
         }
       }
@@ -1358,6 +1409,11 @@
       if (p.hourAdjust) {
         state.hourAdjust = JSON.parse(JSON.stringify(p.hourAdjust));
       }
+      // Defaults for cartesian updates if loading older JSON
+      if (state.cartPitch === undefined) state.cartPitch = 1.80;
+      if (state.cartXYRatio === undefined) state.cartXYRatio = 1.00;
+      if (state.cartCentering === undefined) state.cartCentering = 'center_motif';
+
       loadFontForStudio(state.fontFamily);
       syncDOM();
       update();
@@ -1490,6 +1546,9 @@
       s('micro-layout', state.layout); s('symmetry-lock', state.symmetryLock || '12'); s('ring-count', state.rings); c('radial-stagger', state.stagger);
       s('radial-inner-count', state.innerCount); s('radial-outer-count', state.outerCount);
       s('flower-pitch', state.flowerPitch || 2.40);
+      s('cart-grid-centering', state.cartCentering || 'center_motif');
+      s('cart-xy-ratio', state.cartXYRatio || 1.00);
+      s('cart-pitch', state.cartPitch || 1.80);
       s('fan-twist', state.fanTwist); s('phy-seeds', state.phySeeds); s('phy-angle', state.phyAngle);
       s('radius-easing-type', state.radiusEasingType); s('radius-easing-param', state.radiusEasingParam); s('count-easing-type', state.countEasingType); s('count-easing-param', state.countEasingParam);
       s('micro-motif', state.motif); s('inner-scale', state.innerScale); s('outer-scale', state.outerScale); s('inner-gap', state.innerGap); s('outer-gap', state.outerGap);
@@ -1570,6 +1629,11 @@
 
       state.flowerPitch = parseFloat(document.getElementById('flower-pitch').value);
 
+      // Cartesian state
+      state.cartCentering = document.getElementById('cart-grid-centering').value;
+      state.cartXYRatio = parseFloat(document.getElementById('cart-xy-ratio').value);
+      state.cartPitch = parseFloat(document.getElementById('cart-pitch').value);
+
       state.fanTwist = parseFloat(document.getElementById('fan-twist').value);
       state.phySeeds = parseInt(document.getElementById('phy-seeds').value, 10) || 610;
       state.phyAngle = parseFloat(document.getElementById('phy-angle').value);
@@ -1602,14 +1666,17 @@
       const isProp = state.layout === 'concentric_proportional';
       const isFlower = state.layout === 'sacred_flower';
 
-      document.getElementById('group-ring-counts').style.display = (isPhy || isFlower) ? 'none' : 'block';
+      document.getElementById('group-ring-counts').style.display = (isPhy || isFlower || isCart) ? 'none' : 'block';
       document.getElementById('group-sacred-flower').style.display = isFlower ? 'block' : 'none';
+      document.getElementById('group-cartesian').style.display = isCart ? 'block' : 'none';
       document.getElementById('group-phyllotaxis').style.display = isPhy ? 'block' : 'none';
       document.getElementById('group-fibonacci-fan').style.display = isFan ? 'block' : 'none';
       document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan || isFlower) ? 'none' : 'flex';
       document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp || isFlower) ? 'none' : 'grid';
       document.getElementById('wrap-count-easing').style.display = (isPhy || isCart || isFlower) ? 'none' : 'grid';
-      document.getElementById('wrap-rad-easing').style.display = isFlower ? 'none' : 'grid';
+      
+      // Radial easing is active for cartesian_grid, concentric, radial_fans, phyllotaxis!
+      document.getElementById('wrap-rad-easing').style.display = (isFlower) ? 'none' : 'grid';
       document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart || isFlower) ? 'none' : 'block';
       document.getElementById('sub-hatch').style.display = state.hatchMode === 'pre_hatched' ? 'block' : 'none';
 
@@ -1626,6 +1693,8 @@
       document.getElementById('val-cart-pad').innerText = `${state.cartPad.toFixed(2)} mm`;
 
       document.getElementById('val-flower-pitch').innerText = `${state.flowerPitch.toFixed(2)} mm`;
+      document.getElementById('val-cart-pitch').innerText = `${state.cartPitch.toFixed(2)} mm`;
+      document.getElementById('val-cart-xy').innerText = `${state.cartXYRatio.toFixed(2)}`;
 
       document.getElementById('val-fan-twist').innerText = `${state.fanTwist.toFixed(1)}°`;
       document.getElementById('val-phy-seeds').innerText = state.phySeeds;
@@ -1671,6 +1740,7 @@
       'index-radial-shift', 'index-tangent-shift', 'cartouche-sizing', 'cart-width', 'cart-height', 'cartouche-orientation',
       'cartouche-pad', 'cartouche-shape', 'cartouche-border', 'track-style', 'micro-layout', 'symmetry-lock', 'ring-count',
       'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'flower-pitch',
+      'cart-grid-centering', 'cart-xy-ratio', 'cart-pitch',
       'fan-twist', 'phy-seeds', 'phy-angle', 'radius-easing-type',
       'radius-easing-param', 'count-easing-type', 'count-easing-param', 'micro-motif', 'inner-scale', 'outer-scale',
       'inner-gap', 'outer-gap', 'motif-aspect', 'shape-alignment', 'pattern-rotation', 'hatch-output-mode', 'motif-hatch-style',
