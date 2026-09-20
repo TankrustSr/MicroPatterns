@@ -6,7 +6,7 @@
   <title>MOPA Micro-Pattern Dial Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Besley:ital,wght@0,700;1,700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Roboto+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Bebas+Neue&family=Besley:wght@700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Chakra+Petch:wght@600;700&family=Chivo:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=Josefin+Sans:wght@600;700&family=Montserrat:wght@600;700&family=Playfair+Display:wght@700&family=Righteous&family=Roboto+Condensed:wght@600;700&family=Russo+One&family=Saira+Semi+Condensed:wght@600;700&family=Share+Tech+Mono&family=Syne:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
   <style>
     :root {
@@ -57,6 +57,26 @@
   </style>
 </head>
 <body>
+  <div style="position:absolute; left:-9999px; visibility:hidden;">
+    <span style="font-family:'Barlow Semi Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Roboto Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Bodoni Moda'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Besley'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Share Tech Mono'; font-weight:600;">1234567890</span>
+    <span style="font-family:'Cormorant Garamond'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Playfair Display'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Cinzel'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Josefin Sans'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Montserrat'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Saira Semi Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Chivo'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Righteous'; font-weight:400;">1234567890</span>
+    <span style="font-family:'Bebas Neue'; font-weight:400;">1234567890</span>
+    <span style="font-family:'Russo One'; font-weight:400;">1234567890</span>
+    <span style="font-family:'Chakra Petch'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Syne'; font-weight:700;">1234567890</span>
+  </div>
+
   <div id="sidebar">
     <h1>Micro-Guilloché Studio</h1>
 
@@ -89,7 +109,37 @@
       <div class="group-title" style="color:var(--accent-warm);">Numerals & Typography</div>
       <div class="row">
         <div><label>Display Format</label><select id="marker-format"><option value="arabic" selected>Arabic Numerals</option><option value="roman">Roman Numerals</option><option value="baton">Faceted Swiss Batons</option><option value="dagger">Faceted Daggers</option><option value="dot">Circular Pearl Beads</option></select></div>
-        <div><label>Dial Font</label><select id="font-family"><option value="Decimal">Decimal (H&Co Watch)</option><option value="DIN 1451">DIN 1451 (Mittelschrift)</option><option value="Filmotype Fashion" selected>Filmotype Fashion (Serif)</option><option value="Clarendon Bold">Clarendon Bold (Slab)</option><option value="Isonorm">Isonorm (Technical)</option><option value="Custom" id="opt-custom-font" style="display:none;">Custom Uploaded Font</option></select></div>
+        <div>
+          <label>Dial Font</label>
+          <select id="font-family">
+            <optgroup label="Pilot, Military & Instrument">
+              <option value="DIN 1451">DIN 1451 (German Instrument)</option>
+              <option value="Flieger Cockpit">Flieger Cockpit (Saira Bold)</option>
+              <option value="Military Field">Military Field (Chivo Utility)</option>
+              <option value="Isonorm">Isonorm (Technical Spec)</option>
+              <option value="Telemetry HUD">Telemetry HUD (Chakra Petch)</option>
+            </optgroup>
+            <optgroup label="Marine Chronometer & Luxury Classic">
+              <option value="Breguet Traditional">Breguet Traditional (Cormorant)</option>
+              <option value="Marine Deck">Marine Deck (Playfair Display)</option>
+              <option value="Cartier Imperial">Cartier Imperial (Cinzel Roman)</option>
+              <option value="Filmotype Fashion" selected>Filmotype Fashion (Serif)</option>
+              <option value="Clarendon Bold">Clarendon Bold (Heritage Slab)</option>
+            </optgroup>
+            <optgroup label="Bauhaus & Swiss Modernist">
+              <option value="Bauhaus 1930s">Bauhaus 1930s (Josefin Geometric)</option>
+              <option value="Swiss Explorer">Swiss Explorer (Montserrat Clean)</option>
+              <option value="Decimal">Decimal (H&Co Watch)</option>
+              <option value="Avant Horology">Avant Horology (Syne Sculptural)</option>
+            </optgroup>
+            <optgroup label="Vintage Sport & Chronograph">
+              <option value="Racing Chrono 1970s">Racing Chrono 1970s (Righteous)</option>
+              <option value="Skin Diver Block">Skin Diver Block (Bebas Neue)</option>
+              <option value="Heavy Diver Lume">Heavy Diver Lume (Russo One)</option>
+            </optgroup>
+            <option value="Custom" id="opt-custom-font" style="display:none;">Custom Uploaded Font</option>
+          </select>
+        </div>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <label style="font-size:0.62rem; margin:0;">Load Local Font (.ttf/.otf)</label>
@@ -334,21 +384,46 @@
 
   <script>
     const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
+
     const FONT_MAP = {
-      'Decimal': { css: "'Barlow Semi Condensed', sans-serif", exportName: "Decimal, sans-serif", weight: '700' },
       'DIN 1451': { css: "'Roboto Condensed', sans-serif", exportName: "'DIN 1451 Mittelschrift', sans-serif", weight: '700' },
+      'Flieger Cockpit': { css: "'Saira Semi Condensed', sans-serif", exportName: "'Saira Semi Condensed', sans-serif", weight: '700' },
+      'Military Field': { css: "'Chivo', sans-serif", exportName: "'Chivo', sans-serif", weight: '700' },
+      'Isonorm': { css: "'Share Tech Mono', monospace", exportName: "Isonorm, monospace", weight: '600' },
+      'Telemetry HUD': { css: "'Chakra Petch', sans-serif", exportName: "'Chakra Petch', sans-serif", weight: '700' },
+      'Breguet Traditional': { css: "'Cormorant Garamond', serif", exportName: "'Cormorant Garamond', serif", weight: '700' },
+      'Marine Deck': { css: "'Playfair Display', serif", exportName: "'Playfair Display', serif", weight: '700' },
+      'Cartier Imperial': { css: "'Cinzel', serif", exportName: "'Cinzel', serif", weight: '700' },
       'Filmotype Fashion': { css: "'Bodoni Moda', serif", exportName: "'Filmotype Fashion', serif", weight: '700' },
       'Clarendon Bold': { css: "'Besley', serif", exportName: "'Clarendon Bold', serif", weight: '700' },
-      'Isonorm': { css: "'Share Tech Mono', monospace", exportName: "Isonorm, monospace", weight: '600' },
+      'Bauhaus 1930s': { css: "'Josefin Sans', sans-serif", exportName: "'Josefin Sans', sans-serif", weight: '700' },
+      'Swiss Explorer': { css: "'Montserrat', sans-serif", exportName: "'Montserrat', sans-serif", weight: '700' },
+      'Decimal': { css: "'Barlow Semi Condensed', sans-serif", exportName: "Decimal, sans-serif", weight: '700' },
+      'Avant Horology': { css: "'Syne', sans-serif", exportName: "'Syne', sans-serif", weight: '700' },
+      'Racing Chrono 1970s': { css: "'Righteous', sans-serif", exportName: "'Righteous', sans-serif", weight: '400' },
+      'Skin Diver Block': { css: "'Bebas Neue', sans-serif", exportName: "'Bebas Neue', sans-serif", weight: '400' },
+      'Heavy Diver Lume': { css: "'Russo One', sans-serif", exportName: "'Russo One', sans-serif", weight: '400' },
       'Custom': { css: "'CustomUserFont', sans-serif", exportName: "CustomUserFont, sans-serif", weight: '700' }
     };
 
     const FONT_URLS = {
-      'Decimal': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf',
       'DIN 1451': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/robotocondensed/RobotoCondensed%5Bwght%5D.ttf',
+      'Flieger Cockpit': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sairasemicondensed/SairaSemiCondensed-Bold.ttf',
+      'Military Field': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/chivo/Chivo%5Bwght%5D.ttf',
+      'Isonorm': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sharetechmono/ShareTechMono-Regular.ttf',
+      'Telemetry HUD': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/chakrapetch/ChakraPetch-Bold.ttf',
+      'Breguet Traditional': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cormorantgaramond/CormorantGaramond-Bold.ttf',
+      'Marine Deck': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/playfairdisplay/PlayfairDisplay%5Bwght%5D.ttf',
+      'Cartier Imperial': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cinzel/Cinzel%5Bwght%5D.ttf',
       'Filmotype Fashion': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/bodonimoda/BodoniModa%5Bopsz%2Cwght%5D.ttf',
       'Clarendon Bold': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/besley/Besley%5Bwght%5D.ttf',
-      'Isonorm': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sharetechmono/ShareTechMono-Regular.ttf'
+      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/JosefinSans%5Bwght%5D.ttf',
+      'Swiss Explorer': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/montserrat/Montserrat%5Bwght%5D.ttf',
+      'Decimal': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf',
+      'Avant Horology': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/syne/Syne%5Bwght%5D.ttf',
+      'Racing Chrono 1970s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/righteous/Righteous-Regular.ttf',
+      'Skin Diver Block': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/bebasneue/BebasNeue-Regular.ttf',
+      'Heavy Diver Lume': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/russoone/RussoOne-Regular.ttf'
     };
 
     const fontCache = {};
@@ -987,11 +1062,9 @@
       ctx.save();
       ctx.scale(scale, scale);
 
-      // Dial faceplate base circle
       ctx.fillStyle = state.view === 'shimmer' ? '#111317' : '#f5f7fa';
       ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.fill();
 
-      // Outer rim boundary clipping
       ctx.save();
       ctx.beginPath(); ctx.arc(R, R, R, 0, Math.PI * 2); ctx.clip();
 
@@ -1032,7 +1105,6 @@
         ctx.stroke();
       }
 
-      // Draw Cartouche Islands under the text
       for (const c of cartouches) {
         ctx.save();
         ctx.beginPath();
@@ -1053,7 +1125,6 @@
         ctx.restore();
       }
 
-      // Draw non-text markers (batons, daggers, pearl beads)
       for (const m of timeMarkers) {
         if (m.type === 'text') continue;
         ctx.save();
@@ -1091,7 +1162,6 @@
         ctx.restore();
       }
 
-      // Draw Numerals explicitly on top of Cartouche Islands in luminous white
       const activeFont = fontCache[state.fontFamily];
       const textColor = state.view === 'shimmer' ? '#ffffff' : '#0f172a';
 
@@ -1113,8 +1183,7 @@
             ctx.stroke();
           }
         } else {
-          // High-resolution fallback without WebKit font size clamping
-          const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
+          const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Filmotype Fashion'];
           ctx.save();
           const invScale = 1 / scale;
           ctx.scale(invScale, invScale);
@@ -1134,13 +1203,10 @@
         ctx.restore();
       }
 
-      ctx.restore(); // Restore outer rim clip
+      ctx.restore();
 
-      // Draw Center Pinion Hole & Hub Margin Ring
       ctx.fillStyle = '#060708';
-      ctx.beginPath();
-      ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(R, R, state.pinion / 2, 0, Math.PI * 2); ctx.fill();
 
       if (state.hub > 0) {
         ctx.strokeStyle = 'rgba(255,255,255,0.2)';
@@ -1150,7 +1216,7 @@
         ctx.stroke();
       }
 
-      ctx.restore(); // Restore dial mm space
+      ctx.restore();
     }
 
     function formatSvgElement(el) {
@@ -1171,7 +1237,7 @@
     }
 
     function exportSVG() {
-      const W = state.dia, R = W / 2, fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Decimal'];
+      const W = state.dia, R = W / 2, fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Filmotype Fashion'];
       let svg = `<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${W}mm" viewBox="0 0 ${W} ${W}">\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
