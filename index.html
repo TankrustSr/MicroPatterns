@@ -193,8 +193,6 @@
       <select id="micro-layout">
         <option value="concentric_rings" selected>Concentric Rings (Direct Track)</option>
         <option value="concentric_proportional">Concentric Proportional Rosette</option>
-        <option value="cymatics_chladni">Cymatics (Modal Resonance Nodes)</option>
-        <option value="sacred_flower">Sacred Geometry (Flower of Life Lattice)</option>
         <option value="radial_fans">Radial Curved Turbine (Fans)</option>
         <option value="spiral_phyllotaxis">Fibonacci Sunflower (Phyllotaxis)</option>
         <option value="cartesian_grid">Cartesian Matrix Grid</option>
@@ -219,23 +217,6 @@
           <div><label>Outer Ring Count</label><input type="number" id="radial-outer-count" value="72" min="3" max="500"></div>
         </div>
       </div>
-
-      <!-- Cymatics Resonance Controls -->
-      <div id="group-cymatics" style="display:none;">
-        <div class="row">
-          <div><label>Nodal Harmonics (M)</label><input type="number" id="cym-spokes" value="12" min="2" max="36" step="2"></div>
-          <div><label>Concentric Modes (N)</label><input type="number" id="cym-rings" value="8" min="2" max="24" step="1"></div>
-        </div>
-        <label style="margin-top:3px;">Resonance Wave Dispersion <span id="val-cym-mod">65%</span></label>
-        <input type="range" id="cym-mod" min="10" max="100" step="5" value="65">
-      </div>
-
-      <!-- Sacred Geometry Flower Lattice Controls -->
-      <div id="group-sacred-flower" style="display:none;">
-        <label>Flower of Life Lattice Pitch <span id="val-flower-pitch">2.40 mm</span></label>
-        <input type="range" id="flower-pitch" min="0.80" max="6.00" step="0.05" value="2.40">
-      </div>
-
       <div id="group-fibonacci-fan" style="display:none;">
         <label>Spiral Curvature (Twist) <span id="val-fan-twist">45.0°</span></label>
         <input type="range" id="fan-twist" min="-180" max="180" step="1" value="45">
@@ -246,7 +227,7 @@
           <div><label>Divergence Angle <span id="val-phy-angle">137.51°</span></label><input type="range" id="phy-angle" min="137.0" max="138.0" step="0.005" value="137.508"></div>
         </div>
       </div>
-      <div class="row" id="wrap-rad-easing">
+      <div class="row">
         <div><label>Radial Spacing</label><select id="radius-easing-type"><option value="linear">Linear Uniform</option><option value="power" selected>Power Easing</option><option value="exponential">Exponential</option><option value="equal_area">Equal Annular</option></select></div>
         <div><label>Radial Curve <span id="val-rad-param">0.85</span></label><input type="range" id="radius-easing-param" min="0.2" max="3.5" step="0.05" value="0.85"></div>
       </div>
@@ -260,23 +241,15 @@
       <div class="group-title">Motif Geometry & Sizing</div>
       <label>Pattern Motif</label>
       <select id="micro-motif">
-        <optgroup label="Sacred Geometry & Resonances">
-          <option value="vesica_piscis">Vesica Piscis (Sacred Lens)</option>
-          <option value="seed_of_life">Seed of Life (6-Petal Rosette)</option>
-          <option value="vector_equilibrium">Vector Equilibrium (Star Hexagram)</option>
-          <option value="triquetra">Triquetra (Sacred Trinity Knot)</option>
-          <option value="circle_bead">Perlage / Flower of Life Bead</option>
-        </optgroup>
-        <optgroup label="Classical Guilloché">
-          <option value="grain_d_orge" selected>Grain d'Orge (Barleycorn)</option>
-          <option value="clou_de_paris">Clou de Paris (Hobnail)</option>
-          <option value="keystone">Keystone (Sector Tile)</option>
-          <option value="damier">Damier (Checkerboard)</option>
-          <option value="hex_cell">Hexagonal Cell</option>
-          <option value="triangle">Delta Triangle</option>
-          <option value="star4">4-Point Star</option>
-          <option value="chevron">Chevron Arrow</option>
-        </optgroup>
+        <option value="grain_d_orge" selected>Grain d'Orge (Barleycorn)</option>
+        <option value="clou_de_paris">Clou de Paris (Hobnail)</option>
+        <option value="keystone">Keystone (Sector Tile)</option>
+        <option value="damier">Damier (Checkerboard)</option>
+        <option value="hex_cell">Hexagonal Cell</option>
+        <option value="triangle">Delta Triangle</option>
+        <option value="star4">4-Point Star</option>
+        <option value="chevron">Chevron Arrow</option>
+        <option value="circle_bead">Perlage Bead</option>
       </select>
       <div class="row">
         <div><label>Inner Scale <span id="val-inner-scale">100%</span></label><input type="range" id="inner-scale" min="10" max="250" step="5" value="100"></div>
@@ -371,7 +344,6 @@
       secondaryMarker: 'dot', indexSize: 0.65, indexRadialShift: 0.00, indexTangentShift: 0.00,
       cartSizing: 'adaptive', cartWidth: 3.90, cartHeight: 3.15, cartOrientation: 'tangential', cartPad: 0.10, cartShape: 'circle', cartBorder: true, trackStyle: 'perimeter_ticks',
       layout: 'concentric_rings', symmetryLock: '12', rings: 12, stagger: true, innerCount: 16, outerCount: 72,
-      cymSpokes: 12, cymRings: 8, cymMod: 65, flowerPitch: 2.40,
       fanTwist: 45.0, phySeeds: 610, phyAngle: 137.508, radiusEasingType: 'power', radiusEasingParam: 0.85, countEasingType: 'linear', countEasingParam: 1.0,
       motif: 'grain_d_orge', innerScale: 100, outerScale: 100, innerGap: 0.10, outerGap: 0.05, aspectRatio: 'fill', alignment: 'radial', rot: 0,
       hatchMode: 'pre_hatched', motifHatch: 'contour_inward', pitch: 0.05, includeOutlines: true,
@@ -565,58 +537,6 @@
     function createMotifPolygon(type, cx, cy, curR, Sr, Sc, angle, chordWidth, dTheta) {
       const cosA = Math.cos(angle), sinA = Math.sin(angle);
       const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
-
-      // Sacred Geometry & Resonances
-      if (type === 'vesica_piscis') {
-        const pts = [];
-        const steps = 16;
-        for (let i = -steps; i <= steps; i++) {
-          const x = (i / steps) * (Sr * 1.5);
-          const y = Sc * Math.sqrt(Math.max(0, 1 - Math.pow(x / (Sr * 1.5), 2)));
-          pts.push(toD(x, y));
-        }
-        for (let i = steps; i >= -steps; i--) {
-          const x = (i / steps) * (Sr * 1.5);
-          const y = -Sc * Math.sqrt(Math.max(0, 1 - Math.pow(x / (Sr * 1.5), 2)));
-          pts.push(toD(x, y));
-        }
-        return pts;
-      }
-
-      if (type === 'seed_of_life') {
-        const pts = [];
-        const s = Math.min(Sr, Sc);
-        for (let i = 0; i < 48; i++) {
-          const th = (i / 48) * Math.PI * 2;
-          const r = s * (0.35 + 0.65 * Math.pow(Math.cos(3 * th), 2));
-          pts.push(toD(r * Math.cos(th), r * Math.sin(th)));
-        }
-        return pts;
-      }
-
-      if (type === 'vector_equilibrium') {
-        const pts = [];
-        const s = Math.min(Sr, Sc);
-        for (let i = 0; i < 12; i++) {
-          const a = (i * Math.PI) / 6;
-          const r = (i % 2 === 0) ? s : (s * 0.577);
-          pts.push(toD(r * Math.cos(a), r * Math.sin(a)));
-        }
-        return pts;
-      }
-
-      if (type === 'triquetra') {
-        const pts = [];
-        const s = Math.min(Sr, Sc);
-        for (let i = 0; i < 48; i++) {
-          const th = (i / 48) * Math.PI * 2;
-          const r = s * (0.28 + 0.72 * Math.max(0, Math.cos(1.5 * th)));
-          pts.push(toD(r * Math.cos(th), r * Math.sin(th)));
-        }
-        return pts;
-      }
-
-      // Classical Guilloché
       if (type === 'grain_d_orge') return [toD(Sr * 1.65, 0), toD(0, Sc), toD(-Sr * 1.65, 0), toD(0, -Sc)];
       if (type === 'clou_de_paris') return [toD(Sr, 0), toD(0, Sc), toD(-Sr, 0), toD(0, -Sc)];
       if (type === 'damier') return [toD(Sr, Sc), toD(-Sr, Sc), toD(-Sr, -Sc), toD(Sr, -Sc)];
@@ -870,70 +790,6 @@
             addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
           }
         }
-      } else if (state.layout === 'cymatics_chladni') {
-        // Modal resonance nodal dispersion (circular plate Chladni standing waves)
-        const M_spokes = Math.max(2, state.cymSpokes);
-        const N_modes = Math.max(2, state.cymRings);
-        const dispersion = state.cymMod / 100;
-
-        for (let ring = 0; ring < N_modes; ring++) {
-          const uR = N_modes > 1 ? ring / (N_modes - 1) : 0;
-          const baseR = R_inner + (uR + 0.5 / N_modes) * span;
-          const ringCount = Math.max(M_spokes, Math.round((M_spokes * (ring + 1)) / 2) * 2);
-          const dTheta = (2 * Math.PI) / ringCount;
-          const deltaR = span / N_modes;
-
-          const currentGap = state.innerGap + uR * (state.outerGap - state.innerGap);
-          const currentScale = (state.innerScale + uR * (state.outerScale - state.innerScale)) / 100;
-
-          for (let s = 0; s < ringCount; s++) {
-            const theta = s * dTheta - Math.PI / 2 + rotRad;
-            // Bessel-like standing wave amplitude modulation
-            const waveAmp = Math.cos((ring + 1) * Math.PI * uR) * Math.cos((M_spokes / 2) * theta);
-            const curR = baseR + (waveAmp * deltaR * 0.35 * dispersion);
-            if (curR < R_inner + 0.05 || curR > R_outer - 0.05) continue;
-
-            const chordWidth = 2 * curR * Math.sin(dTheta / 2);
-            const sR = Math.max(0.02, (deltaR - currentGap) / 2);
-            const sC = Math.max(0.02, (chordWidth - currentGap) / 2);
-            const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * currentScale;
-            const Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * currentScale;
-            const shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta + waveAmp * 0.5);
-
-            let layer = state.layerDist === 'by_ring' ? ring % L : (state.layerDist === 'by_spoke' ? Math.floor(((theta + Math.PI/2) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI) * L) % L : (ring + s) % L);
-            addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
-          }
-        }
-      } else if (state.layout === 'sacred_flower') {
-        // Isometric 60° triangular lattice (Flower of Life grid)
-        const pitch = Math.max(0.5, state.flowerPitch);
-        const v1x = pitch, v1y = 0;
-        const v2x = pitch * 0.5, v2y = pitch * Math.sqrt(3) * 0.5;
-        const maxExtent = R_outer + pitch;
-        const nSteps = Math.ceil(maxExtent / (pitch * 0.866));
-
-        for (let i = -nSteps; i <= nSteps; i++) {
-          for (let j = -nSteps; j <= nSteps; j++) {
-            const gx = i * v1x + j * v2x;
-            const gy = j * v2y;
-            const d = Math.hypot(gx, gy);
-            if (d < R_inner || d > R_outer) continue;
-
-            const bA = Math.atan2(gy, gx);
-            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad);
-            const ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
-            const uDist = Math.min(1, Math.max(0, (d - R_inner) / span));
-
-            const currentGap = state.innerGap + uDist * (state.outerGap - state.innerGap);
-            const currentScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
-            const halfP = Math.max(0.02, (pitch - currentGap) / 2) * currentScale;
-
-            const shapeAngle = state.alignment === 'radial' ? bA + rotRad : (state.alignment === 'tangent' ? bA + rotRad + Math.PI/2 : rotRad);
-            let layer = state.layerDist === 'by_ring' ? Math.floor(uDist * N_rings) % L : Math.floor(((bA + Math.PI) / (2 * Math.PI)) * L) % L;
-
-            addCandidate(rx, ry, d, halfP, halfP, shapeAngle, pitch, 0.2, layer, layer * (180 / L), sIdx++);
-          }
-        }
       } else if (state.layout === 'radial_fans') {
         const rays = Math.max(3, state.outerCount), dTheta = 2 * Math.PI / rays, twistRad = state.fanTwist * Math.PI / 180;
         for (let ray = 0; ray < rays; ray++) {
@@ -1176,7 +1032,7 @@
             } else if (m.type === 'dagger') {
               svg += `    <polygon points="${toD(hL, 0)} ${toD(-hL, m.w / 2)} ${toD(-hL * 0.7, 0)} ${toD(-hL, -m.w / 2)}" />\n`;
             } else {
-              svg += `    <circle cx="${m.cx.toFixed(3)}" cy="${m.cy.toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
+              svg += `    <circle cx="${(m.cx + m.shiftX).toFixed(3)}" cy="${(m.cy + m.shiftY).toFixed(3)}" r="${(m.w / 2).toFixed(3)}" />\n`;
             }
           }
         }
@@ -1347,9 +1203,7 @@
       s('cartouche-sizing', state.cartSizing); s('cart-width', state.cartWidth); s('cart-height', state.cartHeight); s('cartouche-orientation', state.cartOrientation);
       s('cartouche-pad', state.cartPad); s('cartouche-shape', state.cartShape); c('cartouche-border', state.cartBorder); s('track-style', state.trackStyle);
       s('micro-layout', state.layout); s('symmetry-lock', state.symmetryLock || '12'); s('ring-count', state.rings); c('radial-stagger', state.stagger);
-      s('radial-inner-count', state.innerCount); s('radial-outer-count', state.outerCount);
-      s('cym-spokes', state.cymSpokes || 12); s('cym-rings', state.cymRings || 8); s('cym-mod', state.cymMod || 65); s('flower-pitch', state.flowerPitch || 2.40);
-      s('fan-twist', state.fanTwist); s('phy-seeds', state.phySeeds); s('phy-angle', state.phyAngle);
+      s('radial-inner-count', state.innerCount); s('radial-outer-count', state.outerCount); s('fan-twist', state.fanTwist); s('phy-seeds', state.phySeeds); s('phy-angle', state.phyAngle);
       s('radius-easing-type', state.radiusEasingType); s('radius-easing-param', state.radiusEasingParam); s('count-easing-type', state.countEasingType); s('count-easing-param', state.countEasingParam);
       s('micro-motif', state.motif); s('inner-scale', state.innerScale); s('outer-scale', state.outerScale); s('inner-gap', state.innerGap); s('outer-gap', state.outerGap);
       s('motif-aspect', state.aspectRatio); s('shape-alignment', state.alignment); s('pattern-rotation', state.rot); s('hatch-output-mode', state.hatchMode);
@@ -1418,12 +1272,6 @@
       state.stagger = document.getElementById('radial-stagger').checked;
       state.innerCount = parseInt(document.getElementById('radial-inner-count').value, 10) || 16;
       state.outerCount = parseInt(document.getElementById('radial-outer-count').value, 10) || 72;
-
-      state.cymSpokes = parseInt(document.getElementById('cym-spokes').value, 10) || 12;
-      state.cymRings = parseInt(document.getElementById('cym-rings').value, 10) || 8;
-      state.cymMod = parseFloat(document.getElementById('cym-mod').value);
-      state.flowerPitch = parseFloat(document.getElementById('flower-pitch').value);
-
       state.fanTwist = parseFloat(document.getElementById('fan-twist').value);
       state.phySeeds = parseInt(document.getElementById('phy-seeds').value, 10) || 610;
       state.phyAngle = parseFloat(document.getElementById('phy-angle').value);
@@ -1450,23 +1298,14 @@
       state.shimmerMode = document.getElementById('shimmer-mode').value;
       state.light = parseFloat(document.getElementById('light-angle').value);
 
-      const isPhy = state.layout === 'spiral_phyllotaxis';
-      const isFan = state.layout === 'radial_fans';
-      const isCart = state.layout === 'cartesian_grid';
-      const isProp = state.layout === 'concentric_proportional';
-      const isCym = state.layout === 'cymatics_chladni';
-      const isFlower = state.layout === 'sacred_flower';
-
-      document.getElementById('group-ring-counts').style.display = (isPhy || isCym || isFlower) ? 'none' : 'block';
-      document.getElementById('group-cymatics').style.display = isCym ? 'block' : 'none';
-      document.getElementById('group-sacred-flower').style.display = isFlower ? 'block' : 'none';
+      const isPhy = state.layout === 'spiral_phyllotaxis', isFan = state.layout === 'radial_fans', isCart = state.layout === 'cartesian_grid', isProp = state.layout === 'concentric_proportional';
+      document.getElementById('group-ring-counts').style.display = isPhy ? 'none' : 'block';
       document.getElementById('group-phyllotaxis').style.display = isPhy ? 'block' : 'none';
       document.getElementById('group-fibonacci-fan').style.display = isFan ? 'block' : 'none';
-      document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan || isCym || isFlower) ? 'none' : 'flex';
-      document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp || isCym || isFlower) ? 'none' : 'grid';
-      document.getElementById('wrap-count-easing').style.display = (isPhy || isCart || isCym || isFlower) ? 'none' : 'grid';
-      document.getElementById('wrap-rad-easing').style.display = (isCym || isFlower) ? 'none' : 'grid';
-      document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart || isCym || isFlower) ? 'none' : 'block';
+      document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan) ? 'none' : 'flex';
+      document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp) ? 'none' : 'grid';
+      document.getElementById('wrap-count-easing').style.display = (isPhy || isCart) ? 'none' : 'grid';
+      document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart) ? 'none' : 'block';
       document.getElementById('sub-hatch').style.display = state.hatchMode === 'pre_hatched' ? 'block' : 'none';
 
       document.getElementById('val-hub').innerText = `${state.hub.toFixed(2)} mm`;
@@ -1480,10 +1319,6 @@
       document.getElementById('val-cart-w').innerText = `${state.cartWidth.toFixed(2)} mm`;
       document.getElementById('val-cart-h').innerText = `${state.cartHeight.toFixed(2)} mm`;
       document.getElementById('val-cart-pad').innerText = `${state.cartPad.toFixed(2)} mm`;
-
-      document.getElementById('val-cym-mod').innerText = `${state.cymMod}%`;
-      document.getElementById('val-flower-pitch').innerText = `${state.flowerPitch.toFixed(2)} mm`;
-
       document.getElementById('val-fan-twist').innerText = `${state.fanTwist.toFixed(1)}°`;
       document.getElementById('val-phy-angle').innerText = `${state.phyAngle.toFixed(3)}°`;
       document.getElementById('val-rad-param').innerText = state.radiusEasingParam.toFixed(2);
@@ -1526,8 +1361,7 @@
       'hairline-boost', 'text-dx', 'text-dy', 'numeral-radial-shift', 'marker-radius', 'secondary-marker', 'index-size',
       'index-radial-shift', 'index-tangent-shift', 'cartouche-sizing', 'cart-width', 'cart-height', 'cartouche-orientation',
       'cartouche-pad', 'cartouche-shape', 'cartouche-border', 'track-style', 'micro-layout', 'symmetry-lock', 'ring-count',
-      'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'cym-spokes', 'cym-rings', 'cym-mod', 'flower-pitch',
-      'fan-twist', 'phy-seeds', 'phy-angle', 'radius-easing-type',
+      'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'fan-twist', 'phy-seeds', 'phy-angle', 'radius-easing-type',
       'radius-easing-param', 'count-easing-type', 'count-easing-param', 'micro-motif', 'inner-scale', 'outer-scale',
       'inner-gap', 'outer-gap', 'motif-aspect', 'shape-alignment', 'pattern-rotation', 'hatch-output-mode', 'motif-hatch-style',
       'hatch-pitch', 'include-outlines', 'num-layers', 'layer-distribution', 'view-mode', 'shimmer-mode', 'light-angle'
