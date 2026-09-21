@@ -6,7 +6,7 @@
   <title>MOPA Micro-Pattern & Time Disc Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Bebas+Neue&family=Besley:wght@700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Chakra+Petch:wght@600;700&family=Chivo:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=Josefin+Sans:wght@600;700&family=Montserrat:wght@600;700&family=Playfair+Display:wght@700&family=Righteous&family=Roboto+Condensed:wght@600;700&family=Russo+One&family=Saira+Semi+Condensed:wght@600;700&family=Share+Tech+Mono&family=Syne:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Bebas+Neue&family=Besley:wght@700&family=Bodoni+Moda:opsz,wght@6..96,700&family=Chakra+Petch:wght@600;700&family=Chivo:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=Josefin+Sans:wght@700&family=Montserrat:wght@600;700&family=Playfair+Display:wght@700&family=Righteous&family=Roboto+Condensed:wght@600;700&family=Russo+One&family=Saira+Semi+Condensed:wght@600;700&family=Share+Tech+Mono&family=Syne:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
   <style>
     :root {
@@ -126,8 +126,14 @@
       <div class="group-title" style="color:var(--accent-warm);">Typography & Dial Font</div>
       <label>Typeface Family</label>
       <select id="font-family">
+        <optgroup label="Bauhaus & Geometric Modernist">
+          <option value="Bauhaus 1930s" selected>Bauhaus 1930s (Josefin Geometric Bold 700)</option>
+          <option value="Swiss Explorer">Swiss Explorer (Montserrat Clean)</option>
+          <option value="Decimal">Decimal (H&Co Watch)</option>
+          <option value="Avant Horology">Avant Horology (Syne Sculptural)</option>
+        </optgroup>
         <optgroup label="Pilot, Military & Instrument">
-          <option value="DIN 1451" selected>DIN 1451 (German Instrument)</option>
+          <option value="DIN 1451">DIN 1451 (German Instrument)</option>
           <option value="Flieger Cockpit">Flieger Cockpit (Saira Bold)</option>
           <option value="Military Field">Military Field (Chivo Utility)</option>
           <option value="Isonorm">Isonorm (Technical Spec)</option>
@@ -139,12 +145,6 @@
           <option value="Cartier Imperial">Cartier Imperial (Cinzel Roman)</option>
           <option value="Filmotype Fashion">Filmotype Fashion (Serif)</option>
           <option value="Clarendon Bold">Clarendon Bold (Heritage Slab)</option>
-        </optgroup>
-        <optgroup label="Bauhaus & Swiss Modernist">
-          <option value="Bauhaus 1930s">Bauhaus 1930s (Josefin Geometric)</option>
-          <option value="Swiss Explorer">Swiss Explorer (Montserrat Clean)</option>
-          <option value="Decimal">Decimal (H&Co Watch)</option>
-          <option value="Avant Horology">Avant Horology (Syne Sculptural)</option>
         </optgroup>
         <optgroup label="Vintage Sport & Chronograph">
           <option value="Racing Chrono 1970s">Racing Chrono 1970s (Righteous)</option>
@@ -171,8 +171,8 @@
         <div>
           <label>Outer Hour Ring</label>
           <select id="td-hour-cycle">
-            <option value="12" selected>12-Hour Scale (1 to 12)</option>
-            <option value="24">24-Hour Military (1 to 24)</option>
+            <option value="24" selected>24-Hour Military (00 to 23)</option>
+            <option value="12">12-Hour Scale (1 to 12)</option>
           </select>
         </div>
         <div>
@@ -217,7 +217,7 @@
       <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:4px; padding:6px; display:flex; flex-direction:column; gap:4px;">
         <label style="color:var(--accent-warm);">Time at Red Hairline (Top Down: H &gt; M &gt; S)</label>
         <div class="row" style="grid-template-columns: 1fr 1fr 1fr;">
-          <div><span style="font-size:0.62rem;color:var(--text-muted);">HOUR</span><input type="number" id="td-time-h" value="10" min="0" max="23"></div>
+          <div><span style="font-size:0.62rem;color:var(--text-muted);">HOUR</span><input type="number" id="td-time-h" value="0" min="0" max="23"></div>
           <div><span style="font-size:0.62rem;color:var(--text-muted);">MIN</span><input type="number" id="td-time-m" value="10" min="0" max="59"></div>
           <div><span style="font-size:0.62rem;color:var(--text-muted);">SEC</span><input type="number" id="td-time-s" value="30" min="0" max="59"></div>
         </div>
@@ -603,6 +603,7 @@
     const COLORS = ['#0000FF','#FF0000','#00FF00','#FFFF00','#FF7F00','#00FFFF','#FF00FF','#9900FF'];
 
     const FONT_MAP = {
+      'Bauhaus 1930s': { css: "'Josefin Sans', sans-serif", exportName: "'Josefin Sans', sans-serif", weight: '700' },
       'DIN 1451': { css: "'Roboto Condensed', sans-serif", exportName: "'DIN 1451 Mittelschrift', sans-serif", weight: '700' },
       'Flieger Cockpit': { css: "'Saira Semi Condensed', sans-serif", exportName: "'Saira Semi Condensed', sans-serif", weight: '700' },
       'Military Field': { css: "'Chivo', sans-serif", exportName: "'Chivo', sans-serif", weight: '700' },
@@ -613,7 +614,6 @@
       'Cartier Imperial': { css: "'Cinzel', serif", exportName: "'Cinzel', serif", weight: '700' },
       'Filmotype Fashion': { css: "'Bodoni Moda', serif", exportName: "'Filmotype Fashion', serif", weight: '700' },
       'Clarendon Bold': { css: "'Besley', serif", exportName: "'Clarendon Bold', serif", weight: '700' },
-      'Bauhaus 1930s': { css: "'Josefin Sans', sans-serif", exportName: "'Josefin Sans', sans-serif", weight: '700' },
       'Swiss Explorer': { css: "'Montserrat', sans-serif", exportName: "'Montserrat', sans-serif", weight: '700' },
       'Decimal': { css: "'Barlow Semi Condensed', sans-serif", exportName: "Decimal, sans-serif", weight: '700' },
       'Avant Horology': { css: "'Syne', sans-serif", exportName: "'Syne', sans-serif", weight: '700' },
@@ -624,6 +624,7 @@
     };
 
     const FONT_URLS = {
+      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/static/JosefinSans-Bold.ttf',
       'DIN 1451': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/robotocondensed/RobotoCondensed%5Bwght%5D.ttf',
       'Flieger Cockpit': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sairasemicondensed/SairaSemiCondensed-Bold.ttf',
       'Military Field': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/chivo/Chivo%5Bwght%5D.ttf',
@@ -634,7 +635,6 @@
       'Cartier Imperial': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cinzel/Cinzel%5Bwght%5D.ttf',
       'Filmotype Fashion': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/bodonimoda/BodoniModa%5Bopsz%2Cwght%5D.ttf',
       'Clarendon Bold': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/besley/Besley%5Bwght%5D.ttf',
-      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/JosefinSans%5Bwght%5D.ttf',
       'Swiss Explorer': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/montserrat/Montserrat%5Bwght%5D.ttf',
       'Decimal': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf',
       'Avant Horology': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/syne/Syne%5Bwght%5D.ttf',
@@ -675,7 +675,7 @@
 
     const state = {
       dia: 34.0, pinion: 2.0, hub: 0.3,
-      markerFormat: 'arabic', fontFamily: 'DIN 1451', fontScale: 115, numeralOrientation: 'upright', hairlineBoost: 0.06,
+      markerFormat: 'arabic', fontFamily: 'Bauhaus 1930s', fontScale: 115, numeralOrientation: 'upright', hairlineBoost: 0.06,
       globalDx: 0.00, globalDy: 0.00, targetHour: '4',
       hourAdjust: { 1:{x:0,y:0}, 2:{x:0,y:0}, 3:{x:0,y:0}, 4:{x:-0.05,y:0.03}, 5:{x:0,y:0}, 6:{x:0,y:0}, 7:{x:0,y:0}, 8:{x:0,y:0}, 9:{x:0,y:0}, 10:{x:0,y:0}, 11:{x:0,y:0}, 12:{x:0,y:0} },
       numeralRadialShift: 0.12, markerRadiusPct: 75, activeHours: new Set([12, 4, 8]),
@@ -685,14 +685,14 @@
       flowerPitch: 2.40,
       
       // Rotating Time Discs Parameters
-      tdHourCycle: '12',
+      tdHourCycle: '24',
       tdDirection: 'ccw',
       tdDensity: 'scientific',
       tdTrackWidth: 2.50,
       tdTickLenPct: 30,
       tdNumPosPct: 28,
       tdHairlineAngle: 0.0,
-      tdTimeH: 10,
+      tdTimeH: 0,
       tdTimeM: 10,
       tdTimeS: 30,
       tdLive: false,
@@ -916,7 +916,7 @@
       return currentSegs;
     }
 
-    // 1960s Rotating Time Discs Engine with Zero Collision & Ultra-Fine Slide Rule Density
+    // 1960s Rotating Time Discs Engine with Zero Collision & 00 at 24-Hour Midnight Position
     function generateRotatingTimeDiscs() {
       timeDiscElements = [];
       const cx0 = state.dia / 2, cy0 = state.dia / 2;
@@ -951,7 +951,7 @@
       const tickFraction = state.tdTickLenPct / 100;
       const numFraction = state.tdNumPosPct / 100;
 
-      // 1. OUTER RING: HOURS (12h or 24h)
+      // 1. OUTER RING: HOURS (12h or 24h with '00' at Midnight)
       const hFontSize = (is24 ? 1.05 : 1.25) * scaleF;
       const hMajorTickLen = trackW * tickFraction;
       const hTextR = rHourInner + trackW * numFraction;
@@ -970,8 +970,8 @@
           strokeW: 0.07, discLayer: 'hours'
         });
 
-        // Hour Label
-        const labelText = is24 ? (h === 0 ? '24' : `${h}`) : (h === 0 ? '12' : `${h}`);
+        // Hour Label - '00' replaces 24 for proper military display
+        const labelText = is24 ? (h === 0 ? '00' : `${h}`) : (h === 0 ? '12' : `${h}`);
         timeDiscElements.push({
           type: 'text', text: labelText,
           cx: cx0 + hTextR * Math.cos(thetaH),
@@ -982,8 +982,8 @@
 
         // Subdivisions according to Slide Rule density
         let subIntervals = 4; // default 15-min ticks
-        if (state.tdDensity === 'scientific') subIntervals = is24 ? 12 : 12; // 5-min or 10-min ticks
-        else if (state.tdDensity === 'fine') subIntervals = is24 ? 6 : 6; // 10-min or 20-min ticks
+        if (state.tdDensity === 'scientific') subIntervals = 12; // 5-min ticks
+        else if (state.tdDensity === 'fine') subIntervals = 6; // 10-min ticks
 
         for (let st = 1; st < subIntervals; st++) {
           const subVal = valToEval + (st / subIntervals);
@@ -1046,7 +1046,6 @@
       const sMajorTickLen = trackW * tickFraction;
       const sTextR = rSecInner + trackW * numFraction;
 
-      // Slide rule aesthetic: 300 ticks = 1/5th second chronometer subdivisions!
       const secTotalTicks = (state.tdDensity === 'scientific') ? 300 : ((state.tdDensity === 'fine') ? 120 : 60);
       const secStep = 60 / secTotalTicks;
 
@@ -1096,7 +1095,6 @@
         strokeW: 0.075, color: 'cursor_red', discLayer: 'hairline'
       });
 
-      // Top indicator arrow
       const arrTip = pOuter + 0.15;
       const arrBase = pOuter - 0.70;
       const arrW = 0.50;
@@ -1248,110 +1246,6 @@
       }
     }
 
-    function createMotifPolygon(type, cx, cy, curR, Sr, Sc, angle, chordWidth, dTheta) {
-      const cosA = Math.cos(angle), sinA = Math.sin(angle);
-      const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
-
-      if (type === 'grain_d_orge') return [toD(Sr * 1.65, 0), toD(0, Sc), toD(-Sr * 1.65, 0), toD(0, -Sc)];
-      if (type === 'clou_de_paris') return [toD(Sr, 0), toD(0, Sc), toD(-Sr, 0), toD(0, -Sc)];
-      if (type === 'damier') return [toD(Sr, Sc), toD(-Sr, Sc), toD(-Sr, -Sc), toD(Sr, -Sc)];
-      if (type === 'hex_cell') {
-        const pts = []; for (let i = 0; i < 6; i++) pts.push(toD(Sr * Math.cos(i * Math.PI / 3), Sc * Math.sin(i * Math.PI / 3))); return pts;
-      }
-      if (type === 'triangle') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.5, -Sc)];
-      if (type === 'star4') {
-        const pts = []; for (let i = 0; i < 8; i++) { const f = (i % 2 === 0 ? 1.0 : 0.38); pts.push(toD(Sr * f * Math.cos(i * Math.PI / 4), Sc * f * Math.sin(i * Math.PI / 4))); } return pts;
-      }
-      if (type === 'chevron') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.1, 0), toD(-Sr * 0.5, -Sc)];
-      if (type === 'keystone') {
-        const cx0 = state.dia / 2, cy0 = state.dia / 2, halfSpan = (dTheta / 2) * (Sc / Math.max(0.001, chordWidth / 2)), bT = Math.atan2(cy - cy0, cx - cx0);
-        const steps = 16, pts = [];
-        for (let i = 0; i <= steps; i++) {
-          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
-          pts.push({ x: cx0 + (curR + Sr) * Math.cos(th), y: cy0 + (curR + Sr) * Math.sin(th) });
-        }
-        for (let i = steps; i >= 0; i--) {
-          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
-          pts.push({ x: cx0 + (curR - Sr) * Math.cos(th), y: cy0 + (curR - Sr) * Math.sin(th) });
-        }
-        return pts;
-      }
-      return null;
-    }
-
-    function addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx) {
-      if (state.hatchMode === 'closed_outline') {
-        elements.push({ type: 'circle', cx, cy, r, l: layer, a: hatchAngle, idx: sIdx });
-        return;
-      }
-      if (state.includeOutlines) elements.push({ type: 'circle', cx, cy, r, l: 'outline', a: 0, idx: sIdx });
-
-      if (state.motifHatch === 'contour_inward') {
-        const rings = Math.max(1, Math.floor(r / state.pitch));
-        for (let m = 1; m <= rings; m++) elements.push({ type: 'circle', cx, cy, r: r * (m / rings), l: layer, a: hatchAngle, idx: sIdx });
-      }
-    }
-
-    function addMotifToolpaths(poly, circleData, layer, hatchAngle, sIdx) {
-      if (circleData) { addCircleBeadToolpaths(circleData.cx, circleData.cy, circleData.r, layer, hatchAngle, sIdx); return; }
-      if (!poly) return;
-
-      const cx0 = state.dia / 2, cy0 = state.dia / 2, pitch = state.pitch;
-      function emitL(p1, p2, l, a) {
-        const segs = clipLineAgainstAllCartouches(p1, p2);
-        for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l, a, idx: sIdx });
-      }
-      function emitP(pts, l, a) { for (let i = 0; i < pts.length; i++) emitL(pts[i], pts[(i + 1) % pts.length], l, a); }
-
-      if (state.hatchMode === 'closed_outline') { emitP(poly, layer, hatchAngle); return; }
-      if (state.includeOutlines) emitP(poly, 'outline', 0);
-
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, avgX = 0, avgY = 0;
-      for (let i = 0; i < poly.length; i++) {
-        minX = Math.min(minX, poly[i].x); maxX = Math.max(maxX, poly[i].x);
-        minY = Math.min(minY, poly[i].y); maxY = Math.max(maxY, poly[i].y);
-        avgX += poly[i].x; avgY += poly[i].y;
-      }
-      const cx = avgX / poly.length, cy = avgY / poly.length, bR = Math.max(0.1, Math.hypot(maxX - minX, maxY - minY) / 2);
-
-      if (state.motifHatch === 'contour_inward') {
-        const rings = Math.max(1, Math.floor(bR / pitch));
-        for (let m = 1; m <= rings; m++) emitP(poly.map(p => ({ x: cx + (p.x - cx) * (m / rings), y: cy + (p.y - cy) * (m / rings) })), layer, hatchAngle);
-      } else {
-        const rad = (hatchAngle * Math.PI) / 180;
-        const ux = Math.cos(rad), uy = Math.sin(rad), nx = -uy, ny = ux, extent = bR * 2.0;
-        const halfLines = Math.max(2, Math.ceil(extent / pitch));
-        for (let m = -halfLines; m <= halfLines; m++) {
-          const off = m * pitch, oX = cx + off * nx, oY = cy + off * ny;
-          const segs = intersectLinePoly(oX, oY, ux, uy, poly);
-          for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
-        }
-      }
-    }
-
-    function addCandidate(cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, hatchAngle, sIdx) {
-      const R_inner = state.pinion / 2 + state.hub;
-      let R_outer = state.dia / 2 - 1.2;
-      if (state.layout === 'slide_rule') R_outer = state.srMedallionR;
-      else if (state.layout === 'time_discs') R_outer = state.tdCenterR;
-
-      if (state.motif === 'circle_bead') {
-        const r = Math.min(Sr, Sc), d = Math.hypot(cx - state.dia / 2, cy - state.dia / 2);
-        if (d + r <= R_outer - 0.002 && d - r >= R_inner + 0.002) {
-          shapeCount++; addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx);
-        }
-      } else {
-        const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
-        if (poly) {
-          for (let i = 0; i < poly.length; i++) {
-            const d = Math.hypot(poly[i].x - state.dia / 2, poly[i].y - state.dia / 2);
-            if (d > R_outer - 0.002 || d < R_inner + 0.002) return;
-          }
-          shapeCount++; addMotifToolpaths(poly, null, layer, hatchAngle, sIdx);
-        }
-      }
-    }
-
     function generateGeometry() {
       elements = []; shapeCount = 0;
       if (state.layout === 'slide_rule') {
@@ -1483,7 +1377,7 @@
                 ctx.stroke();
               }
             } else {
-              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['DIN 1451'];
+              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
               ctx.font = `${fontCfg.weight} ${td.fontSizeMM}px ${fontCfg.css}`;
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText(td.text, 0, 0);
@@ -1521,7 +1415,7 @@
                 ctx.stroke();
               }
             } else {
-              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['DIN 1451'];
+              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
               ctx.font = `${fontCfg.weight} ${sr.fontSizeMM}px ${fontCfg.css}`;
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText(sr.text, 0, 0);
