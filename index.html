@@ -624,7 +624,7 @@
     };
 
     const FONT_URLS = {
-      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/static/JosefinSans-Bold.ttf',
+      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/JosefinSans%5Bwght%5D.ttf',
       'DIN 1451': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/robotocondensed/RobotoCondensed%5Bwght%5D.ttf',
       'Flieger Cockpit': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sairasemicondensed/SairaSemiCondensed-Bold.ttf',
       'Military Field': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/chivo/Chivo%5Bwght%5D.ttf',
@@ -932,7 +932,6 @@
       const curM = state.tdTimeM + (state.tdTimeS / 60);
       const curS = state.tdTimeS;
 
-      // Track Radii: Outer (Hour) -> Middle (Min) -> Inner (Sec)
       let curR = R_dial - 0.55;
       const rHourOuter = curR; const rHourInner = curR - trackW;
       curR = rHourInner - 0.25;
@@ -940,14 +939,12 @@
       curR = rMinInner - 0.25;
       const rSecOuter = curR; const rSecInner = curR - trackW;
 
-      // Divider Rings
       [rHourOuter, rHourInner, rMinOuter, rMinInner, rSecOuter, rSecInner].forEach((rRing, i) => {
         timeDiscElements.push({
           type: 'ring', cx: cx0, cy: cy0, r: rRing, strokeW: (i % 2 === 0 ? 0.06 : 0.04), discLayer: 'dividers'
         });
       });
 
-      // Clearance-safe Tick Lengths & Text Positioning
       const tickFraction = state.tdTickLenPct / 100;
       const numFraction = state.tdNumPosPct / 100;
 
@@ -960,7 +957,6 @@
         const valToEval = is24 ? h : (h === 0 ? 12 : h);
         const thetaH = hairlineRad + dirSign * ((valToEval - curH) / maxH) * 2 * Math.PI;
 
-        // Major Hour Tick
         timeDiscElements.push({
           type: 'line',
           pts: [
@@ -970,7 +966,6 @@
           strokeW: 0.07, discLayer: 'hours'
         });
 
-        // Hour Label - '00' replaces 24 for proper military display
         const labelText = is24 ? (h === 0 ? '00' : `${h}`) : (h === 0 ? '12' : `${h}`);
         timeDiscElements.push({
           type: 'text', text: labelText,
@@ -980,10 +975,9 @@
           fontSizeMM: hFontSize, discLayer: 'hours'
         });
 
-        // Subdivisions according to Slide Rule density
-        let subIntervals = 4; // default 15-min ticks
-        if (state.tdDensity === 'scientific') subIntervals = 12; // 5-min ticks
-        else if (state.tdDensity === 'fine') subIntervals = 6; // 10-min ticks
+        let subIntervals = 4;
+        if (state.tdDensity === 'scientific') subIntervals = 12;
+        else if (state.tdDensity === 'fine') subIntervals = 6;
 
         for (let st = 1; st < subIntervals; st++) {
           const subVal = valToEval + (st / subIntervals);
@@ -1246,6 +1240,295 @@
       }
     }
 
+    // Sacred Geometry & Classical Guilloché Polygons
+    function createMotifPolygon(type, cx, cy, curR, Sr, Sc, angle, chordWidth, dTheta) {
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      const toD = (u, v) => ({ x: cx + u * cosA - v * sinA, y: cy + u * sinA + v * cosA });
+
+      if (type === 'vesica_piscis') {
+        const pts = []; const steps = 16;
+        for (let i = -steps; i <= steps; i++) {
+          const x = (i / steps) * (Sr * 1.5);
+          const y = Sc * Math.sqrt(Math.max(0, 1 - Math.pow(x / (Sr * 1.5), 2)));
+          pts.push(toD(x, y));
+        }
+        for (let i = steps; i >= -steps; i--) {
+          const x = (i / steps) * (Sr * 1.5);
+          const y = -Sc * Math.sqrt(Math.max(0, 1 - Math.pow(x / (Sr * 1.5), 2)));
+          pts.push(toD(x, y));
+        }
+        return pts;
+      }
+
+      if (type === 'seed_of_life') {
+        const pts = []; const s = Math.min(Sr, Sc);
+        for (let i = 0; i < 48; i++) {
+          const th = (i / 48) * Math.PI * 2;
+          const r = s * (0.35 + 0.65 * Math.pow(Math.cos(3 * th), 2));
+          pts.push(toD(r * Math.cos(th), r * Math.sin(th)));
+        }
+        return pts;
+      }
+
+      if (type === 'vector_equilibrium') {
+        const pts = []; const s = Math.min(Sr, Sc);
+        for (let i = 0; i < 12; i++) {
+          const a = (i * Math.PI) / 6;
+          const r = (i % 2 === 0) ? s : (s * 0.577);
+          pts.push(toD(r * Math.cos(a), r * Math.sin(a)));
+        }
+        return pts;
+      }
+
+      if (type === 'grain_d_orge') return [toD(Sr * 1.65, 0), toD(0, Sc), toD(-Sr * 1.65, 0), toD(0, -Sc)];
+      if (type === 'clou_de_paris') return [toD(Sr, 0), toD(0, Sc), toD(-Sr, 0), toD(0, -Sc)];
+      if (type === 'damier') return [toD(Sr, Sc), toD(-Sr, Sc), toD(-Sr, -Sc), toD(Sr, -Sc)];
+      if (type === 'hex_cell') {
+        const pts = []; for (let i = 0; i < 6; i++) pts.push(toD(Sr * Math.cos(i * Math.PI / 3), Sc * Math.sin(i * Math.PI / 3))); return pts;
+      }
+      if (type === 'triangle') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.5, -Sc)];
+      if (type === 'star4') {
+        const pts = []; for (let i = 0; i < 8; i++) { const f = (i % 2 === 0 ? 1.0 : 0.38); pts.push(toD(Sr * f * Math.cos(i * Math.PI / 4), Sc * f * Math.sin(i * Math.PI / 4))); } return pts;
+      }
+      if (type === 'chevron') return [toD(Sr, 0), toD(-Sr * 0.5, Sc), toD(-Sr * 0.1, 0), toD(-Sr * 0.5, -Sc)];
+      if (type === 'keystone') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2, halfSpan = (dTheta / 2) * (Sc / Math.max(0.001, chordWidth / 2)), bT = Math.atan2(cy - cy0, cx - cx0);
+        const steps = 16, pts = [];
+        for (let i = 0; i <= steps; i++) {
+          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
+          pts.push({ x: cx0 + (curR + Sr) * Math.cos(th), y: cy0 + (curR + Sr) * Math.sin(th) });
+        }
+        for (let i = steps; i >= 0; i--) {
+          const th = bT - halfSpan + (i / steps) * 2 * halfSpan;
+          pts.push({ x: cx0 + (curR - Sr) * Math.cos(th), y: cy0 + (curR - Sr) * Math.sin(th) });
+        }
+        return pts;
+      }
+      return null;
+    }
+
+    function intersectLinePoly(originX, originY, ux, uy, poly) {
+      const hits = [];
+      for (let i = 0; i < poly.length; i++) {
+        const pA = poly[i], pB = poly[(i + 1) % poly.length];
+        const vx = pB.x - pA.x, vy = pB.y - pA.y;
+        const det = vx * uy - vy * ux;
+        if (Math.abs(det) < 1e-10) continue;
+        const dx = originX - pA.x, dy = originY - pA.y;
+        const s = (dx * uy - dy * ux) / det;
+        const t = (dx * vy - dy * vx) / det;
+        if (s >= -1e-6 && s <= 1 + 1e-6) hits.push(t);
+      }
+      if (hits.length < 2) return [];
+      hits.sort((a, b) => a - b);
+      const unique = [hits[0]];
+      for (let i = 1; i < hits.length; i++) {
+        if (hits[i] - unique[unique.length - 1] > 1e-4) unique.push(hits[i]);
+      }
+      const segs = [];
+      for (let i = 0; i + 1 < unique.length; i += 2) {
+        segs.push([
+          { x: originX + unique[i] * ux, y: originY + unique[i] * uy },
+          { x: originX + unique[i + 1] * ux, y: originY + unique[i + 1] * uy }
+        ]);
+      }
+      return segs;
+    }
+
+    function addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx) {
+      if (state.hatchMode === 'closed_outline') {
+        elements.push({ type: 'circle', cx, cy, r, l: layer, a: hatchAngle, idx: sIdx });
+        return;
+      }
+      if (state.includeOutlines) elements.push({ type: 'circle', cx, cy, r, l: 'outline', a: 0, idx: sIdx });
+
+      if (state.motifHatch === 'contour_inward') {
+        const rings = Math.max(1, Math.floor(r / state.pitch));
+        for (let m = 1; m <= rings; m++) elements.push({ type: 'circle', cx, cy, r: r * (m / rings), l: layer, a: hatchAngle, idx: sIdx });
+      } else if (state.motifHatch === 'linear_hatch') {
+        const rad = (hatchAngle * Math.PI) / 180;
+        const ux = Math.cos(rad), uy = Math.sin(rad);
+        const nx = -uy, ny = ux;
+        const nLines = Math.floor((r - 1e-6) / state.pitch);
+        for (let m = -nLines; m <= nLines; m++) {
+          const off = m * state.pitch;
+          if (Math.abs(off) < r - 1e-6) {
+            const h = Math.sqrt(r * r - off * off);
+            const p1 = { x: cx + off * nx - h * ux, y: cy + off * ny - h * uy };
+            const p2 = { x: cx + off * nx + h * ux, y: cy + off * ny + h * uy };
+            const segs = clipLineAgainstAllCartouches(p1, p2);
+            for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l: layer, a: hatchAngle, idx: sIdx });
+          }
+        }
+      } else if (state.motifHatch === 'radial_spokes') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2;
+        const D = Math.hypot(cx - cx0, cy - cy0);
+        const dtMax = Math.asin(Math.min(0.999, r / Math.max(D, r + 0.1)));
+        const rays = Math.max(2, Math.round((D * dtMax * 2) / state.pitch));
+        const beta = Math.atan2(cy - cy0, cx - cx0);
+        for (let m = 0; m <= rays; m++) {
+          const a = beta - dtMax + (m / rays) * 2 * dtMax;
+          const ux = Math.cos(a), uy = Math.sin(a);
+          const tProj = (cx - cx0) * ux + (cy - cy0) * uy;
+          const dPerp = Math.hypot((cx - cx0) - tProj * ux, (cy - cy0) - tProj * uy);
+          if (dPerp < r - 1e-6) {
+            const h = Math.sqrt(r * r - dPerp * dPerp);
+            const p1 = { x: cx0 + (tProj - h) * ux, y: cy0 + (tProj - h) * uy };
+            const p2 = { x: cx0 + (tProj + h) * ux, y: cy0 + (tProj + h) * uy };
+            const segs = clipLineAgainstAllCartouches(p1, p2);
+            for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l: layer, a: hatchAngle, idx: sIdx });
+          }
+        }
+      } else if (state.motifHatch === 'concentric_cd') {
+        const cx0 = state.dia / 2, cy0 = state.dia / 2;
+        const D = Math.hypot(cx - cx0, cy - cy0);
+        const beta = Math.atan2(cy - cy0, cx - cx0);
+        const k0 = Math.floor((D - r) / state.pitch), k1 = Math.ceil((D + r) / state.pitch);
+        for (let k = k0; k <= k1; k++) {
+          const curR = k * state.pitch;
+          if (curR <= 0 || Math.abs(curR - D) >= r - 1e-6) continue;
+          const cosDt = (curR * curR + D * D - r * r) / (2 * curR * D);
+          if (Math.abs(cosDt) > 1) continue;
+          const dt = Math.acos(cosDt);
+          const arcLen = 2 * dt * curR;
+          const arcSteps = Math.max(6, Math.ceil(arcLen / 0.04));
+          const arcPts = [];
+          for (let s = 0; s <= arcSteps; s++) {
+            const th = beta - dt + (s / arcSteps) * 2 * dt;
+            arcPts.push({ x: cx0 + curR * Math.cos(th), y: cy0 + curR * Math.sin(th) });
+          }
+          elements.push({ type: 'line', pts: arcPts, l: layer, a: hatchAngle, idx: sIdx });
+        }
+      }
+    }
+
+    function addMotifToolpaths(poly, circleData, layer, hatchAngle, sIdx) {
+      if (circleData) { addCircleBeadToolpaths(circleData.cx, circleData.cy, circleData.r, layer, hatchAngle, sIdx); return; }
+      if (!poly) return;
+
+      const cx0 = state.dia / 2, cy0 = state.dia / 2, pitch = state.pitch;
+      function emitL(p1, p2, l, a) {
+        const segs = clipLineAgainstAllCartouches(p1, p2);
+        for (let i = 0; i < segs.length; i++) elements.push({ type: 'line', pts: [segs[i].p1, segs[i].p2], l, a, idx: sIdx });
+      }
+      function emitP(pts, l, a) { for (let i = 0; i < pts.length; i++) emitL(pts[i], pts[(i + 1) % pts.length], l, a); }
+
+      if (state.hatchMode === 'closed_outline') { emitP(poly, layer, hatchAngle); return; }
+      if (state.includeOutlines) emitP(poly, 'outline', 0);
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, avgX = 0, avgY = 0;
+      for (let i = 0; i < poly.length; i++) {
+        minX = Math.min(minX, poly[i].x); maxX = Math.max(maxX, poly[i].x);
+        minY = Math.min(minY, poly[i].y); maxY = Math.max(maxY, poly[i].y);
+        avgX += poly[i].x; avgY += poly[i].y;
+      }
+      const cx = avgX / poly.length, cy = avgY / poly.length, bR = Math.max(0.1, Math.hypot(maxX - minX, maxY - minY) / 2);
+      const D = Math.hypot(cx - cx0, cy - cy0);
+
+      if (state.motifHatch === 'contour_inward') {
+        const rings = Math.max(1, Math.floor(bR / pitch));
+        for (let m = 1; m <= rings; m++) emitP(poly.map(p => ({ x: cx + (p.x - cx) * (m / rings), y: cy + (p.y - cy) * (m / rings) })), layer, hatchAngle);
+      } else if (state.motifHatch === 'concentric_cd') {
+        const k0 = Math.floor((D - bR * 1.5) / pitch), k1 = Math.ceil((D + bR * 1.5) / pitch);
+        for (let k = k0; k <= k1; k++) {
+          const r = k * pitch; if (r <= 0) continue;
+          const hits = [];
+          for (let i = 0; i < poly.length; i++) {
+            const P1 = poly[i], P2 = poly[(i + 1) % poly.length], Vx = P2.x - P1.x, Vy = P2.y - P1.y, Wx = P1.x - cx0, Wy = P1.y - cy0;
+            const A = Vx * Vx + Vy * Vy, B = 2 * (Wx * Vx + Wy * Vy), C = Wx * Wx + Wy * Wy - r * r, disc = B * B - 4 * A * C;
+            if (disc >= 0 && A > 1e-9) {
+              const sq = Math.sqrt(disc), t1 = (-B - sq) / (2 * A), t2 = (-B + sq) / (2 * A);
+              if (t1 >= -1e-4 && t1 <= 1.0001) hits.push(Math.atan2(P1.y + t1 * Vy - cy0, P1.x + t1 * Vx - cx0));
+              if (t2 >= -1e-4 && t2 <= 1.0001 && Math.abs(t2 - t1) > 1e-4) hits.push(Math.atan2(P1.y + t2 * Vy - cy0, P1.x + t2 * Vx - cx0));
+            }
+          }
+          if (hits.length >= 2) {
+            let dT = hits[1] - hits[0]; while (dT > Math.PI) dT -= 2 * Math.PI; while (dT < -Math.PI) dT += 2 * Math.PI;
+            emitL({ x: cx0 + r * Math.cos(hits[0]), y: cy0 + r * Math.sin(hits[0]) }, { x: cx0 + r * Math.cos(hits[0] + dT), y: cy0 + r * Math.sin(hits[0] + dT) }, layer, hatchAngle);
+          }
+        }
+      } else if (state.motifHatch === 'radial_spokes') {
+        const dtMax = Math.asin(Math.min(0.999, (bR * 1.5) / Math.max(D, bR + 0.1))), rays = Math.max(2, Math.round((D * dtMax * 2) / pitch));
+        for (let m = 0; m <= rays; m++) {
+          const a = Math.atan2(cy - cy0, cx - cx0) - dtMax + (m / rays) * 2 * dtMax, ux = Math.cos(a), uy = Math.sin(a);
+          const segs = intersectLinePoly(cx0, cy0, ux, uy, poly);
+          for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
+        }
+      } else {
+        const rad = (hatchAngle * Math.PI) / 180;
+        const ux = Math.cos(rad), uy = Math.sin(rad), nx = -uy, ny = ux, extent = bR * 2.0;
+        const halfLines = Math.max(2, Math.ceil(extent / pitch));
+        for (let m = -halfLines; m <= halfLines; m++) {
+          const off = m * pitch, oX = cx + off * nx, oY = cy + off * ny;
+          const segs = intersectLinePoly(oX, oY, ux, uy, poly);
+          for (let s = 0; s < segs.length; s++) emitL(segs[s][0], segs[s][1], layer, hatchAngle);
+        }
+      }
+    }
+
+    function addCandidate(cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, hatchAngle, sIdx) {
+      const R_inner = state.pinion / 2 + state.hub;
+      let R_outer = state.dia / 2 - 1.2;
+      if (state.layout === 'slide_rule') R_outer = state.srMedallionR;
+      else if (state.layout === 'time_discs') R_outer = state.tdCenterR;
+
+      if (state.motif === 'circle_bead') {
+        const r = Math.min(Sr, Sc), d = Math.hypot(cx - state.dia / 2, cy - state.dia / 2);
+        if (d + r <= R_outer - 0.002 && d - r >= R_inner + 0.002) {
+          shapeCount++; addCircleBeadToolpaths(cx, cy, r, layer, hatchAngle, sIdx);
+        }
+      } else {
+        const poly = createMotifPolygon(state.motif, cx, cy, curR, Sr, Sc, shapeAngle, chordWidth, dTheta);
+        if (poly) {
+          for (let i = 0; i < poly.length; i++) {
+            const d = Math.hypot(poly[i].x - state.dia / 2, poly[i].y - state.dia / 2);
+            if (d > R_outer - 0.002 || d < R_inner + 0.002) return;
+          }
+          shapeCount++; addMotifToolpaths(poly, null, layer, hatchAngle, sIdx);
+        }
+      }
+    }
+
+    function computePartitionLayer(scheme, ringIdx, totalRings, spokeIdx, totalSpokes, theta, uNorm, ix, iy, L) {
+      const normT = ((theta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      switch (scheme) {
+        case 'by_spoke': return Math.floor((normT / (2 * Math.PI)) * L) % L;
+        case 'lattice': {
+          if (ix !== undefined && iy !== undefined) return (Math.abs(ix) + Math.abs(iy)) % L;
+          return (ringIdx + spokeIdx) % L;
+        }
+        case 'counter_chase': {
+          const dir = (ringIdx % 2 === 0) ? 1 : -1;
+          const sSafe = (totalSpokes > 0) ? spokeIdx : Math.floor((normT / (2 * Math.PI)) * 24);
+          return ((dir * sSafe + ringIdx * 2) % L + L) % L;
+        }
+        case 'dual_spiral': {
+          const sRatio = (totalSpokes > 0) ? Math.floor((spokeIdx / totalSpokes) * L) : Math.floor((normT / (2 * Math.PI)) * L);
+          return ((ringIdx * 2 + sRatio) % L + L) % L;
+        }
+        case 'chevron_ripple': {
+          if (ix !== undefined && iy !== undefined) return (Math.abs(ix + iy) + Math.abs(ix - iy)) % L;
+          const zig = (spokeIdx % 6 < 3) ? (spokeIdx % 3) : (5 - (spokeIdx % 6));
+          return (ringIdx + zig * 2) % L;
+        }
+        case 'pinwheel_strobe': {
+          const blades = 6;
+          const bladeFrac = ((normT / (2 * Math.PI)) * blades) % 1.0;
+          return Math.floor(bladeFrac * L) % L;
+        }
+        case 'pulsar_wave': {
+          const wave = Math.sin(uNorm * Math.PI * 6 + normT * 2);
+          return Math.floor(((wave + 1) * 0.5) * (L - 0.001)) % L;
+        }
+        case 'quadrant_cross': {
+          const q = Math.abs(Math.sin(normT * 2));
+          return (ringIdx + Math.floor(q * L)) % L;
+        }
+        case 'by_ring':
+        default: return ringIdx % L;
+      }
+    }
+
     function generateGeometry() {
       elements = []; shapeCount = 0;
       if (state.layout === 'slide_rule') {
@@ -1283,28 +1566,125 @@
         return;
       }
 
-      // Populate Medallion or Guilloche Face
-      const rBounds = [];
-      for (let k = 0; k <= N_rings; k++) rBounds.push(R_inner + applyEasing(k / N_rings, state.radiusEasingType, state.radiusEasingParam) * span);
+      // Populate Medallion or Guilloché Face
+      if (state.layout === 'concentric_rings' || state.layout === 'concentric_proportional' || state.layout === 'time_discs' || state.layout === 'slide_rule') {
+        const rBounds = [];
+        for (let k = 0; k <= N_rings; k++) rBounds.push(R_inner + applyEasing(k / N_rings, state.radiusEasingType, state.radiusEasingParam) * span);
 
-      for (let ring = 0; ring < N_rings; ring++) {
-        const deltaR = rBounds[ring + 1] - rBounds[ring], curR = (rBounds[ring] + rBounds[ring + 1]) / 2, uRing = ring / Math.max(1, N_rings - 1);
-        const currentGap = state.innerGap + uRing * (state.outerGap - state.innerGap);
-        const currentScale = (state.innerScale + uRing * (state.outerScale - state.innerScale)) / 100;
-        let rawCount = state.innerCount + applyEasing(uRing, state.countEasingType, state.countEasingParam) * (state.outerCount - state.innerCount);
+        for (let ring = 0; ring < N_rings; ring++) {
+          const deltaR = rBounds[ring + 1] - rBounds[ring], curR = (rBounds[ring] + rBounds[ring + 1]) / 2, uRing = ring / Math.max(1, N_rings - 1);
+          const currentGap = state.innerGap + uRing * (state.outerGap - state.innerGap);
+          const currentScale = (state.innerScale + uRing * (state.outerScale - state.innerScale)) / 100;
+          let rawCount = (state.layout === 'concentric_proportional')
+            ? Math.max(4, Math.round((2 * Math.PI * curR) / Math.max(0.1, deltaR * 1.05))) * (1.0 - 0.25 * (1 - applyEasing(uRing, state.countEasingType, state.countEasingParam)))
+            : state.innerCount + applyEasing(uRing, state.countEasingType, state.countEasingParam) * (state.outerCount - state.innerCount);
 
-        let snap = 12;
-        let ringCount = Math.max(snap, Math.round(rawCount / snap) * snap);
-        const dTheta = (2 * Math.PI) / ringCount, chordWidth = 2 * curR * Math.sin(dTheta / 2);
-        const sR = Math.max(0.02, (deltaR - currentGap) / 2), sC = Math.max(0.02, (chordWidth - currentGap) / 2);
-        const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * currentScale;
-        const Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * currentScale;
-        const baseAngle = -Math.PI / 2 + rotRad + ((state.stagger && ring % 2 === 1) ? (dTheta / 2) : 0);
+          let snap = state.symmetryLock === '12' ? 12 : (state.symmetryLock === '6' ? 6 : (state.symmetryLock === '4' ? 4 : (state.symmetryLock === 'inner' ? Math.max(1, state.innerCount) : 1)));
+          let ringCount = snap > 1 ? Math.max(snap, Math.round(rawCount / snap) * snap) : Math.max(3, Math.round(rawCount));
 
-        for (let s = 0; s < ringCount; s++) {
-          const theta = s * dTheta + baseAngle, shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta);
-          const layer = ring % L;
-          addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
+          const dTheta = (2 * Math.PI) / ringCount, chordWidth = 2 * curR * Math.sin(dTheta / 2);
+          const sR = Math.max(0.02, (deltaR - currentGap) / 2), sC = Math.max(0.02, (chordWidth - currentGap) / 2);
+          const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * currentScale;
+          const Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * currentScale;
+          const baseAngle = -Math.PI / 2 + rotRad + ((state.stagger && ring % 2 === 1) ? (dTheta / 2) : 0);
+
+          for (let s = 0; s < ringCount; s++) {
+            const theta = s * dTheta + baseAngle, shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta);
+            const layer = computePartitionLayer(state.layerDist, ring, N_rings, s, ringCount, theta, uRing, undefined, undefined, L);
+            addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
+          }
+        }
+      } else if (state.layout === 'sacred_flower') {
+        const pitch = Math.max(0.5, state.flowerPitch);
+        const v1x = pitch, v1y = 0;
+        const v2x = pitch * 0.5, v2y = pitch * Math.sqrt(3) * 0.5;
+        const maxExtent = R_outer + pitch;
+        const nSteps = Math.ceil(maxExtent / (pitch * 0.866));
+
+        for (let i = -nSteps; i <= nSteps; i++) {
+          for (let j = -nSteps; j <= nSteps; j++) {
+            const gx = i * v1x + j * v2x, gy = j * v2y, d = Math.hypot(gx, gy);
+            if (d < R_inner || d > R_outer) continue;
+
+            const bA = Math.atan2(gy, gx);
+            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad);
+            const ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
+            const uDist = Math.min(1, Math.max(0, (d - R_inner) / span));
+
+            const currentGap = state.innerGap + uDist * (state.outerGap - state.innerGap);
+            const currentScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
+            const halfP = Math.max(0.02, (pitch - currentGap) / 2) * currentScale;
+
+            const shapeAngle = state.alignment === 'radial' ? bA + rotRad : (state.alignment === 'tangent' ? bA + rotRad + Math.PI/2 : rotRad);
+            const rBand = Math.floor(uDist * N_rings);
+            const layer = computePartitionLayer(state.layerDist, rBand, N_rings, Math.abs(i + j), nSteps * 2, bA + rotRad, uDist, i, j, L);
+
+            addCandidate(rx, ry, d, halfP, halfP, shapeAngle, pitch, 0.2, layer, layer * (180 / L), sIdx++);
+          }
+        }
+      } else if (state.layout === 'radial_fans') {
+        const rays = Math.max(3, state.outerCount), dTheta = 2 * Math.PI / rays, twistRad = state.fanTwist * Math.PI / 180;
+        for (let ray = 0; ray < rays; ray++) {
+          const rayBase = ray * dTheta - Math.PI / 2 + rotRad;
+          for (let st = 0; st < N_rings; st++) {
+            const u = N_rings > 1 ? st / (N_rings - 1) : 0, uRad = applyEasing(u, state.radiusEasingType, state.radiusEasingParam), curR = R_inner + uRad * span;
+            const cGap = state.innerGap + uRad * (state.outerGap - state.innerGap), cScale = (state.innerScale + uRad * (state.outerScale - state.innerScale)) / 100;
+            const theta = rayBase + twistRad * Math.pow(uRad, 1.25), chordWidth = 2 * curR * Math.sin(dTheta / 2);
+            const sR = Math.max(0.02, (span / N_rings - cGap) / 2), sC = Math.max(0.02, (chordWidth - cGap) / 2);
+            const Sr = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sR) * cScale, Sc = (state.aspectRatio === 'uniform' ? Math.min(sR, sC) : sC) * cScale;
+            const shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta + (twistRad > 0 ? 0.3 : -0.3));
+            const layer = computePartitionLayer(state.layerDist, st, N_rings, ray, rays, theta, uRad, undefined, undefined, L);
+            addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, Sr, Sc, shapeAngle, chordWidth, dTheta, layer, layer * (180 / L), sIdx++);
+          }
+        }
+      } else if (state.layout === 'spiral_phyllotaxis') {
+        const total = Math.max(20, state.phySeeds), divA = state.phyAngle * Math.PI / 180, area = Math.PI * (R_outer * R_outer - R_inner * R_inner), cellSize = Math.sqrt(area / total);
+        for (let i = 0; i < total; i++) {
+          const frac = applyEasing((i + 0.5) / total, state.radiusEasingType, state.radiusEasingParam), curR = Math.sqrt(R_inner * R_inner + frac * (R_outer * R_outer - R_inner * R_inner));
+          const uDist = Math.min(1, Math.max(0, (curR - R_inner) / span)), cGap = state.innerGap + uDist * (state.outerGap - state.innerGap), cScale = (state.innerScale + uDist * (state.outerScale - state.innerScale)) / 100;
+          const theta = i * divA - Math.PI / 2 + rotRad, spanM = Math.max(0.02, (cellSize - cGap) / 2) * cScale;
+          const shapeAngle = state.alignment === 'tangent' ? theta + Math.PI/2 : (state.alignment === 'fixed' ? rotRad : theta);
+          const rBand = Math.floor(frac * N_rings);
+          const layer = computePartitionLayer(state.layerDist, rBand, N_rings, i, total, theta, frac, undefined, undefined, L);
+          addCandidate(cx0 + curR * Math.cos(theta), cy0 + curR * Math.sin(theta), curR, spanM, spanM, shapeAngle, cellSize, 0.2, layer, layer * (180 / L), sIdx++);
+        }
+      } else if (state.layout === 'cartesian_grid') {
+        const stepX = Math.max(0.3, state.cartPitch);
+        const stepY = Math.max(0.3, state.cartPitch * state.cartXYRatio);
+        const isCenterCell = (state.cartCentering === 'center_cell');
+        const offX = isCenterCell ? (stepX * 0.5) : 0;
+        const offY = isCenterCell ? (stepY * 0.5) : 0;
+        const numX = Math.ceil((R_outer + stepX) / stepX);
+        const numY = Math.ceil((R_outer + stepY) / stepY);
+
+        for (let ix = -numX; ix <= numX; ix++) {
+          const gx = ix * stepX + offX;
+          for (let iy = -numY; iy <= numY; iy++) {
+            const gy = iy * stepY + offY;
+            const d = Math.hypot(gx, gy);
+            if (d < R_inner || d > R_outer) continue;
+
+            const uDistRaw = Math.min(1, Math.max(0, (d - R_inner) / span));
+            const uRadEased = applyEasing(uDistRaw, state.radiusEasingType, state.radiusEasingParam);
+
+            const cGap = state.innerGap + uRadEased * (state.outerGap - state.innerGap);
+            const cScale = (state.innerScale + uRadEased * (state.outerScale - state.innerScale)) / 100;
+
+            const baseSpanX = Math.max(0.02, (stepX - cGap) / 2) * cScale;
+            const baseSpanY = Math.max(0.02, (stepY - cGap) / 2) * cScale;
+            const Sr = (state.aspectRatio === 'uniform' ? Math.min(baseSpanX, baseSpanY) : baseSpanX);
+            const Sc = (state.aspectRatio === 'uniform' ? Math.min(baseSpanX, baseSpanY) : baseSpanY);
+
+            const bA = Math.atan2(gy, gx);
+            const rx = cx0 + gx * Math.cos(rotRad) - gy * Math.sin(rotRad);
+            const ry = cy0 + gx * Math.sin(rotRad) + gy * Math.cos(rotRad);
+
+            const shapeAngle = state.alignment === 'radial' ? bA + rotRad : (state.alignment === 'tangent' ? bA + rotRad + Math.PI/2 : rotRad);
+            const rBand = Math.floor(uRadEased * N_rings);
+            const layer = computePartitionLayer(state.layerDist, rBand, N_rings, Math.abs(ix + iy), numX * 2, bA + rotRad, uRadEased, ix, iy, L);
+
+            addCandidate(rx, ry, d, Sr, Sc, shapeAngle, stepX, 0.2, layer, layer * (180 / L), sIdx++);
+          }
         }
       }
       document.getElementById('stat-elements').innerText = `Shapes: ${shapeCount}`;
@@ -1336,8 +1716,19 @@
 
         if (el.l === 'outline') { ctx.strokeStyle = state.view === 'shimmer' ? 'rgba(255,255,255,0.45)' : '#000'; ctx.lineWidth = 0.04; }
         else if (state.view === 'shimmer') {
-          const spec = Math.pow(Math.abs(Math.cos((state.light - el.a) * Math.PI / 180)), 4);
-          const lum = Math.min(255, Math.floor(75 + spec * 180));
+          let lum = 75;
+          const posX = el.pts ? el.pts[0].x : el.cx;
+          const posY = el.pts ? el.pts[0].y : el.cy;
+          if (state.shimmerMode === 'specular') {
+            const spec = Math.pow(Math.abs(Math.cos((state.light - el.a) * Math.PI / 180)), 4);
+            lum = Math.min(255, Math.floor(75 + spec * 180));
+          } else if (state.shimmerMode === 'alternating_line') {
+            const phase = (el.l * (360 / state.layers) + state.light * 2) % 360;
+            lum = Math.min(255, Math.floor(130 + Math.sin(phase * Math.PI / 180) * 105));
+          } else {
+            const phase = (Math.hypot(posX - R, posY - R) * 4 - state.light * 2 + el.l * (180 / state.layers));
+            lum = Math.min(255, Math.floor(135 + Math.cos(phase * Math.PI / 180) * 110));
+          }
           ctx.strokeStyle = `rgb(${lum}, ${lum}, ${Math.min(255, lum + 18)})`;
           ctx.lineWidth = 0.045;
         } else { ctx.strokeStyle = COLORS[el.l % COLORS.length]; ctx.lineWidth = 0.035; }
@@ -1378,9 +1769,18 @@
               }
             } else {
               const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
-              ctx.font = `${fontCfg.weight} ${td.fontSizeMM}px ${fontCfg.css}`;
+              ctx.save();
+              const invScale = 1 / scale;
+              ctx.scale(invScale, invScale);
+              ctx.font = `${fontCfg.weight} ${Math.round(td.fontSizeMM * scale)}px ${fontCfg.css}`;
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText(td.text, 0, 0);
+              if (state.hairlineBoost > 0) {
+                ctx.lineWidth = state.hairlineBoost * scale;
+                ctx.strokeStyle = ctx.fillStyle;
+                ctx.strokeText(td.text, 0, 0);
+              }
+              ctx.restore();
             }
           }
           ctx.restore();
@@ -1416,13 +1816,112 @@
               }
             } else {
               const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
-              ctx.font = `${fontCfg.weight} ${sr.fontSizeMM}px ${fontCfg.css}`;
+              ctx.save();
+              const invScale = 1 / scale;
+              ctx.scale(invScale, invScale);
+              ctx.font = `${fontCfg.weight} ${Math.round(sr.fontSizeMM * scale)}px ${fontCfg.css}`;
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText(sr.text, 0, 0);
+              if (state.hairlineBoost > 0) {
+                ctx.lineWidth = state.hairlineBoost * scale;
+                ctx.strokeStyle = ctx.fillStyle;
+                ctx.strokeText(sr.text, 0, 0);
+              }
+              ctx.restore();
             }
           }
           ctx.restore();
         }
+      }
+
+      // Render Horological Markers & Cartouches for Classic Dial Modes
+      for (const c of cartouches) {
+        ctx.save();
+        ctx.beginPath();
+        if (c.isCircle) {
+          ctx.arc(c.cx, c.cy, c.radius, 0, Math.PI * 2);
+        } else {
+          ctx.moveTo(c.poly[0].x, c.poly[0].y);
+          for (let i = 1; i < c.poly.length; i++) ctx.lineTo(c.poly[i].x, c.poly[i].y);
+          ctx.closePath();
+        }
+        ctx.fillStyle = state.view === 'shimmer' ? '#14161a' : '#edf0f4';
+        ctx.fill();
+        if (state.cartBorder) {
+          ctx.strokeStyle = state.view === 'shimmer' ? '#ffaa00' : '#0f172a';
+          ctx.lineWidth = 0.055;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      for (const m of timeMarkers) {
+        if (m.type === 'text') continue;
+        ctx.save();
+        ctx.translate(m.cx, m.cy);
+        ctx.rotate(m.angle);
+        ctx.fillStyle = state.view === 'shimmer' ? '#f8fafc' : '#0f172a';
+        if (m.type === 'baton') {
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 0.02;
+          if (m.isDouble) {
+            const barW = m.w * 0.75, gap = m.w * 0.35, y1_bot = -gap / 2 - barW, y2_bot = gap / 2;
+            ctx.fillRect(-m.len / 2, y1_bot, m.len, barW);
+            ctx.strokeRect(-m.len / 2, y1_bot, m.len, barW);
+            ctx.fillRect(-m.len / 2, y2_bot, m.len, barW);
+            ctx.strokeRect(-m.len / 2, y2_bot, m.len, barW);
+          } else {
+            ctx.fillRect(-m.len / 2, -m.w / 2, m.len, m.w);
+            ctx.strokeRect(-m.len / 2, -m.w / 2, m.len, m.w);
+          }
+        } else if (m.type === 'dagger') {
+          ctx.beginPath();
+          ctx.moveTo(m.len / 2, 0); ctx.lineTo(-m.len / 2, m.w / 2); ctx.lineTo(-m.len * 0.35, 0); ctx.lineTo(-m.len / 2, -m.w / 2);
+          ctx.closePath(); ctx.fill();
+        } else if (m.type === 'dot') {
+          ctx.beginPath(); ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      const activeFont = fontCache[state.fontFamily];
+      const textColor = state.view === 'shimmer' ? '#ffffff' : '#0f172a';
+
+      for (const m of timeMarkers) {
+        if (m.type !== 'text') continue;
+        ctx.save();
+        ctx.translate(m.cx + m.shiftX, m.cy + m.shiftY);
+        ctx.rotate(m.angle);
+        ctx.fillStyle = textColor;
+
+        if (activeFont) {
+          const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
+          ctx.beginPath();
+          baked.path.draw(ctx);
+          ctx.fill();
+          if (state.hairlineBoost > 0) {
+            ctx.lineWidth = state.hairlineBoost;
+            ctx.strokeStyle = textColor;
+            ctx.stroke();
+          }
+        } else {
+          const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
+          ctx.save();
+          const invScale = 1 / scale;
+          ctx.scale(invScale, invScale);
+          ctx.font = `${fontCfg.weight} ${Math.round(m.fontSizeMM * scale)}px ${fontCfg.css}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const met = ctx.measureText(m.text);
+          const optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
+          ctx.fillText(m.text, 0, -optY);
+          if (state.hairlineBoost > 0) {
+            ctx.lineWidth = state.hairlineBoost * scale;
+            ctx.strokeStyle = textColor;
+            ctx.strokeText(m.text, 0, -optY);
+          }
+          ctx.restore();
+        }
+        ctx.restore();
       }
 
       ctx.restore(); // Dial clip
@@ -1456,11 +1955,12 @@
     }
 
     function exportSVG() {
-      const W = state.dia, R = W / 2;
+      const W = state.dia, R = W / 2, fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
       let svg = `<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${W}mm" viewBox="0 0 ${W} ${W}">\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
 
+      // Export Rotating Time Discs
       if (state.layout === 'time_discs') {
         const activeFont = fontCache[state.fontFamily];
         ['hours', 'minutes', 'seconds', 'dividers', 'hairline'].forEach(lyr => {
@@ -1474,6 +1974,8 @@
               if (activeFont) {
                 const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
                 svg += `    <path d="${baked.pathData}" fill="${strokeCol}" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
+              } else {
+                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${strokeCol}" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
               }
             } else {
               svg += formatSvgElement(el);
@@ -1481,6 +1983,49 @@
           }
           svg += `  </g>\n`;
         });
+      }
+
+      // Export Slide Rule Scales
+      if (state.layout === 'slide_rule') {
+        const blk = slideRuleElements.filter(e => e.color !== 'red' && e.color !== 'cursor_red');
+        const red = slideRuleElements.filter(e => e.color === 'red' || e.color === 'cursor_red');
+        const activeFont = fontCache[state.fontFamily];
+
+        if (blk.length) {
+          svg += `  <g id="Layer_SlideRule_Black" stroke="#000000" fill="none" stroke-width="0.03mm">\n`;
+          for (const el of blk) {
+            if (el.type === 'text') {
+              const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
+              if (activeFont) {
+                const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
+                svg += `    <path d="${baked.pathData}" fill="#000000" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
+              } else {
+                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="#000000" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
+              }
+            } else {
+              svg += formatSvgElement(el);
+            }
+          }
+          svg += `  </g>\n`;
+        }
+
+        if (red.length) {
+          svg += `  <g id="Layer_SlideRule_Red" stroke="#FF0000" fill="none" stroke-width="0.035mm">\n`;
+          for (const el of red) {
+            if (el.type === 'text') {
+              const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
+              if (activeFont) {
+                const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
+                svg += `    <path d="${baked.pathData}" fill="#FF0000" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
+              } else {
+                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="#FF0000" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
+              }
+            } else {
+              svg += formatSvgElement(el);
+            }
+          }
+          svg += `  </g>\n`;
+        }
       }
 
       for (let l = 0; l < state.layers; l++) {
@@ -1598,13 +2143,17 @@
 
     function syncDOM() {
       const s = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+      const c = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.checked = !!v; };
       s('dial-dia', state.dia); s('pinion-dia', state.pinion); s('hub-clearance', state.hub);
       s('micro-layout', state.layout);
       s('td-hour-cycle', state.tdHourCycle); s('td-direction', state.tdDirection); s('td-density', state.tdDensity);
       s('td-track-width', state.tdTrackWidth); s('td-tick-len', state.tdTickLenPct); s('td-num-pos', state.tdNumPosPct);
       s('td-hairline-angle', state.tdHairlineAngle); s('td-time-h', state.tdTimeH); s('td-time-m', state.tdTimeM); s('td-time-s', state.tdTimeS);
       s('td-center-style', state.tdCenterStyle); s('td-center-r', state.tdCenterR);
-      s('sr-tick-len', state.srTickLenPct); s('sr-num-pos', state.srNumPosPct);
+      s('sr-preset', state.srPreset); s('sr-notation', state.srNotation); s('sr-density', state.srDensity);
+      s('sr-track-width', state.srTrackWidth); s('sr-tick-len', state.srTickLenPct); s('sr-num-pos', state.srNumPosPct);
+      s('sr-rotor-angle', state.srRotorAngle); s('sr-runner-style', state.srRunnerStyle); s('sr-cursor-angle', state.srCursorAngle);
+      s('sr-center-style', state.srCenterStyle); s('sr-medallion-r', state.srMedallionR); c('sr-show-pi', state.srShowPi);
       s('font-family', state.fontFamily); s('font-scale', state.fontScale); s('hairline-boost', state.hairlineBoost);
     }
 
