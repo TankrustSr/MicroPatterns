@@ -58,23 +58,10 @@
 </head>
 <body>
   <div style="position:absolute; left:-9999px; visibility:hidden;">
-    <span style="font-family:'Barlow Semi Condensed'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Roboto Condensed'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Bodoni Moda'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Besley'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Share Tech Mono'; font-weight:600;">1234567890</span>
-    <span style="font-family:'Cormorant Garamond'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Playfair Display'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Cinzel'; font-weight:700;">1234567890</span>
     <span style="font-family:'Josefin Sans'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Montserrat'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Saira Semi Condensed'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Chivo'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Righteous'; font-weight:400;">1234567890</span>
-    <span style="font-family:'Bebas Neue'; font-weight:400;">1234567890</span>
-    <span style="font-family:'Russo One'; font-weight:400;">1234567890</span>
-    <span style="font-family:'Chakra Petch'; font-weight:700;">1234567890</span>
-    <span style="font-family:'Syne'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Roboto Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Barlow Semi Condensed'; font-weight:700;">1234567890</span>
+    <span style="font-family:'Bodoni Moda'; font-weight:700;">1234567890</span>
   </div>
 
   <div id="sidebar">
@@ -186,7 +173,7 @@
 
       <div class="row">
         <div>
-          <label>Slide Rule Aesthetic Ticks</label>
+          <label>Graduation Density</label>
           <select id="td-density">
             <option value="scientific" selected>Ultra-Fine Slide Rule (1/5s, 0.5m, 5m)</option>
             <option value="fine">Fine Instrument (1/2s, 1m, 10m)</option>
@@ -624,7 +611,7 @@
     };
 
     const FONT_URLS = {
-      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/JosefinSans%5Bwght%5D.ttf',
+      'Bauhaus 1930s': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/josefinsans/static/JosefinSans-Bold.ttf',
       'DIN 1451': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/robotocondensed/RobotoCondensed%5Bwght%5D.ttf',
       'Flieger Cockpit': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sairasemicondensed/SairaSemiCondensed-Bold.ttf',
       'Military Field': 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/chivo/Chivo%5Bwght%5D.ttf',
@@ -1735,10 +1722,10 @@
         ctx.stroke();
       }
 
-      // Render 1960s Rotating Time Discs
+      // Render 1960s Rotating Time Discs (Vector Geometry Only in mm Space)
       if (state.layout === 'time_discs') {
-        const activeFont = fontCache[state.fontFamily];
         for (const td of timeDiscElements) {
+          if (td.type === 'text') continue; // Rendered in high-DPI text pass
           ctx.save();
           if (td.color === 'cursor_red') {
             ctx.strokeStyle = '#ff3b30'; ctx.fillStyle = '#ff3b30';
@@ -1757,40 +1744,15 @@
             ctx.beginPath(); ctx.moveTo(td.pts[0].x, td.pts[0].y);
             for (let i = 1; i < td.pts.length; i++) ctx.lineTo(td.pts[i].x, td.pts[i].y);
             ctx.closePath(); ctx.fill();
-          } else if (td.type === 'text') {
-            ctx.translate(td.cx, td.cy); ctx.rotate(td.angle);
-            if (activeFont) {
-              const baked = getBakedTextPath(activeFont, td.text, td.fontSizeMM);
-              ctx.beginPath(); baked.path.draw(ctx); ctx.fill();
-              if (state.hairlineBoost > 0) {
-                ctx.lineWidth = state.hairlineBoost;
-                ctx.strokeStyle = ctx.fillStyle;
-                ctx.stroke();
-              }
-            } else {
-              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
-              ctx.save();
-              const invScale = 1 / scale;
-              ctx.scale(invScale, invScale);
-              ctx.font = `${fontCfg.weight} ${Math.round(td.fontSizeMM * scale)}px ${fontCfg.css}`;
-              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-              ctx.fillText(td.text, 0, 0);
-              if (state.hairlineBoost > 0) {
-                ctx.lineWidth = state.hairlineBoost * scale;
-                ctx.strokeStyle = ctx.fillStyle;
-                ctx.strokeText(td.text, 0, 0);
-              }
-              ctx.restore();
-            }
           }
           ctx.restore();
         }
       }
 
-      // Render Slide Rule Scales
+      // Render Slide Rule Scales (Vector Geometry Only in mm Space)
       if (state.layout === 'slide_rule') {
-        const activeFont = fontCache[state.fontFamily];
         for (const sr of slideRuleElements) {
+          if (sr.type === 'text') continue; // Rendered in high-DPI text pass
           ctx.save();
           if (sr.color === 'red' || sr.color === 'cursor_red') {
             ctx.strokeStyle = '#ff3b30'; ctx.fillStyle = '#ff3b30';
@@ -1804,31 +1766,6 @@
           } else if (sr.type === 'line') {
             ctx.beginPath(); ctx.moveTo(sr.pts[0].x, sr.pts[0].y); ctx.lineTo(sr.pts[1].x, sr.pts[1].y);
             ctx.lineWidth = sr.strokeW; ctx.stroke();
-          } else if (sr.type === 'text') {
-            ctx.translate(sr.cx, sr.cy); ctx.rotate(sr.angle);
-            if (activeFont) {
-              const baked = getBakedTextPath(activeFont, sr.text, sr.fontSizeMM);
-              ctx.beginPath(); baked.path.draw(ctx); ctx.fill();
-              if (state.hairlineBoost > 0) {
-                ctx.lineWidth = state.hairlineBoost;
-                ctx.strokeStyle = ctx.fillStyle;
-                ctx.stroke();
-              }
-            } else {
-              const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
-              ctx.save();
-              const invScale = 1 / scale;
-              ctx.scale(invScale, invScale);
-              ctx.font = `${fontCfg.weight} ${Math.round(sr.fontSizeMM * scale)}px ${fontCfg.css}`;
-              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-              ctx.fillText(sr.text, 0, 0);
-              if (state.hairlineBoost > 0) {
-                ctx.lineWidth = state.hairlineBoost * scale;
-                ctx.strokeStyle = ctx.fillStyle;
-                ctx.strokeText(sr.text, 0, 0);
-              }
-              ctx.restore();
-            }
           }
           ctx.restore();
         }
@@ -1883,48 +1820,7 @@
         ctx.restore();
       }
 
-      const activeFont = fontCache[state.fontFamily];
-      const textColor = state.view === 'shimmer' ? '#ffffff' : '#0f172a';
-
-      for (const m of timeMarkers) {
-        if (m.type !== 'text') continue;
-        ctx.save();
-        ctx.translate(m.cx + m.shiftX, m.cy + m.shiftY);
-        ctx.rotate(m.angle);
-        ctx.fillStyle = textColor;
-
-        if (activeFont) {
-          const baked = getBakedTextPath(activeFont, m.text, m.fontSizeMM);
-          ctx.beginPath();
-          baked.path.draw(ctx);
-          ctx.fill();
-          if (state.hairlineBoost > 0) {
-            ctx.lineWidth = state.hairlineBoost;
-            ctx.strokeStyle = textColor;
-            ctx.stroke();
-          }
-        } else {
-          const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
-          ctx.save();
-          const invScale = 1 / scale;
-          ctx.scale(invScale, invScale);
-          ctx.font = `${fontCfg.weight} ${Math.round(m.fontSizeMM * scale)}px ${fontCfg.css}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const met = ctx.measureText(m.text);
-          const optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
-          ctx.fillText(m.text, 0, -optY);
-          if (state.hairlineBoost > 0) {
-            ctx.lineWidth = state.hairlineBoost * scale;
-            ctx.strokeStyle = textColor;
-            ctx.strokeText(m.text, 0, -optY);
-          }
-          ctx.restore();
-        }
-        ctx.restore();
-      }
-
-      ctx.restore(); // Dial clip
+      ctx.restore(); // Dial boundary clip
 
       // Pinion & Hub Collar
       ctx.fillStyle = '#060708';
@@ -1936,6 +1832,72 @@
         ctx.beginPath();
         ctx.arc(R, R, state.pinion / 2 + state.hub, 0, Math.PI * 2);
         ctx.stroke();
+      }
+
+      ctx.restore(); // Exit mm scale
+
+      // HIGH-DPI NATIVE CANVAS TEXT PASS (Crisp, zero-fail rendering across all zoom levels)
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
+      const textColor = state.view === 'shimmer' ? '#ffffff' : '#0f172a';
+
+      // 1. Time Discs Numerals
+      if (state.layout === 'time_discs') {
+        for (const td of timeDiscElements) {
+          if (td.type !== 'text') continue;
+          ctx.save();
+          ctx.translate(td.cx * px, td.cy * px);
+          ctx.rotate(td.angle);
+          ctx.fillStyle = textColor;
+          ctx.font = `${fontCfg.weight} ${Math.max(8, Math.round(td.fontSizeMM * px))}px ${fontCfg.css}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(td.text, 0, 0);
+          if (state.hairlineBoost > 0) {
+            ctx.lineWidth = state.hairlineBoost * px;
+            ctx.strokeStyle = textColor;
+            ctx.strokeText(td.text, 0, 0);
+          }
+          ctx.restore();
+        }
+      }
+
+      // 2. Slide Rule Numerals
+      if (state.layout === 'slide_rule') {
+        for (const sr of slideRuleElements) {
+          if (sr.type !== 'text') continue;
+          ctx.save();
+          ctx.translate(sr.cx * px, sr.cy * px);
+          ctx.rotate(sr.angle);
+          ctx.fillStyle = (sr.color === 'red') ? '#ff3b30' : textColor;
+          ctx.font = `${fontCfg.weight} ${Math.max(7, Math.round(sr.fontSizeMM * px))}px ${fontCfg.css}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(sr.text, 0, 0);
+          ctx.restore();
+        }
+      }
+
+      // 3. Classic Dial Numerals
+      for (const m of timeMarkers) {
+        if (m.type !== 'text') continue;
+        ctx.save();
+        ctx.translate((m.cx + m.shiftX) * px, (m.cy + m.shiftY) * px);
+        ctx.rotate(m.angle);
+        ctx.fillStyle = textColor;
+        ctx.font = `${fontCfg.weight} ${Math.max(10, Math.round(m.fontSizeMM * px))}px ${fontCfg.css}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const met = ctx.measureText(m.text);
+        const optY = (met.actualBoundingBoxAscent - met.actualBoundingBoxDescent) / 2 || 0;
+        ctx.fillText(m.text, 0, -optY);
+        if (state.hairlineBoost > 0) {
+          ctx.lineWidth = state.hairlineBoost * px;
+          ctx.strokeStyle = textColor;
+          ctx.strokeText(m.text, 0, -optY);
+        }
+        ctx.restore();
       }
 
       ctx.restore();
@@ -1960,7 +1922,6 @@
       svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
 
-      // Export Rotating Time Discs
       if (state.layout === 'time_discs') {
         const activeFont = fontCache[state.fontFamily];
         ['hours', 'minutes', 'seconds', 'dividers', 'hairline'].forEach(lyr => {
@@ -1985,7 +1946,6 @@
         });
       }
 
-      // Export Slide Rule Scales
       if (state.layout === 'slide_rule') {
         const blk = slideRuleElements.filter(e => e.color !== 'red' && e.color !== 'cursor_red');
         const red = slideRuleElements.filter(e => e.color === 'red' || e.color === 'cursor_red');
@@ -2048,6 +2008,15 @@
         chip.onclick = () => { if (state.activeHours.has(h)) state.activeHours.delete(h); else state.activeHours.add(h); chip.classList.toggle('active', state.activeHours.has(h)); update(); };
         c.appendChild(chip);
       }
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.onclick = (e) => {
+          const p = e.target.dataset.preset; state.activeHours.clear();
+          if (p === 'all') { for (let i = 1; i <= 12; i++) state.activeHours.add(i); }
+          else if (p !== 'clear') p.split(',').map(Number).forEach(n => state.activeHours.add(n));
+          document.querySelectorAll('.chip').forEach((ch, idx) => ch.classList.toggle('active', state.activeHours.has(idx + 1)));
+          update();
+        };
+      });
     }
 
     const STORAGE_KEY = 'mopa_dial_presets_v1';
@@ -2063,6 +2032,8 @@
       if (!p) return;
       Object.assign(state, JSON.parse(JSON.stringify(p)));
       if (Array.isArray(p.activeHours)) state.activeHours = new Set(p.activeHours);
+      else if (p.activeHours && typeof p.activeHours === 'object') state.activeHours = new Set(Object.values(p.activeHours));
+      if (p.hourAdjust) state.hourAdjust = JSON.parse(JSON.stringify(p.hourAdjust));
       loadFontForStudio(state.fontFamily);
       syncDOM();
       update();
@@ -2141,6 +2112,32 @@
       }; r.readAsArrayBuffer(f);
     };
 
+    function syncHourControls() {
+      state.targetHour = document.getElementById('tune-hour-select').value;
+      const isAll = state.targetHour === 'all';
+      const h = isAll ? 4 : parseInt(state.targetHour, 10);
+      const adj = isAll ? { x: state.globalDx, y: state.globalDy } : (state.hourAdjust[h] || { x: 0, y: 0 });
+      const title = isAll ? 'All Numbers' : `Hour ${state.targetHour}`;
+      document.getElementById('lbl-shift-x-title').innerText = `${title} Shift X`;
+      document.getElementById('lbl-shift-y-title').innerText = `${title} Shift Y`;
+      document.getElementById('text-dx').value = adj.x;
+      document.getElementById('text-dy').value = adj.y;
+      update();
+    }
+
+    document.getElementById('tune-hour-select').onchange = syncHourControls;
+    document.getElementById('tune-hour-select').oninput = syncHourControls;
+
+    document.getElementById('btn-reset-hour').onclick = () => {
+      if (state.targetHour === 'all') { state.globalDx = 0; state.globalDy = 0; }
+      else state.hourAdjust[parseInt(state.targetHour, 10)] = { x: 0, y: 0 };
+      document.getElementById('text-dx').value = 0; document.getElementById('text-dy').value = 0; update();
+    };
+    document.getElementById('btn-reset-all-hours').onclick = () => {
+      state.globalDx = 0; state.globalDy = 0; for (let i = 1; i <= 12; i++) state.hourAdjust[i] = { x: 0, y: 0 };
+      document.getElementById('text-dx').value = 0; document.getElementById('text-dy').value = 0; update();
+    };
+
     function syncDOM() {
       const s = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
       const c = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.checked = !!v; };
@@ -2155,6 +2152,39 @@
       s('sr-rotor-angle', state.srRotorAngle); s('sr-runner-style', state.srRunnerStyle); s('sr-cursor-angle', state.srCursorAngle);
       s('sr-center-style', state.srCenterStyle); s('sr-medallion-r', state.srMedallionR); c('sr-show-pi', state.srShowPi);
       s('font-family', state.fontFamily); s('font-scale', state.fontScale); s('hairline-boost', state.hairlineBoost);
+
+      s('marker-format', state.markerFormat); s('numeral-orientation', state.numeralOrientation);
+      s('numeral-radial-shift', state.numeralRadialShift); s('marker-radius', state.markerRadiusPct);
+      s('secondary-marker', state.secondaryMarker); s('index-size', state.indexSize);
+      s('index-radial-shift', state.indexRadialShift); s('index-tangent-shift', state.indexTangentShift);
+      s('cartouche-sizing', state.cartSizing); s('cart-width', state.cartWidth); s('cart-height', state.cartHeight);
+      s('cartouche-orientation', state.cartOrientation); s('cartouche-pad', state.cartPad);
+      s('cartouche-shape', state.cartShape); c('cartouche-border', state.cartBorder); s('track-style', state.trackStyle);
+
+      s('symmetry-lock', state.symmetryLock || '12'); s('ring-count', state.rings); c('radial-stagger', state.stagger);
+      s('radial-inner-count', state.innerCount); s('radial-outer-count', state.outerCount);
+      s('flower-pitch', state.flowerPitch || 2.40);
+      s('cart-grid-centering', state.cartCentering || 'center_motif');
+      s('cart-xy-ratio', state.cartXYRatio || 1.00); s('cart-pitch', state.cartPitch || 1.80);
+      s('fan-twist', state.fanTwist); s('phy-seeds', state.phySeeds); s('phy-angle', state.phyAngle);
+      s('radius-easing-type', state.radiusEasingType); s('radius-easing-param', state.radiusEasingParam);
+      s('count-easing-type', state.countEasingType); s('count-easing-param', state.countEasingParam);
+      s('micro-motif', state.motif); s('inner-scale', state.innerScale); s('outer-scale', state.outerScale);
+      s('inner-gap', state.innerGap); s('outer-gap', state.outerGap); s('motif-aspect', state.aspectRatio);
+      s('shape-alignment', state.alignment); s('pattern-rotation', state.rot);
+      s('hatch-output-mode', state.hatchMode); s('motif-hatch-style', state.motifHatch);
+      s('hatch-pitch', state.pitch); c('include-outlines', state.includeOutlines);
+      s('num-layers', state.layers); s('layer-distribution', state.layerDist);
+      s('view-mode', state.view); s('shimmer-mode', state.shimmerMode); s('light-angle', state.light);
+
+      s('tune-hour-select', state.targetHour || 'all');
+      const h = state.targetHour === 'all' ? 4 : parseInt(state.targetHour, 10);
+      s('text-dx', state.targetHour === 'all' ? (state.globalDx || 0) : (state.hourAdjust[h]?.x || 0));
+      s('text-dy', state.targetHour === 'all' ? (state.globalDy || 0) : (state.hourAdjust[h]?.y || 0));
+
+      document.querySelectorAll('.chip').forEach((ch, idx) => {
+        if (state.activeHours) ch.classList.toggle('active', state.activeHours.has(idx + 1));
+      });
     }
 
     function update() {
@@ -2198,14 +2228,99 @@
       state.srMedallionR = parseFloat(document.getElementById('sr-medallion-r').value);
       state.srShowPi = document.getElementById('sr-show-pi').checked;
 
+      // Horology Markers & Cartouches
+      state.markerFormat = document.getElementById('marker-format').value;
+      state.numeralOrientation = document.getElementById('numeral-orientation').value;
+      state.numeralRadialShift = parseFloat(document.getElementById('numeral-radial-shift').value);
+      state.markerRadiusPct = parseFloat(document.getElementById('marker-radius').value);
+      state.secondaryMarker = document.getElementById('secondary-marker').value;
+      state.indexSize = parseFloat(document.getElementById('index-size').value);
+      state.indexRadialShift = parseFloat(document.getElementById('index-radial-shift').value);
+      state.indexTangentShift = parseFloat(document.getElementById('index-tangent-shift').value);
+      state.cartSizing = document.getElementById('cartouche-sizing').value;
+      state.cartWidth = parseFloat(document.getElementById('cart-width').value);
+      state.cartHeight = parseFloat(document.getElementById('cart-height').value);
+      state.cartOrientation = document.getElementById('cartouche-orientation').value;
+      state.cartPad = parseFloat(document.getElementById('cartouche-pad').value);
+      state.cartShape = document.getElementById('cartouche-shape').value;
+      state.cartBorder = document.getElementById('cartouche-border').checked;
+      state.trackStyle = document.getElementById('track-style').value;
+
+      // Target hour shift
+      state.targetHour = document.getElementById('tune-hour-select').value;
+      const dx = parseFloat(document.getElementById('text-dx').value) || 0;
+      const dy = parseFloat(document.getElementById('text-dy').value) || 0;
+      if (state.targetHour === 'all') { state.globalDx = dx; state.globalDy = dy; }
+      else {
+        const h = parseInt(state.targetHour, 10);
+        if (!state.hourAdjust[h]) state.hourAdjust[h] = { x: 0, y: 0 };
+        state.hourAdjust[h].x = dx; state.hourAdjust[h].y = dy;
+      }
+
+      // Arrays & Guilloché
+      state.symmetryLock = document.getElementById('symmetry-lock').value;
+      state.rings = parseInt(document.getElementById('ring-count').value, 10) || 12;
+      state.stagger = document.getElementById('radial-stagger').checked;
+      state.innerCount = parseInt(document.getElementById('radial-inner-count').value, 10) || 16;
+      state.outerCount = parseInt(document.getElementById('radial-outer-count').value, 10) || 72;
+      state.flowerPitch = parseFloat(document.getElementById('flower-pitch').value);
+      state.cartCentering = document.getElementById('cart-grid-centering').value;
+      state.cartXYRatio = parseFloat(document.getElementById('cart-xy-ratio').value);
+      state.cartPitch = parseFloat(document.getElementById('cart-pitch').value);
+      state.fanTwist = parseFloat(document.getElementById('fan-twist').value);
+      state.phySeeds = parseInt(document.getElementById('phy-seeds').value, 10) || 610;
+      state.phyAngle = parseFloat(document.getElementById('phy-angle').value);
+      state.radiusEasingType = document.getElementById('radius-easing-type').value;
+      state.radiusEasingParam = parseFloat(document.getElementById('radius-easing-param').value);
+      state.countEasingType = document.getElementById('count-easing-type').value;
+      state.countEasingParam = parseFloat(document.getElementById('count-easing-param').value);
+
+      state.motif = document.getElementById('micro-motif').value;
+      state.innerScale = parseFloat(document.getElementById('inner-scale').value);
+      state.outerScale = parseFloat(document.getElementById('outer-scale').value);
+      state.innerGap = parseFloat(document.getElementById('inner-gap').value);
+      state.outerGap = parseFloat(document.getElementById('outer-gap').value);
+      state.aspectRatio = document.getElementById('motif-aspect').value;
+      state.alignment = document.getElementById('shape-alignment').value;
+      state.rot = parseFloat(document.getElementById('pattern-rotation').value);
+      state.hatchMode = document.getElementById('hatch-output-mode').value;
+      state.motifHatch = document.getElementById('motif-hatch-style').value;
+      state.pitch = parseFloat(document.getElementById('hatch-pitch').value);
+      state.includeOutlines = document.getElementById('include-outlines').checked;
+      state.layers = parseInt(document.getElementById('num-layers').value, 10);
+      state.layerDist = document.getElementById('layer-distribution').value;
+      state.view = document.getElementById('view-mode').value;
+      state.shimmerMode = document.getElementById('shimmer-mode').value;
+      state.light = parseFloat(document.getElementById('light-angle').value);
+
+      // Contextual Panel Visibility
       const isTimeDiscs = state.layout === 'time_discs';
       const isSlide = state.layout === 'slide_rule';
+      const isPhy = state.layout === 'spiral_phyllotaxis';
+      const isFan = state.layout === 'radial_fans';
+      const isCart = state.layout === 'cartesian_grid';
+      const isProp = state.layout === 'concentric_proportional';
+      const isFlower = state.layout === 'sacred_flower';
 
       document.getElementById('panel-time-discs').style.display = isTimeDiscs ? 'block' : 'none';
       document.getElementById('panel-slide-rule').style.display = isSlide ? 'block' : 'none';
       document.getElementById('panel-horology-decorations').style.display = (isTimeDiscs || isSlide) ? 'none' : 'block';
       document.getElementById('panel-guilloche-controls').style.display = (isTimeDiscs && state.tdCenterStyle === 'vintage_clean') || (isSlide && state.srCenterStyle === 'vintage_clean') ? 'none' : 'block';
 
+      document.getElementById('group-ring-counts').style.display = (isPhy || isFlower || isCart) ? 'none' : 'block';
+      document.getElementById('group-sacred-flower').style.display = isFlower ? 'block' : 'none';
+      document.getElementById('group-cartesian').style.display = isCart ? 'block' : 'none';
+      document.getElementById('group-phyllotaxis').style.display = isPhy ? 'block' : 'none';
+      document.getElementById('group-fibonacci-fan').style.display = isFan ? 'block' : 'none';
+      document.getElementById('wrap-stagger').style.display = (isPhy || isCart || isFan || isFlower) ? 'none' : 'flex';
+      document.getElementById('wrap-ring-row-counts').style.display = (isPhy || isCart || isProp || isFlower) ? 'none' : 'grid';
+      document.getElementById('wrap-count-easing').style.display = (isPhy || isCart || isFlower) ? 'none' : 'grid';
+      document.getElementById('wrap-rad-easing').style.display = (isFlower) ? 'none' : 'grid';
+      document.getElementById('wrap-symmetry-lock').style.display = (isPhy || isCart || isFlower || isSlide || isTimeDiscs) ? 'none' : 'block';
+      document.getElementById('sub-hatch').style.display = state.hatchMode === 'pre_hatched' ? 'block' : 'none';
+
+      // Readouts
+      document.getElementById('val-hub').innerText = `${state.hub.toFixed(2)} mm`;
       document.getElementById('val-font-scale').innerText = `${state.fontScale}%`;
       document.getElementById('val-hairline-boost').innerText = `${state.hairlineBoost.toFixed(2)} mm`;
       document.getElementById('val-td-track-w').innerText = `${state.tdTrackWidth.toFixed(2)} mm`;
@@ -2219,6 +2334,11 @@
       document.getElementById('val-sr-rotor').innerText = `${state.srRotorAngle.toFixed(1)}°`;
       document.getElementById('val-sr-cursor').innerText = `${state.srCursorAngle.toFixed(0)}°`;
       document.getElementById('val-sr-med-r').innerText = `${state.srMedallionR.toFixed(1)} mm`;
+
+      const curX = state.targetHour === 'all' ? state.globalDx : (state.hourAdjust[parseInt(state.targetHour, 10)]?.x || 0);
+      const curY = state.targetHour === 'all' ? state.globalDy : (state.hourAdjust[parseInt(state.targetHour, 10)]?.y || 0);
+      document.getElementById('val-text-dx').innerText = `${curX >= 0 ? '+' : ''}${curX.toFixed(2)} mm`;
+      document.getElementById('val-text-dy').innerText = `${curY >= 0 ? '+' : ''}${curY.toFixed(2)} mm`;
 
       generateGeometry();
       render();
@@ -2283,8 +2403,17 @@
       'td-hairline-angle', 'td-time-h', 'td-time-m', 'td-time-s', 'td-center-style', 'td-center-r',
       'sr-preset', 'sr-notation', 'sr-density', 'sr-track-width', 'sr-tick-len', 'sr-num-pos',
       'sr-rotor-angle', 'sr-runner-style', 'sr-cursor-angle', 'sr-center-style', 'sr-medallion-r', 'sr-show-pi',
-      'hatch-output-mode', 'motif-hatch-style', 'hatch-pitch', 'include-outlines',
-      'num-layers', 'layer-distribution', 'view-mode', 'shimmer-mode', 'light-angle'
+      'marker-format', 'numeral-orientation', 'numeral-radial-shift', 'marker-radius',
+      'secondary-marker', 'index-size', 'index-radial-shift', 'index-tangent-shift',
+      'cartouche-sizing', 'cart-width', 'cart-height', 'cartouche-orientation', 'cartouche-pad',
+      'cartouche-shape', 'cartouche-border', 'track-style', 'symmetry-lock', 'ring-count',
+      'radial-stagger', 'radial-inner-count', 'radial-outer-count', 'flower-pitch',
+      'cart-grid-centering', 'cart-xy-ratio', 'cart-pitch', 'fan-twist', 'phy-seeds', 'phy-angle',
+      'radius-easing-type', 'radius-easing-param', 'count-easing-type', 'count-easing-param',
+      'micro-motif', 'inner-scale', 'outer-scale', 'inner-gap', 'outer-gap', 'motif-aspect',
+      'shape-alignment', 'pattern-rotation', 'hatch-output-mode', 'motif-hatch-style',
+      'hatch-pitch', 'include-outlines', 'num-layers', 'layer-distribution', 'view-mode',
+      'shimmer-mode', 'light-angle'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.oninput = update; el.onchange = update; }
