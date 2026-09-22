@@ -108,7 +108,7 @@
       </select>
     </div>
 
-    <!-- Global Typography & Horological Fonts (Available in ALL modes) -->
+    <!-- Global Typography & Horological Fonts -->
     <div class="control-group" style="border-color: rgba(255, 170, 0, 0.4);">
       <div class="group-title" style="color:var(--accent-warm);">Typography & Dial Font</div>
       <label>Typeface Family</label>
@@ -819,8 +819,8 @@
 
       if (state.trackStyle !== 'none' && state.layout !== 'slide_rule' && state.layout !== 'time_discs') {
         const rTrackOuter = R_dial - 0.45, rTrackInner = state.trackStyle === 'railroad' ? (rTrackOuter - 1.15) : (rTrackOuter - 0.70);
-        trackElements.push({ type: 'circle', cx: cx0, cy: cy0, r: rTrackOuter, strokeW: 0.06 });
-        if (state.trackStyle === 'railroad') trackElements.push({ type: 'circle', cx: cx0, cy: cy0, r: rTrackInner, strokeW: 0.06 });
+        trackElements.push({ type: 'ring', cx: cx0, cy: cy0, r: rTrackOuter, strokeW: 0.06 });
+        if (state.trackStyle === 'railroad') trackElements.push({ type: 'ring', cx: cx0, cy: cy0, r: rTrackInner, strokeW: 0.06 });
         for (let s = 0; s < 60; s++) {
           const a = (s * 6 - 90) * (Math.PI / 180), isMajor = (s % 5 === 0);
           const r1 = isMajor ? rTrackInner : (rTrackInner + 0.32);
@@ -928,7 +928,7 @@
 
       [rHourOuter, rHourInner, rMinOuter, rMinInner, rSecOuter, rSecInner].forEach((rRing, i) => {
         timeDiscElements.push({
-          type: 'ring', cx: cx0, cy: cy0, r: rRing, strokeW: (i % 2 === 0 ? 0.06 : 0.04), discLayer: 'dividers'
+          type: 'ring', cx: cx0, cy: cy0, r: rRing, strokeW: (i % 2 === 0 ? 0.08 : 0.05), discLayer: 'dividers'
         });
       });
 
@@ -1725,7 +1725,7 @@
       // Render 1960s Rotating Time Discs (Vector Geometry Only in mm Space)
       if (state.layout === 'time_discs') {
         for (const td of timeDiscElements) {
-          if (td.type === 'text') continue; // Rendered in high-DPI text pass
+          if (td.type === 'text') continue;
           ctx.save();
           if (td.color === 'cursor_red') {
             ctx.strokeStyle = '#ff3b30'; ctx.fillStyle = '#ff3b30';
@@ -1752,7 +1752,7 @@
       // Render Slide Rule Scales (Vector Geometry Only in mm Space)
       if (state.layout === 'slide_rule') {
         for (const sr of slideRuleElements) {
-          if (sr.type === 'text') continue; // Rendered in high-DPI text pass
+          if (sr.type === 'text') continue;
           ctx.save();
           if (sr.color === 'red' || sr.color === 'cursor_red') {
             ctx.strokeStyle = '#ff3b30'; ctx.fillStyle = '#ff3b30';
@@ -1836,7 +1836,7 @@
 
       ctx.restore(); // Exit mm scale
 
-      // HIGH-DPI NATIVE CANVAS TEXT PASS (Crisp, zero-fail rendering across all zoom levels)
+      // HIGH-DPI NATIVE CANVAS TEXT PASS
       ctx.save();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const fontCfg = FONT_MAP[state.fontFamily] || FONT_MAP['Bauhaus 1930s'];
@@ -1903,8 +1903,60 @@
       ctx.restore();
     }
 
+    // Formats an open graduation line into a closed 4-point filled polygon
+    function lineToClosedFilledPoly(p1, p2, strokeW, fillColor) {
+      const dx = p2.x - p1.x, dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      if (len < 1e-6) return '';
+      const w = Math.max(0.02, strokeW || 0.04);
+      const h = w / 2;
+      const nx = -dy / len, ny = dx / len;
+      const pA = `${(p1.x + h * nx).toFixed(4)},${(p1.y + h * ny).toFixed(4)}`;
+      const pB = `${(p2.x + h * nx).toFixed(4)},${(p2.y + h * ny).toFixed(4)}`;
+      const pC = `${(p2.x - h * nx).toFixed(4)},${(p2.y - h * ny).toFixed(4)}`;
+      const pD = `${(p1.x - h * nx).toFixed(4)},${(p1.y - h * ny).toFixed(4)}`;
+      return `    <polygon points="${pA} ${pB} ${pC} ${pD}" fill="${fillColor}" stroke="${fillColor}" stroke-width="0.005mm" />\n`;
+    }
+
+    // Formats a circular ring into two overlapping semi-annular closed filled polygons (OpenSCAD 100% Hole Safe)
+    function ringToClosedPolygons(cx, cy, r, strokeW, fillColor) {
+      const w = Math.max(0.04, strokeW || 0.06);
+      const Ro = r + w / 2;
+      const Ri = Math.max(0.001, r - w / 2);
+      const steps = 72; // 72 steps per half -> 144 vertices around ring for high-resolution curves
+      const eps = 0.005; // ~0.3 degree overlap to ensure seamless 2D union in OpenSCAD
+
+      // Half 1: -eps to PI + eps
+      const pts1 = [];
+      for (let s = 0; s <= steps; s++) {
+        const a = -eps + (s / steps) * (Math.PI + 2 * eps);
+        pts1.push(`${(cx + Ro * Math.cos(a)).toFixed(4)},${(cy + Ro * Math.sin(a)).toFixed(4)}`);
+      }
+      for (let s = steps; s >= 0; s--) {
+        const a = -eps + (s / steps) * (Math.PI + 2 * eps);
+        pts1.push(`${(cx + Ri * Math.cos(a)).toFixed(4)},${(cy + Ri * Math.sin(a)).toFixed(4)}`);
+      }
+
+      // Half 2: PI - eps to 2*PI + eps
+      const pts2 = [];
+      for (let s = 0; s <= steps; s++) {
+        const a = Math.PI - eps + (s / steps) * (Math.PI + 2 * eps);
+        pts2.push(`${(cx + Ro * Math.cos(a)).toFixed(4)},${(cy + Ro * Math.sin(a)).toFixed(4)}`);
+      }
+      for (let s = steps; s >= 0; s--) {
+        const a = Math.PI - eps + (s / steps) * (Math.PI + 2 * eps);
+        pts2.push(`${(cx + Ri * Math.cos(a)).toFixed(4)},${(cy + Ri * Math.sin(a)).toFixed(4)}`);
+      }
+
+      return `    <polygon points="${pts1.join(' ')}" fill="${fillColor}" stroke="${fillColor}" stroke-width="0.005mm" />\n` +
+             `    <polygon points="${pts2.join(' ')}" fill="${fillColor}" stroke="${fillColor}" stroke-width="0.005mm" />\n`;
+    }
+
     function formatSvgElement(el) {
-      if (el.type === 'circle' || el.type === 'ring') {
+      if (el.type === 'ring') {
+        return ringToClosedPolygons(el.cx, el.cy, el.r, el.strokeW, el.color || '#64748B');
+      }
+      if (el.type === 'circle') {
         return `    <circle cx="${el.cx.toFixed(4)}" cy="${el.cy.toFixed(4)}" r="${(el.r).toFixed(4)}" />\n`;
       }
       if (el.type === 'line' && el.pts && el.pts.length >= 2) {
@@ -1922,72 +1974,145 @@
       svg += `  <circle cx="${R}" cy="${R}" r="${R}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
       svg += `  <circle cx="${R}" cy="${R}" r="${(state.pinion / 2).toFixed(3)}" stroke="#000" fill="none" stroke-width="0.05" />\n`;
 
+      // 1. ROTATING TIME DISCS EXPORT
       if (state.layout === 'time_discs') {
         const activeFont = fontCache[state.fontFamily];
-        ['hours', 'minutes', 'seconds', 'dividers', 'hairline'].forEach(lyr => {
-          const items = timeDiscElements.filter(e => e.discLayer === lyr);
-          if (!items.length) return;
-          const strokeCol = lyr === 'hairline' ? '#FF0000' : (lyr === 'hours' ? '#0000FF' : (lyr === 'minutes' ? '#00AA00' : '#000000'));
-          svg += `  <g id="Layer_TimeDiscs_${lyr.toUpperCase()}" stroke="${strokeCol}" fill="${lyr === 'hairline' ? '#FF0000' : 'none'}" stroke-width="0.035mm">\n`;
-          for (const el of items) {
-            if (el.type === 'text') {
-              const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
-              if (activeFont) {
-                const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
-                svg += `    <path d="${baked.pathData}" fill="${strokeCol}" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
-              } else {
-                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${strokeCol}" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
-              }
-            } else {
-              svg += formatSvgElement(el);
-            }
+
+        // A. Closed Filled Graduations per Track
+        const discTracks = [
+          { lyr: 'hours', name: 'Hour_Graduations', col: '#0000FF' },
+          { lyr: 'minutes', name: 'Minute_Graduations', col: '#00AA00' },
+          { lyr: 'seconds', name: 'Second_Graduations', col: '#FF7F00' }
+        ];
+
+        discTracks.forEach(track => {
+          const ticks = timeDiscElements.filter(e => e.discLayer === track.lyr && e.type === 'line');
+          if (!ticks.length) return;
+          svg += `  <g id="Layer_TimeDiscs_${track.name}" stroke="${track.col}" fill="${track.col}">\n`;
+          for (const el of ticks) {
+            svg += lineToClosedFilledPoly(el.pts[0], el.pts[1], el.strokeW, track.col);
           }
           svg += `  </g>\n`;
         });
+
+        // B. Closed Filled Annular Boundary Rings (Using Polygons for OpenSCAD)
+        const dividers = timeDiscElements.filter(e => e.discLayer === 'dividers');
+        if (dividers.length) {
+          const divCol = '#64748B';
+          svg += `  <g id="Layer_TimeDiscs_Dividers" stroke="${divCol}" fill="${divCol}">\n`;
+          for (const el of dividers) {
+            if (el.type === 'ring') svg += ringToClosedPolygons(el.cx, el.cy, el.r, el.strokeW, divCol);
+            else svg += formatSvgElement(el);
+          }
+          svg += `  </g>\n`;
+        }
+
+        // C. ALL NUMERALS ON THEIR OWN DEDICATED LAYER
+        const numerals = timeDiscElements.filter(e => e.type === 'text');
+        if (numerals.length) {
+          const numCol = '#9900FF';
+          svg += `  <g id="Layer_TimeDiscs_Numerals" stroke="none" fill="${numCol}">\n`;
+          for (const el of numerals) {
+            const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
+            if (activeFont) {
+              const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
+              svg += `    <path d="${baked.pathData}" fill="${numCol}" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
+            } else {
+              svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${numCol}" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
+            }
+          }
+          svg += `  </g>\n`;
+        }
+
+        // D. Hairline Indicator
+        const hairline = timeDiscElements.filter(e => e.discLayer === 'hairline');
+        if (hairline.length) {
+          svg += `  <g id="Layer_TimeDiscs_Hairline_Red" stroke="#FF0000" fill="#FF0000" stroke-width="0.05mm">\n`;
+          for (const el of hairline) {
+            if (el.type === 'line') svg += lineToClosedFilledPoly(el.pts[0], el.pts[1], el.strokeW, '#FF0000');
+            else svg += formatSvgElement(el);
+          }
+          svg += `  </g>\n`;
+        }
       }
 
+      // 2. CIRCULAR SLIDE RULE EXPORT
       if (state.layout === 'slide_rule') {
-        const blk = slideRuleElements.filter(e => e.color !== 'red' && e.color !== 'cursor_red');
-        const red = slideRuleElements.filter(e => e.color === 'red' || e.color === 'cursor_red');
         const activeFont = fontCache[state.fontFamily];
 
-        if (blk.length) {
-          svg += `  <g id="Layer_SlideRule_Black" stroke="#000000" fill="none" stroke-width="0.03mm">\n`;
-          for (const el of blk) {
-            if (el.type === 'text') {
-              const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
-              if (activeFont) {
-                const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
-                svg += `    <path d="${baked.pathData}" fill="#000000" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
-              } else {
-                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="#000000" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
-              }
+        // A. Closed Filled Graduations (Black and Red)
+        const blkTicks = slideRuleElements.filter(e => e.type === 'line' && e.color !== 'red' && e.color !== 'cursor_red');
+        if (blkTicks.length) {
+          svg += `  <g id="Layer_SlideRule_Graduations_Black" stroke="#000000" fill="#000000">\n`;
+          for (const el of blkTicks) svg += lineToClosedFilledPoly(el.pts[0], el.pts[1], el.strokeW, '#000000');
+          svg += `  </g>\n`;
+        }
+
+        const redTicks = slideRuleElements.filter(e => e.type === 'line' && e.color === 'red');
+        if (redTicks.length) {
+          svg += `  <g id="Layer_SlideRule_Graduations_Red" stroke="#FF0000" fill="#FF0000">\n`;
+          for (const el of redTicks) svg += lineToClosedFilledPoly(el.pts[0], el.pts[1], el.strokeW, '#FF0000');
+          svg += `  </g>\n`;
+        }
+
+        // B. Closed Filled Annular Boundary Rings (Using Polygons for OpenSCAD)
+        const srRings = slideRuleElements.filter(e => e.type === 'ring' || e.type === 'circle');
+        if (srRings.length) {
+          const divCol = '#64748B';
+          svg += `  <g id="Layer_SlideRule_Dividers" stroke="${divCol}" fill="${divCol}">\n`;
+          for (const el of srRings) {
+            if (el.type === 'ring') svg += ringToClosedPolygons(el.cx, el.cy, el.r, el.strokeW, divCol);
+            else svg += formatSvgElement(el);
+          }
+          svg += `  </g>\n`;
+        }
+
+        // C. SLIDE RULE NUMERALS ON THEIR OWN DEDICATED LAYERS
+        const blkText = slideRuleElements.filter(e => e.type === 'text' && e.color !== 'red');
+        if (blkText.length) {
+          const numCol = '#0000FF';
+          svg += `  <g id="Layer_SlideRule_Numerals_Black" stroke="none" fill="${numCol}">\n`;
+          for (const el of blkText) {
+            const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
+            if (activeFont) {
+              const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
+              svg += `    <path d="${baked.pathData}" fill="${numCol}" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
             } else {
-              svg += formatSvgElement(el);
+              svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${numCol}" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
             }
           }
           svg += `  </g>\n`;
         }
 
-        if (red.length) {
-          svg += `  <g id="Layer_SlideRule_Red" stroke="#FF0000" fill="none" stroke-width="0.035mm">\n`;
-          for (const el of red) {
-            if (el.type === 'text') {
-              const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
-              if (activeFont) {
-                const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
-                svg += `    <path d="${baked.pathData}" fill="#FF0000" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
-              } else {
-                svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="#FF0000" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
-              }
+        const redText = slideRuleElements.filter(e => e.type === 'text' && e.color === 'red');
+        if (redText.length) {
+          const numCol = '#D60000';
+          svg += `  <g id="Layer_SlideRule_Numerals_Red" stroke="none" fill="${numCol}">\n`;
+          for (const el of redText) {
+            const rotDeg = (el.angle * 180 / Math.PI).toFixed(2);
+            if (activeFont) {
+              const baked = getBakedTextPath(activeFont, el.text, el.fontSizeMM);
+              svg += `    <path d="${baked.pathData}" fill="${numCol}" stroke="none" transform="translate(${el.cx.toFixed(3)}, ${el.cy.toFixed(3)}) rotate(${rotDeg})" />\n`;
             } else {
-              svg += formatSvgElement(el);
+              svg += `    <text x="${el.cx.toFixed(3)}" y="${el.cy.toFixed(3)}" font-family="${fontCfg.exportName}" font-weight="${fontCfg.weight}" font-size="${el.fontSizeMM.toFixed(3)}" text-anchor="middle" dominant-baseline="central" fill="${numCol}" stroke="none" transform="rotate(${rotDeg} ${el.cx.toFixed(3)} ${el.cy.toFixed(3)})">${el.text}</text>\n`;
             }
+          }
+          svg += `  </g>\n`;
+        }
+
+        // D. Cursor Hairline
+        const cursor = slideRuleElements.filter(e => e.color === 'cursor_red');
+        if (cursor.length) {
+          svg += `  <g id="Layer_SlideRule_Cursor_Red" stroke="#FF0000" fill="#FF0000" stroke-width="0.05mm">\n`;
+          for (const el of cursor) {
+            if (el.type === 'line') svg += lineToClosedFilledPoly(el.pts[0], el.pts[1], el.strokeW, '#FF0000');
+            else svg += formatSvgElement(el);
           }
           svg += `  </g>\n`;
         }
       }
 
+      // 3. GUILLOCHÉ LAYERS
       for (let l = 0; l < state.layers; l++) {
         const items = elements.filter(e => e.l === l); if (!items.length) continue;
         svg += `  <g id="Layer_${l + 1}_Hatch" stroke="${COLORS[l % COLORS.length]}" fill="none" stroke-width="0.03mm">\n`;
